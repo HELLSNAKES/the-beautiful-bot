@@ -2,16 +2,11 @@
 This is a bot that I developed for my own discord server.
 
 Here is how the osu beatmap stats image should look like in the future
-[preview_1]
+![Preview 1](https://i.imgur.com/LPqEwxV.png)
 
-[preview_2]
+![Preview 2](https://i.imgur.com/wunBfT4.png)
 
-[preview_3]
-
-[Imgur]()
-[preview_1]: https://i.imgur.com/LPqEwxV.png
-[preview_2]: https://i.imgur.com/wunBfT4.png
-[preview_3]: https://i.imgur.com/uSAwLW2.png
+![Preview 3](https://i.imgur.com/uSAwLW2.png)
 
 
 ### Features
