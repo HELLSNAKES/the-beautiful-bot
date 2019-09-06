@@ -1,12 +1,12 @@
 ### Um, what is this
 This is a bot that I developed for my own discord server.
 
-Here is how the osu beatmap stats image should look like in the future
-![](https://i.imgur.com/LPqEwxV.png =250x)
+Here is how the osu beatmap stats image should look like in the future\
+<img src="https://i.imgur.com/LPqEwxV.png" width="40%">
 
-![](https://i.imgur.com/wunBfT4.png =250x)
+<img src="https://i.imgur.com/wunBfT4.png" width="40%">
 
-![](https://i.imgur.com/uSAwLW2.png =250x)
+<img src="https://i.imgur.com/uSAwLW2.png" width="40%">
 
 
 ### Features
