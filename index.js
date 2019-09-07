@@ -108,18 +108,19 @@ function getBeatmapData(msg, id) {
         console.log(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${id}`)
         console.log(body);
         var data = body[0];
-        msg.channel.send(`${data.approved ? 'RANKED' : 'UNRANKED'}\n${data.title}\nStars: ${data.rating}\nCS:${data.diff_size} OD:${data.diff_overall} AR:${data.diff_approach} HP:${data.diff_drain}\nBPM:${data.bpm}`)
+        msg.channel.send(`${data.approved ? 'RANKED' : 'UNRANKED'}\n${data.title}\nStars: ${data.difficultyrating}\nCS:${data.diff_size} OD:${data.diff_overall} AR:${data.diff_approach} HP:${data.diff_drain}\nBPM:${data.bpm}`)
         createCard(msg, data);
     });
 }
 
 async function createCard(msg, data) {
     // Background
+    ctx.beginPath();
     ctx.fillStyle = '#121212';
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
     // Beatmap Image
-    console.log(`https://assets.ppy.sh/beatmaps/${data.beatmapset_id}/covers/cover@2x.jpg`)
+    console.log(`https://assets.ppy.sh/beatmaps/${data.beatmapset_id}/covers/cover@2x.jpg`);
     const beatmapImage = await Canvas.loadImage(`https://assets.ppy.sh/beatmaps/${data.beatmapset_id}/covers/cover@2x.jpg`);
     ctx.drawImage(beatmapImage, 0, 0, canvas.width, 346)
 
@@ -128,7 +129,15 @@ async function createCard(msg, data) {
     ctx.fillText(data.title, 30, 406);
     ctx.font = '25px segoeUI';
     ctx.fillText(data.artist, 30, 446);
-
+    const star = await Canvas.loadImage('assets/star.png');
+    for (var i = 0; i < Math.floor(data.difficultyrating); i++) {
+        ctx.drawImage(star, 30 + (40 * i), 480, 40, 40);
+    }
+    ctx.drawImage(star, 30 + (40 * Math.floor(data.difficultyrating + 1)), 470, 40, 40);
+    ctx.fillStyle = '#121212'
+    ctx.beginPath();
+    ctx.rect(30 + (40 * Math.floor(data.difficultyrating + 1)) - (1 - data.difficultyrating - Math.floor(data.difficultyrating + 1)), 480, 40, 40)
+    ctx.fill();
     const attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png');
     msg.channel.send('Here', attachment);
 

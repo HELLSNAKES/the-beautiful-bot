@@ -15,7 +15,7 @@ Here is how the osu beatmap stats image should look like in the future\
  - [x] Draw beatmap image
  - [x] Draw Title of beatmap and artist name
  - [ ] Use the data of the difficulty on the url rather than the hardest difficulty
- - [ ] Draw Stars
+ - [x] Draw Stars
  - [ ] Draw CS, AR, HP and OD with the bars
  - [ ] Draw Beatmap's length, BPM, number of circles, number of liders
  - [ ] calculate the maximum number of pp (No mod) for a 100% acc FC, 95% acc FC and 90% acc FC and draw the result
