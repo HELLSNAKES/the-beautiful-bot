@@ -13,7 +13,7 @@ Here is how the osu beatmap stats image should look like in the future\
  - [x] make the bot translate messages to English
  - [x] make the bot translate messages to Other languages
  - [x] Draw beatmap image
- - [ ] Draw Title of beatmap and artist name
+ - [x] Draw Title of beatmap and artist name
  - [ ] Use the data of the difficulty on the url rather than the hardest difficulty
  - [ ] Draw Stars
  - [ ] Draw CS, AR, HP and OD with the bars

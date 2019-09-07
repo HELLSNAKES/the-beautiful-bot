@@ -125,8 +125,9 @@ async function createCard(msg, data) {
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '50px segoeUIBold';
-    ctx.fillText(data.title, 30, 416);
-
+    ctx.fillText(data.title, 30, 406);
+    ctx.font = '25px segoeUI';
+    ctx.fillText(data.artist, 30, 446);
 
     const attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png');
     msg.channel.send('Here', attachment);
