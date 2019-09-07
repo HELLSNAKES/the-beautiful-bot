@@ -131,13 +131,42 @@ async function createCard(msg, data) {
     ctx.fillText(data.artist, 30, 446);
     const star = await Canvas.loadImage('assets/star.png');
     for (var i = 0; i < Math.floor(data.difficultyrating); i++) {
-        ctx.drawImage(star, 30 + (40 * i), 480, 40, 40);
+        ctx.drawImage(star, 30 + (40 * i), 470, 40, 40);
     }
     ctx.drawImage(star, 30 + (40 * Math.floor(data.difficultyrating + 1)), 470, 40, 40);
     ctx.fillStyle = '#121212'
     ctx.beginPath();
-    ctx.rect(30 + (40 * Math.floor(data.difficultyrating + 1)) - (1 - data.difficultyrating - Math.floor(data.difficultyrating + 1)), 480, 40, 40)
+    ctx.rect(30 + (40 * Math.floor(data.difficultyrating + 1)) - (1 - data.difficultyrating - Math.floor(data.difficultyrating + 1)), 470, 40, 40)
     ctx.fill();
+
+    ctx.fillStyle = '#ffffff'
+    ctx.fillText('CS', 30, 540);
+    ctx.fillText('AR', 30, 570);
+    ctx.fillText('HP', 30, 600);
+    ctx.fillText('OD', 30, 630);
+    ctx.fillText(data.diff_size, 385, 540);
+    ctx.fillText(data.diff_approach, 385, 570);
+    ctx.fillText(data.diff_drain, 385, 600);
+    ctx.fillText(data.diff_overall, 385, 630);
+
+    ctx.beginPath();
+    ctx.fillStyle = '#343434'
+    ctx.rect(70, 540 - 15, 300, 13);
+    ctx.rect(70, 570 - 15, 300, 13);
+    ctx.rect(70, 600 - 15, 300, 13);
+    ctx.rect(70, 630 - 15, 300, 13);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.fillStyle = '#ffffff';
+    ctx.rect(70, 540 - 15, (300 / 8) * (data.diff_size - 2), 13);
+    ctx.rect(70, 570 - 15, 30 * data.diff_approach, 13);
+    ctx.rect(70, 600 - 15, 30 * data.diff_drain, 13);
+    ctx.rect(70, 630 - 15, 30 * data.diff_overall, 13);
+
+    ctx.fill();
+
+
+
     const attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png');
     msg.channel.send('Here', attachment);
 

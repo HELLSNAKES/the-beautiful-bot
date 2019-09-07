@@ -21,10 +21,11 @@ Here is how the osu beatmap stats image should look like in the future\
  - [ ] calculate the maximum number of pp (No mod) for a 100% acc FC, 95% acc FC and 90% acc FC and draw the result
  - [ ] Draw the maps avaliable difficulty and select the difficulty that is on the url
  - [ ] Create an Algorithm to change the background to a colour that fits the beatmap image **(Optional)**
- - [ ] add a help command\n
- - [ ] make the bot do moderation\n
- - [ ] make the bot send Beautiful pics\n
- - [ ] Open Source the bot\n
+ - [ ] add a help command
+ - [ ] make the bot do moderation
+ - [ ] make the bot send Beautiful pics
+ - [ ] Open Source the bot
 
-### Known bugs
-...
+### Known bugs/Improvements
+ - [ ] Make the last star size change depending on the decimal exact difficulty
+ Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)
