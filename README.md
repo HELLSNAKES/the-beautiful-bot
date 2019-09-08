@@ -17,7 +17,8 @@ Here is how the osu beatmap stats image should look like in the future\
  - [x] Use the data of the difficulty on the url rather than the hardest difficulty
  - [x] Draw Stars
  - [x] Draw CS, AR, HP and OD with the bars
- - [ ] Draw Beatmap's length, BPM, number of circles, number of sliders
+ - [x] Draw Beatmap's length, BPM, number of circles, number of sliders
+ - [ ] Change all the positioning values from actual to relative for better responsive images.
  - [ ] calculate the maximum number of pp (No mod) for a 100% acc FC, 95% acc FC and 90% acc FC and draw the result
  - [ ] Draw the maps avaliable difficulty and select the difficulty that is on the url
  - [ ] Create an Algorithm to change the background to a colour that fits the beatmap image **(Optional)**
@@ -25,7 +26,9 @@ Here is how the osu beatmap stats image should look like in the future\
  - [ ] make the bot do moderation
  - [ ] make the bot send Beautiful pics
  - [ ] Open Source the bot
+ z
 
 ### Known bugs/Improvements
  - [ ] Make the last star size change depending on the decimal exact difficulty
+ - [ ] General tweaking (for example spacing, sizes,quality,etc)
  Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)

@@ -130,11 +130,13 @@ async function createCard(msg, data) {
 	for (var i = 0; i < Math.floor(data.difficultyrating); i++) {
 	ctx.drawImage(star, 30 + 40 * i, 470, 40, 40);
 	}
-	ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1), 470, 40, 40);
-	ctx.fillStyle = '#121212';
-	ctx.beginPath();
-	ctx.rect(30 + 40 * Math.floor(data.difficultyrating + 1) - (1 - data.difficultyrating - Math.floor(data.difficultyrating + 1)), 470, 40, 40);
-	ctx.fill();
+	// ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1), 470, 40, 40);
+	var lastStarSize = 40 * (data.difficultyrating - Math.floor(data.difficultyrating))
+	ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1) + ((40 - lastStarSize)/2), 470  + ((40 - lastStarSize)/2), lastStarSize,lastStarSize)
+	// ctx.fillStyle = '#121212';
+	// ctx.beginPath();
+	// ctx.rect(30 + 40 * Math.floor(data.difficultyrating + 1) - (1 - data.difficultyrating - Math.floor(data.difficultyrating + 1)), 470, 40, 40);
+	// ctx.fill();
 
 	ctx.fillStyle = '#ffffff';
 	ctx.fillText('CS', 30, 540);
@@ -174,6 +176,25 @@ async function createCard(msg, data) {
 	ctx.fillText('---pp', 1100, 620);
 	ctx.font = '17px segoeUI';
 	ctx.fillText('90% Full Combo', 1100, 650);
+
+	const totalLength = await Canvas.loadImage('assets/total_length.png');
+	const bpm = await Canvas.loadImage('assets/bpm.png');
+	const totalCircles = await Canvas.loadImage('assets/count_circles.png');
+	const totalSliders = await Canvas.loadImage('assets/count_sliders.png');
+
+	ctx.drawImage(totalLength,450,430,50,50);
+	ctx.drawImage(bpm,450,495,50,50);
+	ctx.drawImage(totalCircles,450,560,50,50);
+	ctx.drawImage(totalSliders,450,625,50,50);
+
+	ctx.font = '25px segoeUI';
+	var time =  Math.floor(data.total_length / 60) + ':' + (data.total_length % 60 < 10 ? '0' + (data.total_length % 60) : data.total_length % 60);
+
+	ctx.fillText(time,510,465);
+	ctx.fillText(data.bpm,510,530);
+	ctx.fillText(data.count_normal,510,595);
+	ctx.fillText(data.count_slider,510,660);
+
 
 	const attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png');
 	msg.channel.send('Here', attachment);
