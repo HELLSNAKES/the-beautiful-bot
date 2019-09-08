@@ -94,18 +94,22 @@ function getUserData(id) {
 }
 
 function getBeatmapData(msg, beatmapsetid, beatmapid) {
-    request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}${beatmapid ? '&b=' + beatmapid: ''}`, { json: true }, (err, res, body) => {
+    request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, { json: true }, (err, res, body) => {
                 console.log(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}${beatmapid? '&b=' + beatmapid: 'z`'}&limit=1`);
+
 	var data = body[0];
+	var difficulties = [];
 	for (var i of body) {
+		difficulties.push(i.difficultyrating);
+		console.log(i.difficultyrating)
 		if (i.beatmap_id == beatmapid) {
 		data = i;
-		break;
 	  }
 	}
+	data.difficulties = difficulties;
 	console.log(data)
 	msg.channel.send(`${data.approved ? 'RANKED' : 'UNRANKED'}\n${data.title}\nStars: ${data.difficultyrating}\nCS: ${data.diff_size}OD: ${data.diff_overall}AR: ${data.diff_approach}HP: ${data.diff_drain}\nBPM: ${data.bpm}`);
-  
+
 	createCard(msg, data);
 	});
 }
@@ -130,13 +134,9 @@ async function createCard(msg, data) {
 	for (var i = 0; i < Math.floor(data.difficultyrating); i++) {
 	ctx.drawImage(star, 30 + 40 * i, 470, 40, 40);
 	}
-	// ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1), 470, 40, 40);
+	
 	var lastStarSize = 40 * (data.difficultyrating - Math.floor(data.difficultyrating))
 	ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1) + ((40 - lastStarSize)/2), 470  + ((40 - lastStarSize)/2), lastStarSize,lastStarSize)
-	// ctx.fillStyle = '#121212';
-	// ctx.beginPath();
-	// ctx.rect(30 + 40 * Math.floor(data.difficultyrating + 1) - (1 - data.difficultyrating - Math.floor(data.difficultyrating + 1)), 470, 40, 40);
-	// ctx.fill();
 
 	ctx.fillStyle = '#ffffff';
 	ctx.fillText('CS', 30, 540);
@@ -194,11 +194,65 @@ async function createCard(msg, data) {
 	ctx.fillText(data.bpm,510,530);
 	ctx.fillText(data.count_normal,510,595);
 	ctx.fillText(data.count_slider,510,660);
-
+	data.difficulties.sort();
+	for (var i = 0;i < data.difficulties.length;i++) {
+	if (data.difficulties[i] == data.difficultyrating) {
+		ctx.beginPath();
+		ctx.fillStyle = '#ffffff21';
+		roundRect(ctx,630 + ((i % 5) * 83) - 5,390 + (Math.floor(i / 5)* 83)-5 ,81,81,5);
+		ctx.fill();
+	}
+	if (data.difficulties[i] < 2) {
+		var icon = await Canvas.loadImage('assets/easy.png');
+	} else if (data.difficulties[i] < 2.7) {
+		var icon = await Canvas.loadImage('assets/normal.png');
+	} else if (data.difficulties[i] < 4) {
+		var icon = await Canvas.loadImage('assets/hard.png');
+	} else if (data.difficulties[i] < 5.3) {
+		var icon = await Canvas.loadImage('assets/insane.png');
+	} else if (data.difficulties[i] < 6.5) {
+		var icon = await Canvas.loadImage('assets/expert.png');
+	} else {
+		var icon = await Canvas.loadImage('assets/extra.png');
+	}
+	ctx.drawImage(icon,630 + ((i % 5) * 83),390 + (Math.floor(i / 5) * 83),71,71);
+	}
 
 	const attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png');
 	msg.channel.send('Here', attachment);
 }
+
+
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+	if (typeof stroke == 'undefined') {
+	  stroke = true;
+	}
+	if (typeof radius === 'undefined') {
+	  radius = 5;
+	}
+	if (typeof radius === 'number') {
+	  radius = {tl: radius, tr: radius, br: radius, bl: radius};
+	} else {
+	  var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+	  for (var side in defaultRadius) {
+		radius[side] = radius[side] || defaultRadius[side];
+	  }
+	}
+	ctx.beginPath();
+	ctx.moveTo(x + radius.tl, y);
+	ctx.lineTo(x + width - radius.tr, y);
+	ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+	ctx.lineTo(x + width, y + height - radius.br);
+	ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+	ctx.lineTo(x + radius.bl, y + height);
+	ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+	ctx.lineTo(x, y + radius.tl);
+	ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+	ctx.closePath();
+	ctx.fill();
+  }
+
+
 
 console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);
