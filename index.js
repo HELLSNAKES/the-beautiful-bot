@@ -5,14 +5,12 @@ const request = require('request');
 const fs = require('fs');
 const client = new Discord.Client();
 const languageCodes = JSON.parse(fs.readFileSync('language_codes.json'));
+const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
 const Canvas = require('canvas');
-var canvas = Canvas.createCanvas(1251, 685);
-var ctx = canvas.getContext('2d');
 // const { Beatmap, Osu: { DifficultyCalculator, PerformanceCalculator } } = require('pp-calculator')
 Canvas.registerFont('assets/SegoeUI.ttf', { family: 'segoeUI' });
 Canvas.registerFont('assets/SegoeUIBold.ttf', { family: 'segoeUIBold' });
 
-// getUserData('14392546')
 // calculatepp(0, 95, 476, 0, '1194237');
 
 client.on('ready', () => {
@@ -76,7 +74,7 @@ client.on('message', async msg => {
     } else if (msg.content === 'good bot') {
         msg.reply('<:heart:' + 615531857253105664 + '>');
         // console.log(emoji)
-    } else if (msg.content.includes('osu.ppy.sh')) {
+    } else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
         var beatmapsetid = msg.content.match(/osu.ppy.sh\S+/g)[0];
         beatmapsetid = beatmapsetid.replace('osu.ppy.sh/beatmapsets/', '');
         var beatmapid = beatmapsetid.match(/#\S+/g)[0];
@@ -84,16 +82,13 @@ client.on('message', async msg => {
         beatmapsetid = beatmapsetid.replace(beatmapsetid.match(/#\S+/g), '');
         console.log(beatmapsetid);
         getBeatmapData(msg, beatmapsetid, beatmapid);
+    } else if (msg.content.includes('osu.ppy.sh/users')) {
+        var userid = msg.content.replace('https://osu.ppy.sh/users/', '');
+
+        console.log(userid);
+        createUserCard(msg, userid);
     }
 });
-
-function getUserData(id) {
-    request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
-        json: true
-    }, (err, res, body) => {
-        console.log(body);
-    });
-}
 
 function getBeatmapData(msg, beatmapsetid, beatmapid) {
     request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, { json: true }, (err, res, body) => {
@@ -112,11 +107,14 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 	data.url = `https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`
 	// msg.channel.send(`${data.approved ? 'RANKED' : 'UNRANKED'}\n${data.title}\nStars: ${data.difficultyrating}\nCS: ${data.diff_size}OD: ${data.diff_overall}AR: ${data.diff_approach}HP: ${data.diff_drain}\nBPM: ${data.bpm}`);
 
-	createCard(msg, data);
+	createBeatmapCard(msg, data);
 	});
 }
 
-async function createCard(msg, data) {
+async function createBeatmapCard(msg, data) {
+	// init the canvas
+	var canvas = Canvas.createCanvas(1251, 685);
+	var ctx = canvas.getContext('2d');
   // Background
 	ctx.beginPath();
 	ctx.fillStyle = '#121212';
@@ -275,9 +273,80 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 	ctx.quadraticCurveTo(x, y, x + radius.tl, y);
 	ctx.closePath();
 	ctx.fill();
+}
+
+function roundedImage(ctx,x,y,width,height,radius){
+	ctx.beginPath();
+	ctx.moveTo(x + radius, y);
+	ctx.lineTo(x + width - radius, y);
+	ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+	ctx.lineTo(x + width, y + height - radius);
+	ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+	ctx.lineTo(x + radius, y + height);
+	ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+	ctx.lineTo(x, y + radius);
+	ctx.quadraticCurveTo(x, y, x + radius, y);
+	ctx.closePath();
   }
 
 
+function createUserCard(msg,id) {
+	request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
+		json: true
+	}, async (err, res, body) => {
+		console.log(body);
+		// init the canvas
+		var canvas = Canvas.createCanvas(1080, 538);
+		var ctx = canvas.getContext('2d');
+
+		ctx.beginPath();
+		ctx.fillStyle = '#121212';
+		ctx.rect(0,0,canvas.width,canvas.height);
+		ctx.fill();
+		// background
+		var background = await Canvas.loadImage('./assets/background.png');
+		ctx.drawImage(background,0,0,canvas.width,300);
+		ctx.save();
+		var userPicture = await Canvas.loadImage(`https://a.ppy.sh/${body[0].user_id}`);
+		roundedImage(ctx,30,30,280,280,47);
+		ctx.clip();
+		ctx.drawImage(userPicture,30,30,280,280);
+		ctx.restore();
+	
+		ctx.fillStyle = '#ffffff';
+		ctx.font = '51px segoeUIBold';
+		ctx.fillText(body[0].username,330,95);
+
+		ctx.font = '40px segoeUI';
+		let country = countryCodes[body[0].country];
+		console.log(countryCodes);
+		ctx.fillText(country,330,140);
+
+		var gradeA = await Canvas.loadImage('assets/grade_a.png');
+		var gradeS = await Canvas.loadImage('assets/grade_s.png');
+		var gradeSS = await Canvas.loadImage('assets/grade_ss.png');
+		var gradeSH = await Canvas.loadImage('assets/grade_sh.png');
+		var gradeSSH = await Canvas.loadImage('assets/grade_ssh.png');
+
+		ctx.drawImage(gradeSSH,370,180,95,48);
+		ctx.drawImage(gradeSS,500,180,95,48);
+		ctx.drawImage(gradeSH,630,180,95,48);
+		ctx.drawImage(gradeS,760,180,95,48);
+		ctx.drawImage(gradeA,890,180,95,48);
+
+		ctx.font = '25px segoeUIBold';
+		ctx.textAlign = 'center'
+		ctx.fillText(body[0].count_rank_ssh,409,260,95,48);
+		ctx.fillText(body[0].count_rank_ss,549,260,95,48);
+		ctx.fillText(body[0].count_rank_sh,679,260,95,48);
+		ctx.fillText(body[0].count_rank_s,809,260,95,48);
+		ctx.fillText(body[0].count_rank_a,939,260,95,48);
+
+	
+		const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
+		msg.channel.send('here',attachment);
+	});
+}
 
 console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);

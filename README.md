@@ -26,7 +26,15 @@ Here is how the osu beatmap stats image should look like in the future\
  - [ ] make the bot do moderation
  - [ ] make the bot send Beautiful pics
  - [ ] Open Source the bot
- 
+ - [x] Add another card for user stats
+ - [x] Render the name and country of the user
+ - [x] Draw the profile image of the user
+ - [ ] Make all the grade stats functional and render it on the card
+ - [ ] Consider changing the cards from canvas based cards to SVG based cards for a higher quality images **(Optional)**
+ - [ ] Add proper commands for all the features of the bot including a prefix.
+ - [ ] Drawing the user's current global and country ranks in the user stats images
+ - [ ] Draw the pp, accuracy and hours played
+ - [ ] Make background change randomly when generated (use osu's set of backgrounds)
 
 ### Known bugs/Improvements
  - [x] Make the last star size change depending on the decimal exact difficulty
@@ -34,4 +42,6 @@ Here is how the osu beatmap stats image should look like in the future\
  - [x] The bot crashes if there is no beatmap image
  - [ ] Stars overflow (visual error)
  - [ ] General tweaking (for example spacing, sizes,quality,etc)
+ - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
+ - [ ] Change all text alignment to center alignment to avoid several visual errors
  - Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)
