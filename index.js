@@ -335,19 +335,27 @@ function createUserCard(msg,id) {
 		ctx.drawImage(gradeA,890,180,95,48);
 
 		ctx.font = '25px segoeUIBold';
-		ctx.textAlign = 'center'
+		ctx.textAlign = 'center';
 		ctx.fillText(body[0].count_rank_ssh,409,260,95,48);
 		ctx.fillText(body[0].count_rank_ss,549,260,95,48);
 		ctx.fillText(body[0].count_rank_sh,679,260,95,48);
 		ctx.fillText(body[0].count_rank_s,809,260,95,48);
 		ctx.fillText(body[0].count_rank_a,939,260,95,48);
+		ctx.textAlign = 'left';
+		ctx.font = '37px segoeUIBold';
+		ctx.fillText('Global Rank',50,350);
+		ctx.font = '65px segoeUI';
+		ctx.fillText('#'+body[0].pp_rank,50,410);
 
-	
+		ctx.font = '20px segoeUIBold';
+		ctx.fillText('Country Rank',50,450);
+		ctx.font = '42px segoeUI';
+		ctx.fillText('#'+body[0].pp_country_rank,50,490);
+
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 		msg.channel.send('here',attachment);
 	});
 }
-
 console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);
 

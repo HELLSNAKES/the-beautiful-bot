@@ -1,13 +1,7 @@
 ### Um, what is this
 This is a bot that I developed for my own discord server.
 
-Here is how the osu beatmap stats image should look like in the future\
-<img src="https://i.imgur.com/LPqEwxV.png" width="40%">
-
-<img src="https://i.imgur.com/wunBfT4.png" width="40%">
-
-<img src="https://i.imgur.com/uSAwLW2.png" width="40%">
-
+Documention on how to setup and run this bot using this node.js code will be available when I finish programming the main features
 
 ### Features
  - [x] make the bot translate messages to English
@@ -32,9 +26,10 @@ Here is how the osu beatmap stats image should look like in the future\
  - [ ] Make all the grade stats functional and render it on the card
  - [ ] Consider changing the cards from canvas based cards to SVG based cards for a higher quality images **(Optional)**
  - [ ] Add proper commands for all the features of the bot including a prefix.
- - [ ] Drawing the user's current global and country ranks in the user stats images
+ - [x] Drawing the user's current global and country ranks in the user stats images
  - [ ] Draw the pp, accuracy and hours played
  - [ ] Make background change randomly when generated (use osu's set of backgrounds)
+ - [ ] Design improvement to the beatmap card to include more valuable information (e.g. Mapper, Whether ranked or not, etc).
 
 ### Known bugs/Improvements
  - [x] Make the last star size change depending on the decimal exact difficulty
@@ -44,4 +39,16 @@ Here is how the osu beatmap stats image should look like in the future\
  - [ ] General tweaking (for example spacing, sizes,quality,etc)
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
  - [ ] Change all text alignment to center alignment to avoid several visual errors
+ - [ ] Add better formatting for numbers (for example 123,000 rather than 123000)
  - Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)
+
+ Here is how the osu beatmap/user stats image should look like when its finished.
+<img src="https://i.imgur.com/LPqEwxV.png" width="40%">
+
+<img src="https://i.imgur.com/wunBfT4.png" width="40%">
+
+<img src="https://i.imgur.com/uSAwLW2.png" width="40%">
+
+<img src="https://i.imgur.com/NUf8kXw.png" width="40%">
+
+<img src="https://i.imgur.com/fiXzutk.png" width="40%">
