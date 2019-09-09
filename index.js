@@ -336,7 +336,7 @@ function createUserCard(msg,id) {
 
 		ctx.font = '25px segoeUIBold';
 		ctx.textAlign = 'center';
-		ctx.fillText(body[0].count_rank_ssh,409,260,95,48);
+		ctx.fillText(body[0].count_rank_ssh,417,260,95,48);
 		ctx.fillText(body[0].count_rank_ss,549,260,95,48);
 		ctx.fillText(body[0].count_rank_sh,679,260,95,48);
 		ctx.fillText(body[0].count_rank_s,809,260,95,48);
@@ -352,8 +352,28 @@ function createUserCard(msg,id) {
 		ctx.font = '42px segoeUI';
 		ctx.fillText('#'+body[0].pp_country_rank,50,490);
 
+		// ctx.beginPath();
+		// ctx.fillStyle = '#ffffff21';
+		// ctx.rect(350,360,150,115);
+		// ctx.fill();
+		var hexagon = await Canvas.loadImage('./assets/hexagon.png');
+		ctx.drawImage(hexagon,340,271,70,76);
+
+		ctx.textAlign = 'center';
+		ctx.font = '33px segoeUI';
+		ctx.fillText(Math.floor(body[0].level),375,320)
+		
+		roundRect(ctx,420,305,462,11,7);
+		ctx.fillStyle = '#FFCC22';
+		roundRect(ctx,420,305,462*(body[0].level - Math.floor(body[0].level)),11,7);
+		ctx.textAlign = 'left';
+		ctx.fillStyle = '#ffffff';
+		ctx.font = '21px segoeUI';
+		ctx.fillText(Math.floor(100*(body[0].level - Math.floor(body[0].level)))+'%',900,317)
+
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 		msg.channel.send('here',attachment);
+		
 	});
 }
 console.log(process.env.discordAPI);
@@ -375,4 +395,4 @@ client.login(process.env.discordAPI);
 // 		console.log(perfCalc.totalPerformance)
 // 	  });
 
-// }
+// }-
