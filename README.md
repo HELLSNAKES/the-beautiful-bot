@@ -13,13 +13,14 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [x] Draw CS, AR, HP and OD with the bars
  - [x] Draw Beatmap's length, BPM, number of circles, number of sliders
  - [ ] Change all the positioning values from actual to relative for better responsive images.
- ~~- [ ] calculate the maximum number of pp (No mod) for a 100% acc FC, 95% acc FC and 90% acc FC and draw the result~~ **(This was cancelled because I didn't find any clear way to calculate pp)**
+ - [ ] ~~calculate the maximum number of pp (No mod) for a 100% acc FC, 95% acc FC and 90% acc FC and draw the result~~ **(This was cancelled because I didn't find any clear way to calculate pp)**
  - [x] Draw the maps avaliable difficulty and select the difficulty that is on the url
  - [ ] Create an Algorithm to change the background to a colour that fits the beatmap image **(Optional)**
  - [ ] add a help command
  - [ ] make the bot do moderation
+ - [ ] Add a configuration command to configurate the bot.
  - [ ] make the bot send Beautiful pics
- - [ ] Open Source the bot
+ - [x] Open Source the bot
  - [x] Add another card for user stats
  - [x] Render the name and country of the user
  - [x] Draw the profile image of the user
@@ -31,6 +32,12 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [x] Draw the pp, accuracy and hours played
  - [x] Make background change randomly when generated (use osu's set of backgrounds)
  - [ ] Design improvement to the beatmap card to include more valuable information (e.g. Mapper, Whether ranked or not, etc).
+ - [ ] Add analytics to the bot
+ - [ ] Clean the code and remove unnecessary files
+ - [ ] Test the bots features
+ 
+ - [ ] Last but not least release the bot publicly
+ 
 
 ### Known bugs/Improvements
  - [x] Make the last star size change depending on the decimal exact difficulty
@@ -41,6 +48,10 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
  - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is done for the user stats image)**
  - [ ] Add better formatting for numbers (for example 123,000 rather than 123000)
+ - [ ] User doesn't exist
+ - [ ] Beatmapset doesn't exist
+ - [ ] Beatmap not specified
+ - [ ] incorrect language translation
  - Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)
 
  Here is how the osu beatmap/user stats image should look like when its finished.
