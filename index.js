@@ -7,6 +7,8 @@ const client = new Discord.Client();
 const languageCodes = JSON.parse(fs.readFileSync('language_codes.json'));
 const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
 const Canvas = require('canvas');
+const Something = Canvas.createCanvas(100, 100);
+const Somethingelse = Something.getContext('experimental-webgl');
 // const { Beatmap, Osu: { DifficultyCalculator, PerformanceCalculator } } = require('pp-calculator')
 Canvas.registerFont('assets/SegoeUI.ttf', { family: 'segoeUI' });
 Canvas.registerFont('assets/SegoeUIBold.ttf', { family: 'segoeUIBold' });
@@ -19,55 +21,27 @@ client.on('ready', () => {
 
 client.on('message', async msg => {
     msg.content = msg.content.toLowerCase();
+    if (msg.content.startsWith('b!')) { // Prefix is used
+        console.log(msg.content)
+        var parameters = msg.content.slice(2).split(' ');
+        var command = parameters[0];
+        parameters.splice(0, 1);
+        if (command == 'osu') {
+            createUserCard(msg, parameters[0]);
+        } else if (command == 'translate') {
+            if (parameters) {
+                translate(msg, parameters[0]);
+            } else {
+                translate(msg);
+            }
+        }
+    }
     if (msg.content === 'bot you alive?') { // bot are you alive
         msg.reply('**YES!!!**');
     } else if (msg.content === 'cat') { // cat
         request('https://api.thecatapi.com/v1/images/search', function(err, res, body) {
             msg.reply(JSON.parse(body)[0].url);
         });
-    } else if (msg.content.startsWith('translate')) { //translate
-        var parameter = msg.content.replace('translate', '').trim();
-        console.log(parameter);
-        if (!parameter) {
-            msg.channel.fetchMessages({ limit: 2 }).then(messages => {
-                var lastMessage = messages.last();
-                console.log(lastMessage);
-                if (!lastMessage.author.bot) {
-                    request(`https://translate.yandex.net/api/v1.5/tr.json/translate?key=${process.env.yandexAPI}&text=${encodeURIComponent(messages.last().content)}&lang=en`, function(err, res, body) {
-                        body = JSON.parse(body);
-                        var langFrom = body.lang.split('-')[0];
-                        for (var i of languageCodes.languageCodes) {
-                            if (i[0] == langFrom) {
-                                langFrom = i[1];
-                                break;
-                            }
-                        }
-                        console.log(body.text[0]);
-                        console.log(`Language Detected: **${langFrom}**`);
-                        msg.reply(`Translation: **${body.text[0]}**\nLanguage Detected: ${langFrom}`);
-                    });
-                }
-            });
-        } else {
-            parameter = parameter[0].toUpperCase() + parameter.slice(1).toLowerCase();
-            for (var i of languageCodes.languageCodes) {
-                if (i[1] == parameter) {
-                    lang = `en-${i[0]}`;
-                }
-            }
-            msg.channel.fetchMessages({ limit: 2 }).then(messages => {
-                var lastMessage = messages.last();
-                console.log(lastMessage);
-                if (!lastMessage.author.bot) {
-                    request(`https://translate.yandex.net/api/v1.5/tr.json/translate?key=${process.env.yandexAPI}&text=${encodeURIComponent(messages.last().content)}&lang=${lang}`, function(err, res, body) {
-                        body = JSON.parse(body);
-                        console.log(body.text[0]);
-                        console.log(`Language Detected: **${parameter}**`);
-                        msg.reply(`Translation: **${body.text[0]}**\nLanguage Detected: ${parameter}`);
-                    });
-                }
-            });
-        }
     } else if (msg.content.includes('bye')) {
         // bye
         msg.reply('See you next time ;). I hope you get the Joke.');
@@ -349,12 +323,12 @@ function createUserCard(msg,id) {
 		ctx.font = '37px segoeUIBold';
 		ctx.fillText('Global Rank',50,350);
 		ctx.font = '65px segoeUI';
-		ctx.fillText('#'+body[0].pp_rank,50,420);
+		ctx.fillText('#'+format(body[0].pp_rank),50,420);
 
 		ctx.font = '20px segoeUIBold';
 		ctx.fillText('Country Rank',50,450);
 		ctx.font = '42px segoeUI';
-		ctx.fillText('#'+body[0].pp_country_rank,50,500);
+		ctx.fillText('#'+format(body[0].pp_country_rank),50,500);
 
 		var hexagon = await Canvas.loadImage('./assets/hexagon.png');
 		ctx.drawImage(hexagon,340,271,70,76);
@@ -371,12 +345,14 @@ function createUserCard(msg,id) {
 		ctx.font = '21px segoeUI';
 		ctx.fillText(Math.floor(100*(body[0].level - Math.floor(body[0].level)))+'%',920,317)
 
-		ctx.beginPath();
-		ctx.fillStyle = '#242424';
-		roundRect(ctx, 350,380,150,115,4);
-		roundRect(ctx, 580,380,150,115,4);
-		roundRect(ctx, 800,380,220,115,4);
-		ctx.fill();
+		// ctx.beginPath();
+		// ctx.fillStyle = '#242424';
+		var backgroundpp = await Canvas.loadImage('assets/background-pp.png')
+		var backgroundAccuracy = await Canvas.loadImage('assets/background-accuracy.png')
+		var backgroundHours = await Canvas.loadImage('assets/background-hours.png')
+		ctx.drawImage(backgroundpp, 350,380,150,115);
+		ctx.drawImage(backgroundAccuracy, 580,380,150,115);
+		ctx.drawImage(backgroundHours, 800,380,220,115);
 
 		ctx.fillStyle = '#ffffff';
 		ctx.textAlign = 'center';
@@ -384,10 +360,10 @@ function createUserCard(msg,id) {
 		ctx.fillText('pp',425,418);
 		ctx.fillText('Accuracy',655,418);
 		ctx.fillText('hours played',905,418);
-		ctx.font = '30px segoeUI';
+		ctx.font = '35px segoeUI';
 		ctx.fillText(Math.floor(body[0].pp_raw),425,468)
 		ctx.fillText(Math.floor(body[0].accuracy*100)/100+'%',655,468);
-		ctx.fillText(Math.floor(body[0].total_seconds_played/60/60)+'h',905,468);
+		ctx.fillText(format(Math.floor(body[0].total_seconds_played/60/60))+'h',905,468);
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 		msg.channel.send('here',attachment);
@@ -395,6 +371,51 @@ function createUserCard(msg,id) {
 	});
 
 }
+
+function format(number) {
+	return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+}
+
+function translate(msg,language = 'english') {
+            language = language[0].toUpperCase() + language.slice(1).toLowerCase();
+            for (var i of languageCodes.languageCodes) {
+                if (i[1] == language) {
+                    lang = `${i[0]}`;
+                }
+            }
+            msg.channel.fetchMessages({ limit: 2 }).then(messages => {
+                var lastMessage = messages.last();
+                console.log(lastMessage);
+                if (!lastMessage.author.bot) {
+                    request(`https://translate.yandex.net/api/v1.5/tr.json/translate?key=${process.env.yandexAPI}&text=${encodeURIComponent(messages.last().content)}&lang=${lang}`, function(err, res, body) {
+                        body = JSON.parse(body);
+						console.log(body);
+						var langs = body.lang.split('-');
+						for (var i = 0; i < languageCodes.languageCodes.length;i ++) {
+							if (languageCodes.languageCodes[i][0] == langs[0]) {
+								var langDetected = languageCodes.languageCodes[i][1];
+								break;
+							}
+						}
+						console.log(`Language Detected: **${langDetected}**`);
+						const embed = {
+									'title': `Translation (Detected: ${langDetected})`,
+									'description': body.text[0],
+									'url':`https://translate.google.com/#view=home&op=translate&sl=auto&tl=${langs[1]}&text=${lastMessage}`,
+									'color': 16426522
+						
+						};
+                        msg.channel.send({ embed });
+                    });
+                }
+            });
+		
+}
+
+// function getArguments(msg) {
+// 	var arguments = msg.split(' ');
+// 	return(arguments)
+// }
 console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);
 

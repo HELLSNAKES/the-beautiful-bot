@@ -47,12 +47,15 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] General tweaking (for example spacing, sizes,quality,etc)
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
  - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is done for the user stats image)**
- - [ ] Add better formatting for numbers (for example 123,000 rather than 123000)
+ - [x] Add better formatting for numbers (for example 123,000 rather than 123000)
  - [ ] User doesn't exist
  - [ ] Beatmapset doesn't exist
  - [ ] Beatmap not specified
  - [ ] incorrect language translation
- - Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)
+ - [ ] background--1.png doesn't exist error
+ - Note: Testing hasn't started yet.
+
+  So if you find any bugs please contact me (or open an issue on github)
 
  Here is how the osu beatmap/user stats image should look like when its finished.
 <img src="https://i.imgur.com/LPqEwxV.png" width="40%">
