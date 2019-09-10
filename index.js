@@ -304,10 +304,14 @@ function createUserCard(msg,id) {
 		ctx.rect(0,0,canvas.width,canvas.height);
 		ctx.fill();
 		// background
-		var background = await Canvas.loadImage('./assets/background.png');
+		var background = await Canvas.loadImage(`./assets/background-${Math.round(Math.random() * 8) - 1}.png`);
 		ctx.drawImage(background,0,0,canvas.width,300);
 		ctx.save();
+		try {
 		var userPicture = await Canvas.loadImage(`https://a.ppy.sh/${body[0].user_id}`);
+		} catch (err) {
+		var userPicture = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png');
+		}
 		roundedImage(ctx,30,30,280,280,47);
 		ctx.clip();
 		ctx.drawImage(userPicture,30,30,280,280);
@@ -345,17 +349,13 @@ function createUserCard(msg,id) {
 		ctx.font = '37px segoeUIBold';
 		ctx.fillText('Global Rank',50,350);
 		ctx.font = '65px segoeUI';
-		ctx.fillText('#'+body[0].pp_rank,50,410);
+		ctx.fillText('#'+body[0].pp_rank,50,420);
 
 		ctx.font = '20px segoeUIBold';
 		ctx.fillText('Country Rank',50,450);
 		ctx.font = '42px segoeUI';
-		ctx.fillText('#'+body[0].pp_country_rank,50,490);
+		ctx.fillText('#'+body[0].pp_country_rank,50,500);
 
-		// ctx.beginPath();
-		// ctx.fillStyle = '#ffffff21';
-		// ctx.rect(350,360,150,115);
-		// ctx.fill();
 		var hexagon = await Canvas.loadImage('./assets/hexagon.png');
 		ctx.drawImage(hexagon,340,271,70,76);
 
@@ -363,18 +363,37 @@ function createUserCard(msg,id) {
 		ctx.font = '33px segoeUI';
 		ctx.fillText(Math.floor(body[0].level),375,320)
 		
-		roundRect(ctx,420,305,462,11,7);
+		roundRect(ctx,440,305,462,11,7);
 		ctx.fillStyle = '#FFCC22';
-		roundRect(ctx,420,305,462*(body[0].level - Math.floor(body[0].level)),11,7);
+		roundRect(ctx,440,305,462*(body[0].level - Math.floor(body[0].level)),11,7);
 		ctx.textAlign = 'left';
 		ctx.fillStyle = '#ffffff';
 		ctx.font = '21px segoeUI';
-		ctx.fillText(Math.floor(100*(body[0].level - Math.floor(body[0].level)))+'%',900,317)
+		ctx.fillText(Math.floor(100*(body[0].level - Math.floor(body[0].level)))+'%',920,317)
+
+		ctx.beginPath();
+		ctx.fillStyle = '#242424';
+		roundRect(ctx, 350,380,150,115,4);
+		roundRect(ctx, 580,380,150,115,4);
+		roundRect(ctx, 800,380,220,115,4);
+		ctx.fill();
+
+		ctx.fillStyle = '#ffffff';
+		ctx.textAlign = 'center';
+		ctx.font = '30px segoeUIBold';
+		ctx.fillText('pp',425,418);
+		ctx.fillText('Accuracy',655,418);
+		ctx.fillText('hours played',905,418);
+		ctx.font = '30px segoeUI';
+		ctx.fillText(Math.floor(body[0].pp_raw),425,468)
+		ctx.fillText(Math.floor(body[0].accuracy*100)/100+'%',655,468);
+		ctx.fillText(Math.floor(body[0].total_seconds_played/60/60)+'h',905,468);
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 		msg.channel.send('here',attachment);
 		
 	});
+
 }
 console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);

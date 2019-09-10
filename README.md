@@ -23,12 +23,13 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [x] Add another card for user stats
  - [x] Render the name and country of the user
  - [x] Draw the profile image of the user
- - [ ] Make all the grade stats functional and render it on the card
+ - [x] Make all the grade stats functional and render it on the card
  - [ ] Consider changing the cards from canvas based cards to SVG based cards for a higher quality images **(Optional)**
  - [ ] Add proper commands for all the features of the bot including a prefix.
+ - [x] Draw the current level of the user and add a level visualiser
  - [x] Drawing the user's current global and country ranks in the user stats images
- - [ ] Draw the pp, accuracy and hours played
- - [ ] Make background change randomly when generated (use osu's set of backgrounds)
+ - [x] Draw the pp, accuracy and hours played
+ - [x] Make background change randomly when generated (use osu's set of backgrounds)
  - [ ] Design improvement to the beatmap card to include more valuable information (e.g. Mapper, Whether ranked or not, etc).
 
 ### Known bugs/Improvements
@@ -38,7 +39,7 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Stars overflow (visual error)
  - [ ] General tweaking (for example spacing, sizes,quality,etc)
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
- - [ ] Change all text alignment to center alignment to avoid several visual errors
+ - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is done for the user stats image)**
  - [ ] Add better formatting for numbers (for example 123,000 rather than 123000)
  - Note: Testing hasn't started yet. So if you find any bugs please contact me (or open an issue on github)
 
