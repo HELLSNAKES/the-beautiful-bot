@@ -17,25 +17,31 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [x] Draw the maps avaliable difficulty and select the difficulty that is on the url
  - [ ] Create an Algorithm to change the background to a colour that fits the beatmap image **(Optional)**
  - [ ] add a help command
- - [ ] make the bot do moderation
+ - [ ] make the bot do moderation **(Task needs to be broken down)**
  - [ ] Add a configuration command to configurate the bot.
- - [ ] make the bot send Beautiful pics
+ - [ ] make the bot send Beautiful pics 
  - [x] Open Source the bot
  - [x] Add another card for user stats
  - [x] Render the name and country of the user
  - [x] Draw the profile image of the user
  - [x] Make all the grade stats functional and render it on the card
  - [ ] Consider changing the cards from canvas based cards to SVG based cards for a higher quality images **(Optional)**
- - [ ] Add proper commands for all the features of the bot including a prefix.
+ - [x] Add proper commands for all the features of the bot including a prefix.
  - [x] Draw the current level of the user and add a level visualiser
  - [x] Drawing the user's current global and country ranks in the user stats images
  - [x] Draw the pp, accuracy and hours played
  - [x] Make background change randomly when generated (use osu's set of backgrounds)
- - [ ] Design improvement to the beatmap card to include more valuable information (e.g. Mapper, Whether ranked or not, etc).
- - [ ] Add analytics to the bot
- - [ ] Clean the code and remove unnecessary files
+ - [ ] Design improvement to the beatmap card to include more valuable information (e.g. Mapper, Whether ranked or not, etc). 
+ - [ ] Add analytics to the bot **(Task needs to be broken down)**
+ - [ ] Clean the code and remove unnecessary files **(Task needs to be broken down)**
+ - [ ] add the ability to see stats on the most recent play
+ - [ ] make the b!rs have the ability to the most recent number of plays that the user specifies.
+ - [ ] allow the user to pick which recent play to show the stats for (for example: the one before the last recent play)
+ - [ ] Add a command allows the user to see their best recent play
  - [ ] Test the bots features
- 
+ - [ ] Consider adding the number of trys for a play to be acheived (this is refering to the b!rs command).
+ - [ ] link the bot to a database either an SQL or MongoDB database (preferably a mongodb database)
+ - [ ] use the database to store the users discord id with their corresponding osu id and make it useable in all osu commands
  - [ ] Last but not least release the bot publicly
  
 
@@ -46,7 +52,7 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Stars overflow (visual error)
  - [ ] General tweaking (for example spacing, sizes,quality,etc)
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
- - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is done for the user stats image)**
+ - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is already done for the user stats image)**
  - [x] Add better formatting for numbers (for example 123,000 rather than 123000)
  - [ ] User doesn't exist
  - [ ] Beatmapset doesn't exist
@@ -54,7 +60,10 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] incorrect language translation
  - [ ] background--1.png doesn't exist error
  - Note: Testing hasn't started yet.
-
+ - [ ] The number of pp in the b!rs is inaccurate.
+ - [ ] user with no profile image error in the b!rs command
+ - [ ] general improvement to the fromatting of the "Achieved" section in the b!rs
+ - [ ] changing the colour of the embed of the b!rs command
   So if you find any bugs please contact me (or open an issue on github)
 
  Here is how the osu beatmap/user stats image should look like when its finished.
