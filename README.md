@@ -18,7 +18,7 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Create an Algorithm to change the background to a colour that fits the beatmap image **(Optional)**
  - [ ] add a help command
  - [ ] make the bot do moderation **(Task needs to be broken down)**
- - [ ] Add a configuration command to configurate the bot.
+ - [ ] Add a conf	uration command to configurate the bot.
  - [ ] make the bot send Beautiful pics 
  - [x] Open Source the bot
  - [x] Add another card for user stats
@@ -43,7 +43,7 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] link the bot to a database either an SQL or MongoDB database (preferably a mongodb database)
  - [ ] use the database to store the users discord id with their corresponding osu id and make it useable in all osu commands
  - [ ] Last but not least release the bot publicly
- 
+ - [ ] Throw some discord presence spiciness.
 
 ### Known bugs/Improvements
  - [x] Make the last star size change depending on the decimal exact difficulty
@@ -59,11 +59,12 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Beatmap not specified
  - [ ] incorrect language translation
  - [ ] background--1.png doesn't exist error
- - Note: Testing hasn't started yet.
  - [ ] The number of pp in the b!rs is inaccurate.
  - [ ] user with no profile image error in the b!rs command
  - [ ] general improvement to the fromatting of the "Achieved" section in the b!rs
  - [ ] changing the colour of the embed of the b!rs command
+ - Note: Testing hasn't started yet.
+
   So if you find any bugs please contact me (or open an issue on github)
 
  Here is how the osu beatmap/user stats image should look like when its finished.
