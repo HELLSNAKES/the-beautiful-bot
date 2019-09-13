@@ -149,7 +149,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                     }
 					console.log(data)
 					ctx.fillStyle = '#000000AA'; 
-					roundRect(ctx, 20, 20, 200, 50, 30, false, false); 
+					rrect(ctx, 20, 20, 200, 50, 30); 
 					ctx.font = '25px segoeUI';
 					ctx.textAlign = 'center';
 					ctx.fillStyle = '#FFFFFF'; 
@@ -199,7 +199,10 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                     const totalCircles = await Canvas.loadImage('assets/count_circles.png');
                     const totalSliders = await Canvas.loadImage('assets/count_sliders.png');
 
-                    ctx.drawImage(totalLength, 450, 430, 50, 50); ctx.drawImage(bpm, 450, 495, 50, 50); ctx.drawImage(totalCircles, 450, 560, 50, 50); ctx.drawImage(totalSliders, 450, 625, 50, 50);
+					ctx.drawImage(totalLength, 450, 430, 50, 50);
+					ctx.drawImage(bpm, 450, 495, 50, 50);
+					ctx.drawImage(totalCircles, 450, 560, 50, 50);
+					ctx.drawImage(totalSliders, 450, 625, 50, 50);
 
                     ctx.font = '25px segoeUI';
                     var time = Math.floor(data.total_length / 60) + ':' + (data.total_length % 60 < 10 ? '0' + (data.total_length % 60) : data.total_length % 60);
@@ -211,7 +214,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                             ctx.globalAlpha = 1;
                             ctx.beginPath();
                             ctx.fillStyle = '#ffffff21';
-                            roundRect(ctx, 630 + ((i % 7) * 83) - 5, 390 + (Math.floor(i / 7) * 83) - 5, 81, 81, 5);
+                            rrect(ctx, 630 + ((i % 7) * 83) - 5, 390 + (Math.floor(i / 7) * 83) - 5, 81, 81, 5);
                             ctx.fill();
                         }
                         var icon;
@@ -242,13 +245,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                 }
 
 
-                function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-                    if (typeof stroke == 'undefined') {
-                        stroke = true;
-                    }
-                    if (typeof radius === 'undefined') {
-                        radius = 5;
-                    }
+                function rrect(ctx, x, y, width, height, radius = 5) {
                     if (typeof radius === 'number') {
                         radius = {
                             tl: radius,
@@ -256,17 +253,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                             br: radius,
                             bl: radius
                         };
-                    } else {
-                        var defaultRadius = {
-                            tl: 0,
-                            tr: 0,
-                            br: 0,
-                            bl: 0
-                        };
-                        for (var side in defaultRadius) {
-                            radius[side] = radius[side] || defaultRadius[side];
-                        }
-                    }
+                    } 
                     ctx.beginPath();
                     ctx.moveTo(x + radius.tl, y);
                     ctx.lineTo(x + width - radius.tr, y);
@@ -370,9 +357,9 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                         ctx.font = '33px segoeUI';
                         ctx.fillText(Math.floor(body[0].level), 375, 320);
 
-                        roundRect(ctx, 440, 305, 462, 11, 7);
+                        rrect(ctx, 440, 305, 462, 11, 7);
                         ctx.fillStyle = '#FFCC22';
-                        roundRect(ctx, 440, 305, 462 * (body[0].level - Math.floor(body[0].level)), 11, 7);
+                        rrect(ctx, 440, 305, 462 * (body[0].level - Math.floor(body[0].level)), 11, 7);
                         ctx.textAlign = 'left';
                         ctx.fillStyle = '#ffffff';
                         ctx.font = '21px segoeUI';
@@ -528,56 +515,16 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
                 function getMods(number) { // Rewrite using a two lists and a for loop
                     if (number == 0) {
                         return ('No Mod');
-                    }
+					}
+					var modsNames = ['PF','SO','FL','NC','HT','RX','DT','SD','HR','HD','EZ','NF'];
+					var modsValues = [16416,4096,1024,576,256,128,64,32,16,8,2,1];
                     var mods = '';
-                    while (number != 0) {
-                        if (number >= 4194304) {
-                            number -= 4194304;
-                            mods += 'CN';
-                        } else if (number >= 16416) {
-                            number -= 16416;
-                            mods += 'PF';
-                        } else if (number >= 8192) {
-                            number -= 8192;
-                            mods += 'AP';
-                        } else if (number >= 4096) {
-                            number -= 4096;
-                            mods += 'SO';
-                        } else if (number >= 2048) {
-                            number -= 2048;
-                            mods += 'AT';
-                        } else if (number >= 1024) {
-                            number -= 1024;
-                            mods += 'FL';
-                        } else if (number >= 576) {
-                            number -= 576;
-                            mods += 'NC';
-                        } else if (number >= 256) {
-                            number -= 256;
-                            mods += 'HT';
-                        } else if (number >= 128) {
-                            number -= 128;
-                            mods += 'RX';
-                        } else if (number >= 64) {
-                            number -= 64;
-                            mods += 'DT';
-                        } else if (number >= 32) {
-                            number -= 32;
-                            mods += 'SD';
-                        } else if (number >= 16) {
-                            number -= 16;
-                            mods += 'HR';
-                        } else if (number >= 8) {
-                            number -= 8;
-                            mods += 'HD';
-                        } else if (number >= 2) {
-                            number -= 2;
-                            mods += 'EZ';
-                        } else if (number >= 1) {
-                            number -= 1;
-                            mods += 'NF';
-                        }
-                    }
+                    for (var i = 0;i < modsNames.length;i++) {
+						if (number >= modsValues[i]) {
+							number -= modsValues[i];
+							mods += modsNames[i];
+						}
+					}
                     return (mods);
                 }
                 console.log(process.env.discordAPI);
