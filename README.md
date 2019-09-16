@@ -16,9 +16,9 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] ~~calculate the maximum number of pp (No mod) for a 100% acc FC, 95% acc FC and 90% acc FC and draw the result~~ **(This was cancelled because I didn't find any clear way to calculate pp)**
  - [x] Draw the maps avaliable difficulty and select the difficulty that is on the url
  - [ ] Create an Algorithm to change the background to a colour that fits the beatmap image **(Optional)**
- - [ ] add a help command
+ - [x] add a help command
  - [ ] make the bot do moderation **(Task needs to be broken down)**
- - [ ] Add a conf	uration command to configurate the bot.
+ - [ ] Add a configuration command to configurate the bot.
  - [ ] make the bot send Beautiful pics 
  - [x] Open Source the bot
  - [x] Add another card for user stats
@@ -37,14 +37,17 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] add the ability to see stats on the most recent play
  - [ ] make the b!rs have the ability to the most recent number of plays that the user specifies.
  - [ ] allow the user to pick which recent play to show the stats for (for example: the one before the last recent play)
- - [ ] Add a command allows the user to see their best recent play
+ - [x] Add a command that allows the user to see their top 5 best plays
+ - [x] Add a command that allows the user to see their best recent play
  - [ ] Test the bots features
  - [ ] Consider adding the number of trys for a play to be acheived (this is refering to the b!rs command).
- - [ ] link the bot to a database either an SQL or MongoDB database (preferably a mongodb database)
- - [ ] use the database to store the users discord id with their corresponding osu id and make it useable in all osu commands
+ - [x] link the bot to a database either an SQL or MongoDB database (preferably a mongodb database)
+ - [x] use the database to store the users discord id with their corresponding osu id and make it useable in all osu commands
  - [ ] Last but not least release the bot publicly
  - [ ] Throw some discord presence spiciness.
-
+ - [x] Display when the user gets a full combo on a map (b!rs)
+ - [ ] Display when the user gets a new top play on a map (b!rs)
+ - [ ] Change the pp calculations system to oppai's system (https://github.com/Francesco149/oppai/tree/master/node-oppai)
 ### Known bugs/Improvements
  - [x] Make the last star size change depending on the decimal exact difficulty
  - [ ] Make diffuculties other than difficulty selected partially transparent
@@ -54,13 +57,15 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
  - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is already done for the user stats image)**
  - [x] Add better formatting for numbers (for example 123,000 rather than 123000)
- - [ ] User doesn't exist
+ - [x] User doesn't exist
  - [ ] Beatmapset doesn't exist
  - [ ] Beatmap not specified
  - [ ] incorrect language translation
- - [ ] background--1.png doesn't exist error
+ - [x] background--1.png doesn't exist error
  - [ ] The number of pp in the b!rs is inaccurate.
  - [ ] user with no profile image error in the b!rs command
+ - [ ] can't find 'includes' of undefined.
+
  - [ ] general improvement to the fromatting of the "Achieved" section in the b!rs
  - [ ] changing the colour of the embed of the b!rs command
  - Note: Testing hasn't started yet.
