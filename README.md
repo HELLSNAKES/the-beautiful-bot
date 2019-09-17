@@ -50,12 +50,12 @@ Documention on how to setup and run this bot using this node.js code will be ava
  - [ ] Change the pp calculations system to oppai's system (https://github.com/Francesco149/oppai/tree/master/node-oppai)
 ### Known bugs/Improvements
  - [x] Make the last star size change depending on the decimal exact difficulty
- - [ ] Make diffuculties other than difficulty selected partially transparent
+ - [x] Make diffuculties other than difficulty selected partially transparent
  - [x] The bot crashes if there is no beatmap image
- - [ ] Stars overflow (visual error)
- - [ ] General tweaking (for example spacing, sizes,quality,etc)
+ - [x] Stars overflow (visual error)
+ - [ ] General tweaking (for example spacing, sizes, quality, etc)
  - [ ] Merge the getBeatmapData function and the asynchronous createCard function into one async function
- - [ ] Change text alignment to center where appropriate to avoid several visual errors **(This is already done for the user stats image)**
+ - [x] Change text alignment to center where appropriate to avoid several visual errors
  - [x] Add better formatting for numbers (for example 123,000 rather than 123000)
  - [x] User doesn't exist
  - [ ] Beatmapset doesn't exist

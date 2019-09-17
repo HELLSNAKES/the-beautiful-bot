@@ -1,4 +1,8 @@
 // Prettier ruined my code ;-;. I hate prettier. Never going to use it again
+// Errors
+// 4041 - Username not found
+// 4042 - Beatmap not found
+// 4043 - File not found
 require('dotenv').config();
 const Discord = require('discord.js');
 const request = require('request');
@@ -6,6 +10,7 @@ const fs = require('fs');
 const client = new Discord.Client();
 const languageCodes = JSON.parse(fs.readFileSync('language_codes.json'));
 const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
+var config = JSON.parse(fs.readFileSync('config.json'));
 const Canvas = require('canvas');
 const requestPromiseNative = require('request-promise-native');
 const MongoClient = require('mongodb').MongoClient;
@@ -25,15 +30,53 @@ Canvas.registerFont('assets/SegoeUIBold.ttf', {
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 
+
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
+	
+});
+
+client.on('guildMemberAdd', (member) => {
+	client.channels.find('id',config.welcomeChannelID).send('Welcome to the server **'+member.user.username+'**!! I hope you enjoy it around here, if you ever need me either @ me or type `'+config.prefix+'help`.\nThere are currently '+(client.users.size-1)+' members in the server\n-');
+
+	var role = member.guild.roles.find(role => role.id === config.memberRoleID);
+	member.addRole(role);
+});
+
+client.on('guildMemberRemove', (member) => {
+	client.channels.find('id',config.byeChannelID).send('Sadly, **'+member.user.username+'** left the server ;-;. I hope they come back some day.\nThere are currently '+(client.users.size-2)+' members in the server\n-');
 });
 
 client.on('message', async msg => {
 	msg.content = msg.content.toLowerCase();
-	if (msg.content.startsWith('b!')) { // Prefix is used
-		console.log(msg.content);
-		var parameters = msg.content.slice(2).split(' ');
+
+	if (msg.content == '<@533801347300982785>') {
+		const embed = {
+			'embed': {
+				'description': '**---- osu! ----**\n**`'+config.prefix+'osuset [Username]`**\nThe osuset command will link your discord with your osu account which will be used in other osu commands\n**`'+config.prefix+'osu [Username]`**\nThe user command displays the stats of the specified user. if no osu username is specified then the username linked with account will be used (refer to `'+config.prefix+'osuset`)\n**`'+config.prefix+'best [Username]`**\nThe best command displays top 5 plays of the specified user. if no osu username is specified then the username linked with account will be used (refer to `'+config.prefix+'osuset`)\n**`'+config.prefix+'mp [Beatmap name or beatmap id]`**\nThe Beatmap command shows you the stats of the specified map\n**`'+config.prefix+'rs [Username]`**\nThe recent command shows you the stats of the most recent play/s\n**`'+config.prefix+'osurename [Username]`**\nThe rename command will change the osu account linked with your discord.\n**---- Translation ----**\n**`'+config.prefix+'translate [language]`**\nThe translate command translate the last message to the language specified. if no language is specified then it gets translated to English. Visit https://yandex.com/support/translate/supported-langs.html for the full list of supported languages.\n**---- General ----**\n**`'+config.prefix+'help`**\nThe help commands will display this command list`',
+				'color': 3066993,
+				'footer': {
+					'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+					'text': 'Always Remember, The beautiful bot loves you <3'
+				}
+			},
+		};
+		msg.channel.send(embed);
+	}
+
+	if (msg.content.startsWith(config.prefix)) { // Prefix is used
+		if (msg.content == config.prefix + 'setup') {
+			if (msg.attachments.first().filename == 'config.json') {
+				request(msg.attachments.first().url,function(err,res,body) {
+					fs.writeFileSync('./config.json',JSON.stringify(JSON.parse(body)),'utf8')
+						config = JSON.parse(fs.readFileSync('config.json'));
+						msg.channel.send('The bot configuration has been successfully updated!!')
+			
+				});
+			}
+			
+		}
+		var parameters = msg.content.slice(config.prefix.length).split(' ');
 		var command = parameters[0];
 		parameters.splice(0, 1);
 		if (command == 'translate') {
@@ -45,12 +88,12 @@ client.on('message', async msg => {
 		} else if (command == 'osu') {
 			if (/<@[0-9]{18}>/g.test(parameters[0])) {
 				var discordID = parameters[0].slice(2, 20);
-				console.log(discordID);
+
 				readDB(discordID, (doc) => {
 					createUserCard(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
-				createUserCard(msg, parameters[0]);
+				createUserCard(msg, parameters.join('_'));
 			} else {
 				readDB(msg.author.id, function (doc) {
 					createUserCard(msg, doc.osuUsername);
@@ -59,12 +102,11 @@ client.on('message', async msg => {
 		} else if (command == 'rs') {
 			if (/<@[0-9]{18}>/g.test(parameters[0])) {
 				var discordID = parameters[0].slice(2, 20);
-				console.log(discordID);
 				readDB(discordID, (doc) => {
 					recent(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
-				recent(msg, parameters[0]);
+				recent(msg, parameters.join('_'));
 			} else {
 				readDB(msg.author.id, function (doc) {
 					recent(msg, doc.osuUsername);
@@ -73,12 +115,11 @@ client.on('message', async msg => {
 		} else if (command == 'best') {
 			if (/<@[0-9]{18}>/g.test(parameters[0])) {
 				var discordID = parameters[0].slice(2, 20);
-				console.log(discordID);
 				readDB(discordID, (doc) => {
 					best(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
-				best(msg, parameters[0]);
+				best(msg, parameters.join('_'));
 			} else {
 				readDB(msg.author.id, function (doc) {
 					best(msg, doc.osuUsername);
@@ -90,14 +131,13 @@ client.on('message', async msg => {
 			}
 		} else if (command == 'osurename') {
 			if (parameters.length != 0) {
-				updatedb(msg, parameters.join(' '), function () {
+				updatedb(msg, parameters.join('_'), function () {
 					msg.channel.send('Your osu username linked with your account has been successfully updated!');
 				});
 			} else {
 				msg.channel.send('Osu username has not been provided.');
 			}
 		} else if (command == 'osuset') {
-			console.log(msg.author.id);
 			checkUser(msg, {
 				discordID: msg.author.id,
 				osuUsername: parameters.join(' ')
@@ -107,7 +147,7 @@ client.on('message', async msg => {
 		} else if (command == 'help') {
 			const embed = {
 				'embed': {
-					'description': '**---- osu! ----**\n**`b!osuset [Username]`**\nThe osuset command will link your discord with your osu account which will be used in other osu commands\n**`b!osu [Username]`**\nThe user command displays the stats of the specified user. if no osu username is specified then the username linked with account will be used (refer to `b!osuset`)\n**`b!best [Username]`**\nThe best command displays top 5 plays of the specified user. if no osu username is specified then the username linked with account will be used (refer to `b!osuset`)\n**`b!mp [Beatmap name or beatmap id]`**\nThe Beatmap command shows you the stats of the specified map\n**`b!rs [Username]`**\nThe recent command shows you the stats of the most recent play/s\n**`b!osurename [Username]`**\nThe rename command will change the osu account linked with your discord.\n**---- Translation ----**\n**`b!translate [language]`**\nThe translate command translate the last message to the language specified. if no language is specified then it gets translated to English. Visit https://yandex.com/support/translate/supported-langs.html for the full list of supported languages.\n**---- General ----**\n**`b!help`**\nThe help commands will display this command list`',
+					'description': '**---- osu! ----**\n**`'+config.prefix+'osuset [Username]`**\nThe osuset command will link your discord with your osu account which will be used in other osu commands\n**`'+config.prefix+'osu [Username]`**\nThe user command displays the stats of the specified user. if no osu username is specified then the username linked with account will be used (refer to `'+config.prefix+'osuset`)\n**`'+config.prefix+'best [Username]`**\nThe best command displays top 5 plays of the specified user. if no osu username is specified then the username linked with account will be used (refer to `'+config.prefix+'osuset`)\n**`'+config.prefix+'mp [Beatmap name or beatmap id]`**\nThe Beatmap command shows you the stats of the specified map\n**`'+config.prefix+'rs [Username]`**\nThe recent command shows you the stats of the most recent play/s\n**`'+config.prefix+'osurename [Username]`**\nThe rename command will change the osu account linked with your discord.\n**---- Translation ----**\n**`'+config.prefix+'translate [language]`**\nThe translate command translate the last message to the language specified. if no language is specified then it gets translated to English. Visit https://yandex.com/support/translate/supported-langs.html for the full list of supported languages.\n**---- General ----**\n**`'+config.prefix+'help`**\nThe help commands will display this command list`',
 					'color': 3066993,
 					'footer': {
 						'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
@@ -129,19 +169,15 @@ client.on('message', async msg => {
 		msg.reply('See you next time ;). I hope you get the Joke.');
 	} else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
-		// console.log(emoji)
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
 		var beatmapsetid = msg.content.match(/osu.ppy.sh\S+/g)[0];
 		beatmapsetid = beatmapsetid.replace('osu.ppy.sh/beatmapsets/', '');
 		var beatmapid = beatmapsetid.match(/#\S+/g)[0];
 		beatmapid = beatmapid.replace('#osu/', '');
 		beatmapsetid = beatmapsetid.replace(beatmapsetid.match(/#\S+/g), '');
-		console.log(beatmapsetid);
 		getBeatmapData(msg, beatmapsetid, beatmapid);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
 		var userid = msg.content.replace('https://osu.ppy.sh/users/', '');
-
-		console.log(userid);
 		createUserCard(msg, userid);
 	}
 });
@@ -150,29 +186,33 @@ function searchBeatmap(msg, name) {
 	request(`https://osusearch.com/query/?title=${name}&query_order=favorites`, {
 		json: true
 	}, (err, res, body) => {
-		console.log(body.beatmaps);
+		if (body.beatmaps.length == 0) {
+			errorMessage(msg,4042);
+			return;
+		}
 		getBeatmapData(msg, body.beatmaps[0].beatmapset_id, body.beatmaps[0].beatmap_id);
 	});
 }
 
 function getBeatmapData(msg, beatmapsetid, beatmapid) {
 	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, {
-				json: true
-			}, (err, res, body) => {
-				console.log(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}${beatmapid? '&b=' + beatmapid: 'z`'}&limit=1`);
-
+			json: true
+		}, (err, res, body) => {
+	if (body.length == 0) {
+		errorMessage(msg,4042);
+		return;
+	}
 	var data = body[0];
 	var difficulties = [];
 	for (var i of body) {
 		difficulties.push(i.difficultyrating);
-		console.log(i.difficultyrating);
 		if (i.beatmap_id == beatmapid) {
 			data = i;
 		}
 	}
 	data.difficulties = difficulties;
 	data.url = 'https: //osu.ppy.sh/beatmapsets/'+beatmapsetid+'#osu/'+beatmapid;
-    if (msg) {	
+    if (msg) {
     createBeatmapCard(msg, data);
     } else {
     return (data);
@@ -191,10 +231,8 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
         ctx.rect(0, 0, canvas.width, canvas.height);
         ctx.fill();
         // Beatmap Image
-        console.log('https://assets.ppy.sh/beatmaps/'+data.beatmapset_id+'/covers/cover@2x.jpg');
 					try {
-						const beatmapImage = await Canvas.loadImage(`
-					https: //assets.ppy.sh/beatmaps/${data.beatmapset_id}/covers/cover@2x.jpg`);
+						const beatmapImage = await Canvas.loadImage('https://assets.ppy.sh/beatmaps/'+data.beatmapset_id+'/covers/cover@2x.jpg');
 					ctx.drawImage(beatmapImage, 0, 0, canvas.width, 346);
 				}
 				catch (err) { //change background to gradient if image is not found
@@ -207,7 +245,6 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 					ctx.rect(0, 0, canvas.width, 346);
 					ctx.fill();
 				}
-				console.log(data);
 				ctx.fillStyle = '#000000AA';
 				rrect(ctx, 20, 20, 200, 50, 30);
 				ctx.font = '25px segoeUI';
@@ -226,13 +263,22 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 
 				// star rating
 				const star = await Canvas.loadImage('assets/star.png');
+				if (data.difficultyrating > 11) {
+					
+					const plus = await Canvas.loadImage('assets/plus.png');
+					for (var i = 0; i < 9; i++) {
+						ctx.drawImage(star, 30 + 40 * i, 460, 40, 40);
+					}
+
+					ctx.drawImage(plus, 30 + 40 * i+1, 460, 40, 40);
+				} else {
 				for (var i = 0; i < Math.floor(data.difficultyrating); i++) {
 					ctx.drawImage(star, 30 + 40 * i, 460, 40, 40);
 				}
 
 				var lastStarSize = 40 * (data.difficultyrating - Math.floor(data.difficultyrating));
 				ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1) + ((40 - lastStarSize) / 2), 460 + ((40 - lastStarSize) / 2), lastStarSize, lastStarSize);
-
+			}
 				//CS / AR /HP / OD
 
 				ctx.fillStyle = '#ffffff';
@@ -320,7 +366,13 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 
 				const attachment = new Discord.Attachment(canvas.toBuffer(), 'beatmap_stats.png');
 				const embed = {
-					'title': `${data.title} - ${data.artist} [Download]`,
+					'title': `
+				$ {
+					data.title
+				} - $ {
+					data.artist
+				} [Download]
+				`,
 					'url': data.url,
 					'color': 2065919,
 					'footer': {
@@ -374,386 +426,396 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 
 
 			function createUserCard(msg, id) {
-				request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
-					json: true
-				}, async (err, res, body) => {
-					console.log(body);
-					// init the canvas
-					var canvas = Canvas.createCanvas(1080, 538);
-					var ctx = canvas.getContext('2d');
-
-					ctx.beginPath();
-					ctx.fillStyle = '#121212';
-					ctx.rect(0, 0, canvas.width, canvas.height);
-					ctx.fill();
-					// background
-					var background = await Canvas.loadImage(`./assets/background-${Math.round(Math.random() * 7)}.png`);
-					ctx.drawImage(background, 0, 0, canvas.width, 300);
-					ctx.save();
-					var userPicture;
-					try {
-						userPicture = await Canvas.loadImage(`https://a.ppy.sh/${body[0].user_id}`);
-					} catch (err) {
-						userPicture = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png');
-					}
-					roundedImage(ctx, 30, 30, 280, 280, 47);
-					ctx.clip();
-					ctx.drawImage(userPicture, 30, 30, 280, 280);
-					ctx.restore();
-
-					ctx.fillStyle = '#ffffff';
-					ctx.font = '51px segoeUIBold';
-					ctx.fillText(body[0].username, 330, 95);
-
-					ctx.font = '40px segoeUI';
-					let country = countryCodes[body[0].country];
-					console.log(countryCodes);
-					ctx.fillText(country, 330, 140);
-
-					var gradeA = await Canvas.loadImage('assets/grade_a.png');
-					var gradeS = await Canvas.loadImage('assets/grade_s.png');
-					var gradeSS = await Canvas.loadImage('assets/grade_ss.png');
-					var gradeSH = await Canvas.loadImage('assets/grade_sh.png');
-					var gradeSSH = await Canvas.loadImage('assets/grade_ssh.png');
-
-					ctx.drawImage(gradeSSH, 370, 180, 95, 48);
-					ctx.drawImage(gradeSS, 500, 180, 95, 48);
-					ctx.drawImage(gradeSH, 630, 180, 95, 48);
-					ctx.drawImage(gradeS, 760, 180, 95, 48);
-					ctx.drawImage(gradeA, 890, 180, 95, 48);
-
-					ctx.font = '25px segoeUIBold';
-					ctx.textAlign = 'center';
-					ctx.fillText(body[0].count_rank_ssh, 417, 260, 95, 48);
-					ctx.fillText(body[0].count_rank_ss, 549, 260, 95, 48);
-					ctx.fillText(body[0].count_rank_sh, 679, 260, 95, 48);
-					ctx.fillText(body[0].count_rank_s, 809, 260, 95, 48);
-					ctx.fillText(body[0].count_rank_a, 939, 260, 95, 48);
-					ctx.textAlign = 'left';
-					ctx.font = '37px segoeUIBold';
-					ctx.fillText('Global Rank', 50, 350);
-					ctx.font = '65px segoeUI';
-					ctx.fillText('#' + format(body[0].pp_rank), 50, 420);
-
-					ctx.font = '20px segoeUIBold';
-					ctx.fillText('Country Rank', 50, 450);
-					ctx.font = '42px segoeUI';
-					ctx.fillText('#' + format(body[0].pp_country_rank), 50, 500);
-
-					var hexagon = await Canvas.loadImage('./assets/hexagon.png');
-					ctx.drawImage(hexagon, 340, 271, 70, 76);
-
-					ctx.textAlign = 'center';
-					ctx.font = '33px segoeUI';
-					ctx.fillText(Math.floor(body[0].level), 375, 320);
-
-					rrect(ctx, 440, 305, 462, 11, 7);
-					ctx.fillStyle = '#FFCC22';
-					rrect(ctx, 440, 305, 462 * (body[0].level - Math.floor(body[0].level)), 11, 7);
-					ctx.textAlign = 'left';
-					ctx.fillStyle = '#ffffff';
-					ctx.font = '21px segoeUI';
-					ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 920, 317);
-
-					// ctx.beginPath();
-					// ctx.fillStyle = '#242424';
-					var backgroundpp = await Canvas.loadImage('assets/background-pp.png');
-					var backgroundAccuracy = await Canvas.loadImage('assets/background-accuracy.png');
-					var backgroundHours = await Canvas.loadImage('assets/background-hours.png');
-					ctx.drawImage(backgroundpp, 350, 380, 150, 115);
-					ctx.drawImage(backgroundAccuracy, 580, 380, 150, 115);
-					ctx.drawImage(backgroundHours, 800, 380, 220, 115);
-
-					ctx.fillStyle = '#ffffff';
-					ctx.textAlign = 'center';
-					ctx.font = '30px segoeUIBold';
-					ctx.fillText('pp', 425, 418);
-					ctx.fillText('Accuracy', 655, 418);
-					ctx.fillText('hours played', 905, 418);
-					ctx.font = '35px segoeUI';
-					ctx.fillText(Math.floor(body[0].pp_raw), 425, 468);
-					ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 655, 468);
-					ctx.fillText(format(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 905, 468);
-
-					const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
-					msg.channel.send(attachment);
-
-				});
-
-			}
-
-			function format(number) {
-				return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
-			}
-
-			function translate(msg, language = 'english') {
-				language = language[0].toUpperCase() + language.slice(1).toLowerCase();
-				for (var i of languageCodes.languageCodes) {
-					if (i[1] == language) {
-						lang = `${i[0]}`;
-					}
+				request('https://osu.ppy.sh/api/get_user?k='+process.env.osuAPI+'&u='+id, {
+				json: true
+			}, async (err, res, body) => {
+				if (body.length == 0) {
+					errorMessage(msg,4041);
+					return;
 				}
-				msg.channel.fetchMessages({
-					limit: 2
-				}).then(messages => {
-					var lastMessage = messages.last();
-					console.log(lastMessage);
-					if (!lastMessage.author.bot) {
-						request(`https://translate.yandex.net/api/v1.5/tr.json/translate?key=${process.env.yandexAPI}&text=${encodeURIComponent(messages.last().content)}&lang=${lang}`, function (err, res, body) {
-							body = JSON.parse(body);
-							console.log(body);
-							var langs = body.lang.split('-');
-							for (var i = 0; i < languageCodes.languageCodes.length; i++) {
-								if (languageCodes.languageCodes[i][0] == langs[0]) {
-									var langDetected = languageCodes.languageCodes[i][1];
-									break;
-								}
-							}
-							console.log(`Language Detected: **${langDetected}**`);
-							const embed = {
-								'title': `Translation (Detected: ${langDetected})`,
-								'description': body.text[0],
-								'url': `https://translate.google.com/#view=home&op=translate&sl=auto&tl=${langs[1]}&text=${lastMessage}`,
-								'color': 16426522,
-								'footer': {
-									'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
-									'text': 'Always Remember, The beautiful bot loves you <3'
-								}
+				// init the canvas
+				var canvas = Canvas.createCanvas(1080, 538);
+				var ctx = canvas.getContext('2d');
 
-							};
-							msg.channel.send({
-								embed
-							});
-						});
-					}
-				});
+				ctx.beginPath();
+				ctx.fillStyle = '#121212';
+				ctx.rect(0, 0, canvas.width, canvas.height);
+				ctx.fill();
+				// background
+				var background = await Canvas.loadImage(`./assets/background-${Math.round(Math.random() * 7)}.png`);
+				ctx.drawImage(background, 0, 0, canvas.width, 300);
+				ctx.save();
+				var userPicture;
+				try {
+					userPicture = await Canvas.loadImage(`https://a.ppy.sh/${body[0].user_id}`);
+				} catch (err) {
+					userPicture = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png');
+				}
+				roundedImage(ctx, 30, 30, 280, 280, 47);
+				ctx.clip();
+				ctx.drawImage(userPicture, 30, 30, 280, 280);
+				ctx.restore();
 
+				ctx.fillStyle = '#ffffff';
+				ctx.font = '51px segoeUIBold';
+				ctx.fillText(body[0].username, 330, 95);
+
+				ctx.font = '40px segoeUI';
+				let country = countryCodes[body[0].country];
+				ctx.fillText(country, 330, 140);
+
+				var gradeA = await Canvas.loadImage('assets/grade_a.png');
+				var gradeS = await Canvas.loadImage('assets/grade_s.png');
+				var gradeSS = await Canvas.loadImage('assets/grade_ss.png');
+				var gradeSH = await Canvas.loadImage('assets/grade_sh.png');
+				var gradeSSH = await Canvas.loadImage('assets/grade_ssh.png');
+
+				ctx.drawImage(gradeSSH, 370, 180, 95, 48);
+				ctx.drawImage(gradeSS, 500, 180, 95, 48);
+				ctx.drawImage(gradeSH, 630, 180, 95, 48);
+				ctx.drawImage(gradeS, 760, 180, 95, 48);
+				ctx.drawImage(gradeA, 890, 180, 95, 48);
+
+				ctx.font = '25px segoeUIBold';
+				ctx.textAlign = 'center';
+				ctx.fillText(body[0].count_rank_ssh, 417, 260, 95, 48);
+				ctx.fillText(body[0].count_rank_ss, 549, 260, 95, 48);
+				ctx.fillText(body[0].count_rank_sh, 679, 260, 95, 48);
+				ctx.fillText(body[0].count_rank_s, 809, 260, 95, 48);
+				ctx.fillText(body[0].count_rank_a, 939, 260, 95, 48);
+				ctx.textAlign = 'left';
+				ctx.font = '37px segoeUIBold';
+				ctx.fillText('Global Rank', 50, 350);
+				ctx.font = '65px segoeUI';
+				ctx.fillText('#' + format(body[0].pp_rank), 50, 420);
+
+				ctx.font = '20px segoeUIBold';
+				ctx.fillText('Country Rank', 50, 450);
+				ctx.font = '42px segoeUI';
+				ctx.fillText('#' + format(body[0].pp_country_rank), 50, 500);
+
+				var hexagon = await Canvas.loadImage('./assets/hexagon.png');
+				ctx.drawImage(hexagon, 340, 271, 70, 76);
+
+				ctx.textAlign = 'center';
+				ctx.font = '33px segoeUI';
+				ctx.fillText(Math.floor(body[0].level), 375, 320);
+
+				rrect(ctx, 440, 305, 462, 11, 7);
+				ctx.fillStyle = '#FFCC22';
+				rrect(ctx, 440, 305, 462 * (body[0].level - Math.floor(body[0].level)), 11, 7);
+				ctx.textAlign = 'left';
+				ctx.fillStyle = '#ffffff';
+				ctx.font = '21px segoeUI';
+				ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 920, 317);
+
+				// ctx.beginPath();
+				// ctx.fillStyle = '#242424';
+				var backgroundpp = await Canvas.loadImage('assets/background-pp.png');
+				var backgroundAccuracy = await Canvas.loadImage('assets/background-accuracy.png');
+				var backgroundHours = await Canvas.loadImage('assets/background-hours.png');
+				ctx.drawImage(backgroundpp, 350, 380, 150, 115);
+				ctx.drawImage(backgroundAccuracy, 580, 380, 150, 115);
+				ctx.drawImage(backgroundHours, 800, 380, 220, 115);
+
+				ctx.fillStyle = '#ffffff';
+				ctx.textAlign = 'center';
+				ctx.font = '30px segoeUIBold';
+				ctx.fillText('pp', 425, 418);
+				ctx.fillText('Accuracy', 655, 418);
+				ctx.fillText('hours played', 905, 418);
+				ctx.font = '35px segoeUI';
+				ctx.fillText(Math.floor(body[0].pp_raw), 425, 468);
+				ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 655, 468);
+				ctx.fillText(format(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 905, 468);
+
+				const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
+				msg.channel.send(attachment);
+
+			});
+
+	}
+
+	function format(number) {
+		return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+	}
+
+	function translate(msg, language = 'english') {
+		language = language[0].toUpperCase() + language.slice(1).toLowerCase();
+		for (var i of languageCodes.languageCodes) {
+			if (i[1] == language) {
+				lang = `${i[0]}`;
 			}
-
-
-			function recent(msg, user) {
-				request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}`, {
-					json: true
-				}, (err, res, body) => {
-					console.log(body);
-					if (body.length == 0) {
-						msg.channel.send('There were no recent plays in the last 24h or invalid username\n(if your osu username contain spaces, replace them with underscores "_" e.g. Some Name to Some_Name)');
-						return;
+		}
+		msg.channel.fetchMessages({
+			limit: 2
+		}).then(messages => {
+			var lastMessage = messages.last();
+			if (!lastMessage.author.bot) {
+				request(`https://translate.yandex.net/api/v1.5/tr.json/translate?key=${process.env.yandexAPI}&text=${encodeURIComponent(messages.last().content)}&lang=${lang}`, function (err, res, body) {
+					body = JSON.parse(body);
+					var langs = body.lang.split('-');
+					for (var i = 0; i < languageCodes.languageCodes.length; i++) {
+						if (languageCodes.languageCodes[i][0] == langs[0]) {
+							var langDetected = languageCodes.languageCodes[i][1];
+							break;
+						}
 					}
-					console.log(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}`);
-					console.log(body[0]);
-
-					const grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[0].rank.toLowerCase());
-					request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[0].beatmap_id}`, {
-						json: true
-					}, (err, res, beatmapData) => {
-						getpp(body[0].beatmap_id, parseInt(body[0].maxcombo), parseInt(body[0].count50), parseInt(body[0].count100), parseInt(body[0].count300), parseInt(body[0].countmiss), parseInt(body[0].perfect), parseInt(body[0].enabled_mods), (pp) => {
-							pp = Math.floor(pp * 100) / 100;
-							var timeDifference = Date.now() - Date.parse(body[0].date);
-							timeDifference = timeDifference / 1000;
-							console.log(timeDifference);
-
-							var hours = Math.floor((timeDifference / 60) / 60) - 1;
-							var minutes = Math.floor((timeDifference / 60) % 60);
-							console.log(hours, minutes);
-
-							var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
-							accuracy = Math.floor(accuracy * 10000) / 100;
-							const embed = {
-								'description': `${grade} - **${pp}pp** - ${accuracy}% - __**${body[0].perfect ? '[Full Combo!]' : ''}**__\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]\nAchieved: **${body[0].date}**`,
-								'url': 'https://discordapp.com',
-								'color': 12352831,
-								'thumbnail': {
-									'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
-								},
-								'author': {
-									'name': `${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(body[0].enabled_mods)}`,
-									'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
-									'icon_url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
-								},
-								'footer': {
-									'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
-									'text': 'Always Remember, The beautiful bot loves you <3'
-								}
-							};
-							msg.channel.send({
-								embed
-							});
-
-						});
-
-
-					});
-
-
-				});
-			}
-
-
-			async function best(msg, user) {
-				request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=5`, {
-					json: true
-				}, (err, res, body) => {
-					var plays = [];
-					var playString = [];
-					var playpp = [];
-					var urls = [];
 					const embed = {
-						'title': `Here are the top 5 plays for ${user}`,
-						'description': '',
-						'url': `https://osu.ppy.sh/users/${body.user_id}`,
+						'title': `Translation (Detected: ${langDetected})`,
+						'description': body.text[0],
+						'url': `https://translate.google.com/#view=home&op=translate&sl=auto&tl=${langs[1]}&text=${lastMessage}`,
+						'color': 16426522,
+						'footer': {
+							'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+							'text': 'Always Remember, The beautiful bot loves you <3'
+						}
+
+					};
+					msg.channel.send({
+						embed
+					});
+				});
+			}
+		});
+
+	}
+
+
+	function recent(msg, user) {
+		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}`, {
+			json: true
+		}, (err, res, body) => {
+			if (body.length == 0) {
+				errorMessage(msg,4044);
+				return;
+			}
+
+			const grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[0].rank.toLowerCase());
+			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[0].beatmap_id}`, {
+				json: true
+			}, (err, res, beatmapData) => {
+				console.log(body[0].perfect)
+				getpp(body[0].beatmap_id, parseInt(body[0].maxcombo), parseInt(body[0].count50), parseInt(body[0].count100), parseInt(body[0].count300), parseInt(body[0].countmiss), parseInt(body[0].perfect), parseInt(body[0].enabled_mods), (pp) => {
+					pp = Math.floor(pp * 100) / 100;
+					var timeDifference = Date.now() - Date.parse(body[0].date);
+					timeDifference = timeDifference / 1000;
+
+					var hours = Math.floor((timeDifference / 60) / 60) - 1;
+					var minutes = Math.floor((timeDifference / 60) % 60);
+
+					var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
+					accuracy = Math.floor(accuracy * 10000) / 100;
+					const embed = {
+						'description': `${grade} - **${pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]\nAchieved: **${body[0].date}**`,
+						'url': 'https://discordapp.com',
 						'color': 12352831,
 						'thumbnail': {
-							'url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
+							'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
+						},
+						'author': {
+							'name': `${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(body[0].enabled_mods)}`,
+							'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
+							'icon_url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
 						},
 						'footer': {
 							'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
 							'text': 'Always Remember, The beautiful bot loves you <3'
 						}
 					};
-					console.log(body);
-					if (body.length == 0) {
-						msg.channel.send('There were no best plays found or invalid username\n(if your osu username contain spaces, replace them with underscores "_" e.g. Some Name to Some_Name)');
-						return;
-					}
-
-					for (var i = 0; i < body.length; i++) {
-						urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`);
-						plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`, {
-							json: true
-						}, (err, res, beatmapData) => {
-							let index = urls.indexOf(res.request.href);
-
-							var grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[index].rank.toLowerCase());
-							var pp = Math.floor(body[index].pp * 100) / 100;
-							var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
-
-							playString.push(`__**[${beatmapData[0].title} [${beatmapData[0].version} - ${Math.floor(beatmapData[0].difficultyrating * 100) /100}★] +${getMods(body[index].enabled_mods)}](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`})**__\n${grade} - **${pp}pp** - ${accuracy}%\nCombo: **x${format(body[index].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[index].score)}**\n[${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}]\nAchieved: **${body[index].date}**\n`);
-							playpp.push(pp);
-						}));
-					}
-					Promise.all(plays).then(() => {
-
-						var sortedpp = playpp.slice(0).sort((a, b) => {
-							return (b - a);
-						});
-						console.log(sortedpp);
-						var sortedString = [];
-						for (i = 0; i < sortedpp.length; i++) {
-							sortedString.push(playString[playpp.indexOf(sortedpp[i])]);
-						}
-						embed.description = sortedString.join(' ');
-						msg.channel.send({
-							embed
-						});
+					msg.channel.send({
+						embed
 					});
 
 				});
+
+
+			});
+
+
+		});
+	}
+
+
+	async function best(msg, user) {
+		
+		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=5`, {
+			json: true
+		}, (err, res, body) => {
+			console.log(res.statusCode);
+			if (body.length == 0) {
+				errorMessage(msg,4041);
+				return;
 			}
-
-			function getpp(beatmapid, maxcombo, count50, count100, count300, countMiss, perfect, mods, callback) {
-				console.log(beatmapid, maxcombo, count50, count100, count300, countMiss, perfect, mods);
-				console.log(`https://osu.ppy.sh/osu/${beatmapid}`);
-				requestPromiseNative.get(`https://osu.ppy.sh/osu/${beatmapid}`).then(osu => {
-					let beatmap = Beatmap.fromOsu(osu);
-					let score = {
-						maxcombo: maxcombo,
-						count50: count50,
-						count100: count100,
-						count300: count300,
-						countMiss: countMiss,
-						perfect: perfect,
-						mods: mods
-					};
-					let diffCalc = DifficultyCalculator.use(beatmap).setMods(score.mods).calculate();
-					let perfCalc = PerformanceCalculator.use(diffCalc).calculate(score);
-					console.log(perfCalc.totalPerformance);
-					callback(perfCalc.totalPerformance);
-				});
-
-			}
-
-			function getMods(number) { // Rewrite using a two lists and a for loop
-				if (number == 0) {
-					return ('No Mod');
+			var plays = [];
+			var playString = [];
+			var playpp = [];
+			var urls = [];
+			const embed = {
+				'title': `Here are the top 5 plays for ${user}`,
+				'description': '',
+				'url': `https://osu.ppy.sh/users/${body.user_id}`,
+				'color': 12352831,
+				'thumbnail': {
+					'url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
+				},
+				'footer': {
+					'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+					'text': 'Always Remember, The beautiful bot loves you <3'
 				}
-				var modsNames = ['PF', 'SO', 'FL', 'NC', 'HT', 'RX', 'DT', 'SD', 'HR', 'HD', 'EZ', 'NF'];
-				var modsValues = [16416, 4096, 1024, 576, 256, 128, 64, 32, 16, 8, 2, 1];
-				var mods = '';
-				for (var i = 0; i < modsNames.length; i++) {
-					if (number >= modsValues[i]) {
-						number -= modsValues[i];
-						mods += modsNames[i];
-					}
-				}
-				return (mods);
-			}
-			console.log(process.env.discordAPI); client.login(process.env.discordAPI);
-
-			function readDB(id, callback) {
-				MongoClient.connect(url, function (err, client) {
-					console.log('Connected successfully to database successfully');
-					const db = client.db(dbName);
-					// Get the documents collection
-					const collection = db.collection('users');
-					// Find some documents
-					collection.find({
-						discordID: id
-					}).toArray(function (err, docs) {
-						console.log(docs);
-						callback(docs[0]);
-					});
-					client.close();
-				});
-
-			}
-
-			function writedb(data) {
-				MongoClient.connect(url, function (err, client) {
-					console.log('Connected successfully to database successfully');
-					const db = client.db(dbName);
-					// Get the documents collection
-					const collection = db.collection('users');
-					// Find some documents
-					collection.insertOne(data, function (err, result) {
-						console.log('document has been inserted successfully');
-					});
-					client.close();
-				});
-			}
-
-			function updatedb(msg, osuUsername, callback) {
-				MongoClient.connect(url, function (err, client) {
-					console.log('Connected successfully to database successfully');
-					const db = client.db(dbName);
-					// Get the documents collection
-					const collection = db.collection('users');
-					// Find some documents
-					collection.updateOne({
-						discordID: msg.author.id
-					}, {
-						$set: {
-							osuUsername: osuUsername
-						}
-					}, function (err, result) {
-						console.log('document has been updated successfully');
-					});
-					callback(msg);
-					client.close();
-				});
-			}
-
-			function checkUser(msg, data, callback) {
-				request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${data.osuUsername}`, {
+			};
+			for (var i = 0; i < body.length; i++) {
+				urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`);
+				plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`, {
 					json: true
-				}, (err, res, body) => {
-					console.log(data.osuUsername);
-					console.log(body);
-					if (body.length == 0) {
-						msg.channel.send('Invalid username\n(if your osu username contain spaces, replace them with underscores "_" e.g. Some Name to Some_Name)');
-					} else {
-						msg.channel.send('Your osu Username has been successfully connected.\nType `b!help` to see the list of commands available');
-						callback(data);
-					}
-				});
+				}, (err, res, beatmapData) => {
+					let index = urls.indexOf(res.request.href);
+
+					var grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[index].rank.toLowerCase());
+					var pp = Math.floor(body[index].pp * 100) / 100;
+					var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
+
+					playString.push(`__**[${beatmapData[0].title} [${beatmapData[0].version} - ${Math.floor(beatmapData[0].difficultyrating * 100) /100}★] +${getMods(body[index].enabled_mods)}](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`})**__\n${grade} - **${pp}pp** - ${accuracy}%\nCombo: **x${format(body[index].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[index].score)}**\n[${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}]\nAchieved: **${body[index].date}**\n`);
+					playpp.push(pp);
+				}));
 			}
+			Promise.all(plays).then(() => {
+
+				var sortedpp = playpp.slice(0).sort((a, b) => {
+					return (b - a);
+				});
+				var sortedString = [];
+				for (i = 0; i < sortedpp.length; i++) {
+					sortedString.push(playString[playpp.indexOf(sortedpp[i])]);
+				}
+				embed.description = sortedString.join(' ');
+				msg.channel.send({
+					embed
+				});
+			});
+
+		});
+	}
+
+	function getpp(beatmapid, maxcombo, count50, count100, count300, countMiss, perfect, mods, callback) {
+		requestPromiseNative.get(`https://osu.ppy.sh/osu/${beatmapid}`).then(osu => {
+			let beatmap = Beatmap.fromOsu(osu);
+			let score = {
+				maxcombo: maxcombo,
+				count50: count50,
+				count100: count100,
+				count300: count300,
+				countMiss: countMiss,
+				perfect: perfect,
+				mods: mods
+			};
+			let diffCalc = DifficultyCalculator.use(beatmap).setMods(score.mods).calculate();
+			let perfCalc = PerformanceCalculator.use(diffCalc).calculate(score);
+			callback(perfCalc.totalPerformance);
+		});
+
+	}
+
+	function getMods(number) { // Rewrite using a two lists and a for loop
+		if (number == 0) {
+			return ('No Mod');
+		}
+		var modsNames = ['PF', 'SO', 'FL', 'NC', 'HT', 'RX', 'DT', 'SD', 'HR', 'HD', 'EZ', 'NF'];
+		var modsValues = [16416, 4096, 1024, 576, 256, 128, 64, 32, 16, 8, 2, 1];
+		var mods = '';
+		for (var i = 0; i < modsNames.length; i++) {
+			if (number >= modsValues[i]) {
+				number -= modsValues[i];
+				mods += modsNames[i];
+			}
+		}
+		return (mods);
+	}
+	console.log(process.env.discordAPI);
+	client.login(process.env.discordAPI);
+
+	function readDB(id, callback) {
+		MongoClient.connect(url, function (err, client) {
+			
+			const db = client.db(dbName);
+			// Get the documents collection
+			const collection = db.collection('users');
+			// Find some documents
+			collection.find({
+				discordID: id
+			}).toArray(function (err, docs) {
+				
+				callback(docs[0]);
+			});
+			client.close();
+		});
+
+	}
+
+	function writedb(data) {
+		MongoClient.connect(url, function (err, client) {
+			
+			const db = client.db(dbName);
+			// Get the documents collection
+			const collection = db.collection('users');
+			// Find some documents
+			collection.insertOne(data, function (err, result) {
+				
+			});
+			client.close();
+		});
+	}
+
+	function updatedb(msg, osuUsername, callback) {
+		MongoClient.connect(url, function (err, client) {
+			
+			const db = client.db(dbName);
+			// Get the documents collection
+			const collection = db.collection('users');
+			// Find some documents
+			collection.updateOne({
+				discordID: msg.author.id
+			}, {
+				$set: {
+					osuUsername: osuUsername
+				}
+			}, function (err, result) {
+				
+			});
+			callback(msg);
+			client.close();
+		});
+	}
+
+	function checkUser(msg, data, callback) {
+		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${data.osuUsername}`, {
+			json: true
+		}, (err, res, body) => {
+			if (body.length == 0) {
+				errorMessage(msg,4041);
+				return;
+			} else {
+				msg.channel.send('Your osu Username has been successfully connected.\nType `'+config.prefix+'help` to see the list of commands available');
+				callback(data);
+			}
+		});
+	}
+
+	function errorMessage(msg,errCode) {
+		if (errCode == 4041) {
+			console.log('Error 4041');
+			msg.channel.send('Invalid username\nThis username doesn\'t exist, check if you spelt the name correctly');
+		} else if (errCode == 4042) {
+			console.log('Error 4042');
+			msg.channel.send('Invalid beatmap\nThis beatmap wasn\'t found, check if you spelt the name of the beatmap correctly');			
+		} else if (errCode == 4043) {
+			console.log('Error 4043');
+			msg.channel.send('File is not recognised\nCheck if the file is uploaded coreectly, it is a json file and isn\'t corrupted');			
+		} else if (errCode == 4044) {
+			console.log('Error 4044');
+			msg.channel.send('There were no recent plays in the last 24h or Invalid username\nCheck if you spelt the name correctly');
+		} else {
+			console.log('Error 4040');
+			msg.channel.send('Error 4040');
+		}
+	}
