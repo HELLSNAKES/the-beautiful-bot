@@ -1,3 +1,5 @@
+<img src='https://imgur.com/mMeQq7K'>
+
 ### Um, what is this
 This is a bot that I developed for my own discord server.
 
