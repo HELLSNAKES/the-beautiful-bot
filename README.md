@@ -1,7 +1,21 @@
 ### Um, what is this
 This is a bot that I developed for my own discord server.
 
-Documention on how to setup and run this bot using this node.js code will be available when I finish programming the main features
+1. To get this bot running on my machine first you will have to have [Node.js](https://nodejs.org/en/) and [git](https://git-scm.com/downloads) installed in your computer
+2. For the module "canvas" that is heavily used in this project to work you will have to install several dependencies [[Installation]](https://github.com/Automattic/node-canvas/wiki/Installation:-Windows). An easier way to install all the dependencies on your devices is to use [Chocolatey](https://chocolatey.org/) which is also explained at the bottom of the [installation guide](https://github.com/Automattic/node-canvas/wiki/Installation:-Windows#install-with-chocolatey)
+3. Type `git clone https://github.com/mooradal/The-Beautiful-Bot.git` in your command line in the directory you want the files to be cloned to
+4. Type `npm install`
+5. create a file called ".env" and fill it with the following information:
+```
+discordAPI = [Your Bots Discord Token]
+yandexAPI = [Your yandex api key]
+osuAPI = [your osu! api key]
+dbPassword = [your MongoDB Database's Password]
+dbUsername = [your MongoDB Database's Username]
+```
+Note that the bot was not made in a way to make it easy and fast to get it working and a better more user friendly version will be released soon.
+
+5. You are good to go. You can run `node index.js` to run the bot.
 
 ### Features
  - [x] make the bot translate messages to English
@@ -68,9 +82,7 @@ Documention on how to setup and run this bot using this node.js code will be ava
 
  - [ ] general improvement to the fromatting of the "Achieved" section in the b!rs
  - [ ] changing the colour of the embed of the b!rs command
- - Note: Testing hasn't started yet.
-
-  So if you find any bugs please contact me (or open an issue on github)
+ - Note: The bot has been breifly tested and not full tested yet so if you find any bugs please contact me (or open an issue on github)
 
  Here is how the osu beatmap/user stats image should look like when its finished.
 <img src="https://i.imgur.com/LPqEwxV.png" width="40%">
