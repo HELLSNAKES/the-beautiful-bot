@@ -1,4 +1,4 @@
-<img src='https://imgur.com/mMeQq7K'>
+<img src='https://i.imgur.com/mMeQq7K.png'>
 
 ### Um, what is this
 This is a bot that I developed for my own discord server.
