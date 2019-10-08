@@ -7,6 +7,7 @@ require('dotenv').config();
 const Discord = require('discord.js');
 const request = require('request');
 const fs = require('fs');
+const http = require('http');
 const client = new Discord.Client();
 const languageCodes = JSON.parse(fs.readFileSync('language_codes.json'));
 const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
@@ -30,6 +31,9 @@ Canvas.registerFont('assets/SegoeUIBold.ttf', {
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 
+http.createServer((req,res) => {
+
+}).listen(process.env.PORT || 4000)
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
