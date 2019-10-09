@@ -7,7 +7,7 @@ require('dotenv').config();
 const Discord = require('discord.js');
 const request = require('request');
 const fs = require('fs');
-const http = require('http');
+const http = require('http');  
 const client = new Discord.Client();
 const languageCodes = JSON.parse(fs.readFileSync('language_codes.json'));
 const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
