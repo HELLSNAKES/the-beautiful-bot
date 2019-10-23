@@ -35,6 +35,11 @@ http.createServer((req,res) => {
 
 }).listen(process.env.PORT || 4000)
 
+// Ping the app evert 5 minutes to prevent the app from sleeping
+setInterval(function() {
+    http.get("http://the-beautiful-bot.herokuapp.com");
+}, 300000); 
+
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 	
