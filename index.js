@@ -1,5 +1,6 @@
 // Prettier ruined my code ;-;. I hate prettier. Never going to use it again
 // Errors
+// 4040 - Any other error
 // 4041 - Username not found
 // 4042 - Beatmap not found
 // 4043 - File not found
@@ -32,6 +33,13 @@ const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121
 const dbName = 'thebeautifulbot';
 
 http.createServer((req,res) => {
+
+	if (req.url == '/') {
+		console.log('ping');
+		res.write('ping');
+		res.end();
+	}
+
 
 }).listen(process.env.PORT || 4000)
 
@@ -375,13 +383,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 
 				const attachment = new Discord.Attachment(canvas.toBuffer(), 'beatmap_stats.png');
 				const embed = {
-					'title': `
-				$ {
-					data.title
-				} - $ {
-					data.artist
-				} [Download]
-				`,
+					'title': `${data.title} - ${data.artist} [Download]`,
 					'url': data.url,
 					'color': 2065919,
 					'footer': {
