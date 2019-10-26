@@ -609,16 +609,23 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 				console.log(body[0].perfect)
 				getpp(body[0].beatmap_id, parseInt(body[0].maxcombo), parseInt(body[0].count50), parseInt(body[0].count100), parseInt(body[0].count300), parseInt(body[0].countmiss), parseInt(body[0].perfect), parseInt(body[0].enabled_mods), (pp) => {
 					pp = Math.floor(pp * 100) / 100;
-					var timeDifference = Date.now() - Date.parse(body[0].date);
-					timeDifference = timeDifference / 1000;
+					
+					var datebefore = new Date(body[0].date);
+					var datenow = new Date();
+					datenow = new Date(datenow.getUTCFullYear(),datenow.getUTCMonth(),datenow.getUTCDate(),datenow.getUTCHours(),datenow.getUTCMinutes(),datenow.getUTCSeconds(),datenow.getUTCMilliseconds());
+					console.log(datenow);
+					
+					var difference = new Date(datenow - datebefore);
+					var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
+					console.log(formattedDate);				
 
-					var hours = Math.floor((timeDifference / 60) / 60) - 1;
-					var minutes = Math.floor((timeDifference / 60) % 60);
+					
+
 
 					var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 					accuracy = Math.floor(accuracy * 10000) / 100;
 					const embed = {
-						'description': `${grade} - **${pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]\nAchieved: **${body[0].date}**`,
+						'description': `${grade} - **${pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]\nAchieved: **${formattedDate}**`,
 						'url': 'https://discordapp.com',
 						'color': 12352831,
 						'thumbnail': {
