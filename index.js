@@ -541,7 +541,7 @@ function recent(msg, user) {
 			var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 			accuracy = Math.floor(accuracy * 10000) / 100;
 			console.log();
-			exec(`curl https://osu.ppy.sh/osu/${body[0].beatmap_id} | node pp.js +${getMods(body[0].enabled_mods)} ${accuracy}% ${body[0].maxcombo}x ${body[0].countmiss}m`, (err, stdout, stderr) => {
+			exec(`curl -s https://osu.ppy.sh/osu/${body[0].beatmap_id} | node pp.js +${getMods(body[0].enabled_mods)} ${accuracy}% ${body[0].maxcombo}x ${body[0].countmiss}m`, (err, stdout, stderr) => {
 				if (err) {
 					// node couldn't execute the command
 					return;
@@ -569,7 +569,7 @@ function recent(msg, user) {
 				var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
 				const embed = {
-					'description': `${grade} - **${pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]\nAchieved: **${formattedDate}**`,
+					'description': `${grade} - **${pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]`, //\nAchieved: **${formattedDate}**
 					'url': 'https://discordapp.com',
 					'color': 12352831,
 					'thumbnail': {
