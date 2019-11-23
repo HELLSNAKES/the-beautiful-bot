@@ -10,7 +10,6 @@ const request = require('request');
 const fs = require('fs');
 const http = require('http');
 const client = new Discord.Client();
-const languageCodes = JSON.parse(fs.readFileSync('language_codes.json'));
 const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
 const Canvas = require('canvas');
 const requestPromiseNative = require('request-promise-native');
@@ -85,39 +84,39 @@ client.on('message', async msg => {
 			if (/<@[0-9]{18}>/g.test(parameters[0])) {
 				var discordID = parameters[0].slice(2, 20);
 
-				readDB(discordID, (doc) => {
+				readDB(msg, discordID, (doc) => {
 					createUserCard(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
 				createUserCard(msg, parameters.join('_'));
 			} else {
-				readDB(msg.author.id, function (doc) {
+				readDB(msg, msg.author.id, function (doc) {
 					createUserCard(msg, doc.osuUsername);
 				});
 			}
 		} else if (command == 'rs') {
 			if (/<@[0-9]{18}>/g.test(parameters[0])) {
 				var discordID = parameters[0].slice(2, 20);
-				readDB(discordID, (doc) => {
+				readDB(msg, discordID, (doc) => {
 					recent(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
 				recent(msg, parameters.join('_'));
 			} else {
-				readDB(msg.author.id, function (doc) {
+				readDB(msg, msg.author.id, function (doc) {
 					recent(msg, doc.osuUsername);
 				});
 			}
 		} else if (command == 'best') {
 			if (/<@[0-9]{18}>/g.test(parameters[0])) {
 				var discordID = parameters[0].slice(2, 20);
-				readDB(discordID, (doc) => {
+				readDB(msg, discordID, (doc) => {
 					best(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
 				best(msg, parameters.join('_'));
 			} else {
-				readDB(msg.author.id, function (doc) {
+				readDB(msg, msg.author.id, function (doc) {
 					best(msg, doc.osuUsername);
 				});
 			}
@@ -676,7 +675,7 @@ function getMods(number) { // Rewrite using a two lists and a for loop
 console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);
 
-function readDB(id, callback) {
+function readDB(msg, id, callback) {
 	MongoClient.connect(url, function (err, client) {
 
 		const db = client.db(dbName);
@@ -686,7 +685,11 @@ function readDB(id, callback) {
 		collection.find({
 			discordID: id
 		}).toArray(function (err, docs) {
-
+			if (docs.length == 0) {
+				console.log(msg.author)
+				msg.reply(`I could not find you/user in the Database. Use the command \`$osuset [Your osu username]\` to link your osu account.`)
+				return;
+			}
 			callback(docs[0]);
 		});
 		client.close();
@@ -737,7 +740,7 @@ function checkUser(msg, data, callback) {
 			errorMessage(msg, 4041);
 			return;
 		} else {
-			msg.channel.send('Your osu Username has been successfully connected.\nType `' + prefix + 'help` to see the list of commands available');
+			msg.channel.send('**Your osu Username has been successfully connected!**\nType `' + prefix + 'help` to see the list of commands available');
 			callback(data);
 		}
 	});
