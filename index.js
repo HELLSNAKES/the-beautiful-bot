@@ -20,7 +20,7 @@ Canvas.registerFont('assets/SegoeUI.ttf', {
 Canvas.registerFont('assets/SegoeUIBold.ttf', {
 	family: 'segoeUIBold'
 });
-const prefix = '$';
+const prefix = 't$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 const {
@@ -70,8 +70,10 @@ client.on('ready', () => {
 
 client.on('message', async msg => {
 	msg.content = msg.content.toLowerCase();
-
-	if (msg.content == '<@533801347300982785>') {
+	if (msg.author.id == '637205590652747778') {
+		return;
+	}
+	if (msg.content == '<@647218819865116674>') {
 		const embed = help
 		msg.channel.send(embed);
 	}
@@ -176,6 +178,7 @@ function searchBeatmap(msg, name) {
 			errorMessage(msg, 4042);
 			return;
 		}
+		msg.channel.send('https://osu.ppy.sh/beatmapsets/' + body.beatmaps[0].beatmapset_id + '#osu/' + body.beatmaps[0].beatmap_id);
 		getBeatmapData(msg, body.beatmaps[0].beatmapset_id, body.beatmaps[0].beatmap_id);
 	});
 }
