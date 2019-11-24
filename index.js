@@ -20,7 +20,7 @@ Canvas.registerFont('assets/SegoeUI.ttf', {
 Canvas.registerFont('assets/SegoeUIBold.ttf', {
 	family: 'segoeUIBold'
 });
-const prefix = '$';
+const prefix = 'test$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 const {
@@ -31,7 +31,7 @@ const help = {
 		'description': '**---- osu! ----**\n**`' + prefix + 'osuset [Username]`**\nThe osuset command will link your discord with your osu account which will be used in other osu commands\n**`' + prefix + 'osu [Username]`**\nThe user command displays the stats of the specified user. if no osu username is specified then the username linked with account will be used (refer to `' + prefix + 'osuset`)\n**`' + prefix + 'best [Username]`**\nThe best command displays top 5 plays of the specified user. if no osu username is specified then the username linked with account will be used (refer to `' + prefix + 'osuset`)\n**`' + prefix + 'mp [Beatmap name or beatmap id]`**\nThe Beatmap command shows you the stats of the specified map\n**`' + prefix + 'rs [Username]`**\nThe recent command shows you the stats of the most recent play/s\n**`' + prefix + 'osurename [Username]`**\nThe rename command will change the osu account linked with your discord.\n**---- General ----**\n**`' + prefix + 'help`**\nThe help commands will display this command list`',
 		'color': 3066993,
 		'footer': {
-			'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+			'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
 			'text': 'Always Remember, The beautiful bot loves you <3'
 		}
 	}
@@ -355,7 +355,7 @@ async function createBeatmapCard(msg, data) {
 		'url': data.url,
 		'color': 2065919,
 		'footer': {
-			'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+			'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
 			'text': 'Always Remember, The beautiful bot loves you <3'
 		}
 	};
@@ -536,7 +536,6 @@ function recent(msg, user) {
 		request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[0].beatmap_id}`, {
 			json: true
 		}, (err, res, beatmapData) => {
-			var pp;
 			var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 			accuracy = Math.floor(accuracy * 10000) / 100;
 			console.log();
@@ -547,8 +546,8 @@ function recent(msg, user) {
 				}
 
 				// the *entire* stdout and stderr (buffered)
-				pp = stdout.slice(0, stdout.indexOf('$'))
-				console.log(pp)
+				var ppAndDiff = stdout.replace('\n','').split('$')
+				console.log(ppAndDiff)
 				console.log(`stdout: ${stdout}`);
 				console.log(`stderr: ${stderr}`);
 
@@ -562,15 +561,25 @@ function recent(msg, user) {
 				var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
 				console.log(formattedDate);
 
-
+				var colour = 0;
+				if (body[0].rank.toLowerCase() == 'f' || body[0].rank.toLowerCase() == 'd') colour = 15158332;
+				else if (body[0].rank.toLowerCase() == 'c') colour = 10181046;
+				else if (body[0].rank.toLowerCase() == 'b') colour = 3447003;
+				else if (body[0].rank.toLowerCase() == 'a') colour = 3066993;
+				else if (body[0].rank.toLowerCase() == 's') colour = 15844367;
+				else if (body[0].rank.toLowerCase() == 'sh') colour = 12370112;
+				else if (body[0].rank.toLowerCase() == 'ss') colour = 15844367;
+				else if (body[0].rank.toLowerCase() == 'ssh') colour = 12370112;
+				
 
 
 				var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
+
 				const embed = {
-					'description': `${grade} - **${pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]`, //\nAchieved: **${formattedDate}**
+					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]`, //\nAchieved: **${formattedDate}**
 					'url': 'https://discordapp.com',
-					'color': 12352831,
+					'color': colour,
 					'thumbnail': {
 						'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
 					},
@@ -580,7 +589,7 @@ function recent(msg, user) {
 						'icon_url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
 					},
 					'footer': {
-						'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
 						'text': 'Always Remember, The beautiful bot loves you <3'
 					}
 				};
@@ -620,7 +629,7 @@ async function best(msg, user) {
 				'url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
 			},
 			'footer': {
-				'icon_url': 'https://cdn.discordapp.com/avatars/533801347300982785/c457a391619bdb8205b6a7f9be399ab1.png?size=256',
+				'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
 				'text': 'Always Remember, The beautiful bot loves you <3'
 			}
 		};
@@ -687,7 +696,7 @@ function readDB(msg, id, callback) {
 		}).toArray(function (err, docs) {
 			if (docs.length == 0) {
 				console.log(msg.author)
-				msg.reply(`I could not find you/user in the Database. Use the command \`$osuset [Your osu username]\` to link your osu account.`)
+				msg.reply(`I could not find you/user in the Database. Use the command \`${prefix}osuset [Your osu username]\` to link your osu account.`)
 				return;
 			}
 			callback(docs[0]);

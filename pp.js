@@ -58,5 +58,5 @@ readline.createInterface({
 //   console.log(pp.computed_accuracy.toString());
 //   console.log(combo + "/" + max_combo + "x");
 
-  console.log(pp.toString().slice(0,pp.toString().indexOf(' pp'))+'$');
+  console.log(pp.toString().slice(0,pp.toString().indexOf(' pp'))+'$'+stars.toString().slice(0,stars.toString().indexOf(' stars')));
 });
