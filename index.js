@@ -20,7 +20,7 @@ Canvas.registerFont('assets/SegoeUI.ttf', {
 Canvas.registerFont('assets/SegoeUIBold.ttf', {
 	family: 'segoeUIBold'
 });
-const prefix = 't$';
+const prefix = '$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 const {
@@ -70,7 +70,7 @@ client.on('ready', () => {
 
 client.on('message', async msg => {
 	msg.content = msg.content.toLowerCase();
-	if (msg.author.id == '637205590652747778') {
+	if (msg.author.id == '647218819865116674') {
 		return;
 	}
 	if (msg.content == '<@647218819865116674>') {
