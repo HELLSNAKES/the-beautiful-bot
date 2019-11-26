@@ -576,13 +576,16 @@ function recent(msg, user) {
 				else if (body[0].rank.toLowerCase() == 'ss') colour = 15844367;
 				else if (body[0].rank.toLowerCase() == 'ssh') colour = 12370112;
 
-
+				var completion = 0;
+				if (body[0].rank.toLowerCase() == 'f') {
+					completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ppAndDiff[2]) * 10000)/100;
+				}
 
 				var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
 				const embed = {
-					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]`, //\nAchieved: **${formattedDate}**
+					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
 					'url': 'https://discordapp.com',
 					'color': colour,
 					'thumbnail': {
@@ -779,26 +782,26 @@ function getRepoData(msg) {
 				},
 				'fields': [{
 						'name': '-',
-						'value': '**' + body[0].commit.message.slice(0,body[0].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[0].sha.slice(0, 7) + '](' + body[0].html_url + ') by ' + body[0].committer.login + ' on ' + timeSince(Date.parse(body[0].commit.committer.date))
+						'value': '**' + body[0].commit.message.slice(0,body[0].commit.message.indexOf('\n\n') == -1 ? body[0].commit.message.length : body[0].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[0].sha.slice(0, 7) + '](' + body[0].html_url + ') by ' + body[0].author.login + ' on ' + timeSince(Date.parse(body[0].commit.committer.date))
 					},
 					{
 						'name': '-',
-						'value': '**' + body[1].commit.message.slice(0,body[1].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[1].sha.slice(0, 7) + '](' + body[1].html_url + ') by ' + body[1].committer.login + ' on ' + timeSince(Date.parse(body[1].commit.committer.date)),
+						'value': '**' + body[1].commit.message.slice(0,body[1].commit.message.indexOf('\n\n') == -1 ? body[1].commit.message.length : body[1].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[1].sha.slice(0, 7) + '](' + body[1].html_url + ') by ' + body[1].author.login + ' on ' + timeSince(Date.parse(body[1].commit.committer.date)),
 
 					},
 					{
 						'name': '-',
-						'value': '**' + body[2].commit.message.slice(0,body[2].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[2].sha.slice(0, 7) + '](' + body[2].html_url + ') by ' + body[2].committer.login + ' on ' + timeSince(Date.parse(body[2].commit.committer.date)),
+						'value': '**' + body[2].commit.message.slice(0,body[2].commit.message.indexOf('\n\n') == -1 ? body[2].commit.message.length : body[2].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[2].sha.slice(0, 7) + '](' + body[2].html_url + ') by ' + body[2].author.login + ' on ' + timeSince(Date.parse(body[2].commit.committer.date)),
 
 					},
 					{
 						'name': '-',
-						'value': '**' + body[3].commit.message.slice(0,body[3].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[3].sha.slice(0, 7) + '](' + body[3].html_url + ') by ' + body[3].committer.login + ' on ' + timeSince(Date.parse(body[3].commit.committer.date)),
+						'value': '**' + body[3].commit.message.slice(0,body[3].commit.message.indexOf('\n\n') == -1 ? body[3].commit.message.length : body[3].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[3].sha.slice(0, 7) + '](' + body[3].html_url + ') by ' + body[3].author.login + ' on ' + timeSince(Date.parse(body[3].commit.committer.date)),
 
 					},
 					{
 						'name': '-',
-						'value': '**' + body[4].commit.message.slice(0,body[4].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[4].sha.slice(0, 7) + '](' + body[4].html_url + ') by ' + body[4].committer.login + ' on ' + timeSince(Date.parse(body[4].commit.committer.date)),
+						'value': '**' + body[4].commit.message.slice(0,body[4].commit.message.indexOf('\n\n') == -1 ? body[4].commit.message.length : body[4].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[4].sha.slice(0, 7) + '](' + body[4].html_url + ') by ' + body[4].author.login + ' on ' + timeSince(Date.parse(body[4].commit.committer.date)),
 
 					}
 				]
