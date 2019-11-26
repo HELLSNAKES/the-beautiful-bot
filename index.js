@@ -20,7 +20,7 @@ Canvas.registerFont('assets/SegoeUI.ttf', {
 Canvas.registerFont('assets/SegoeUIBold.ttf', {
 	family: 'segoeUIBold'
 });
-const prefix = '$';
+const prefix = 't$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 const {
@@ -144,6 +144,8 @@ client.on('message', async msg => {
 		} else if (command == 'help') {
 			const embed = help
 			msg.channel.send(embed);
+		} else if (command == 'changelog') {
+			getRepoData(msg);
 		}
 	}
 	if (msg.content === 'bot you alive?') { // bot are you alive
@@ -756,6 +758,15 @@ function checkUser(msg, data, callback) {
 			callback(data);
 		}
 	});
+}
+
+function getRepoData(msg) {
+	request({url:'https://api.github.com/repos/moorad/the-beautiful-bot/commits',headers:{'User-Agent':'Moorad'}}, (err,res,body) => {
+		body = JSON.parse(body)
+		for (var i = 0;i < 5;i++) {
+			msg.channel.send(`${i}. SHA:${body[i].sha}\nCommitter:${body[i].author.login}\nurl:${body[i]}.url`)
+		} 
+	})
 }
 
 function errorMessage(msg, errCode) {
