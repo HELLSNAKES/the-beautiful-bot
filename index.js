@@ -145,6 +145,10 @@ client.on('message', async msg => {
 			const embed = help
 			msg.channel.send(embed);
 		} else if (command == 'changelog') {
+			if (parameters.length != 0) {
+				getRepoData(msg,parameters[0]);
+				return;
+			} 
 			getRepoData(msg);
 		}
 	}
@@ -566,6 +570,7 @@ function recent(msg, user) {
 				var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
 				console.log(formattedDate);
 
+				let mods = getMods(body[0].enabled_mods);
 				var colour = 0;
 				if (body[0].rank.toLowerCase() == 'f' || body[0].rank.toLowerCase() == 'd') colour = 15158332;
 				else if (body[0].rank.toLowerCase() == 'c') colour = 10181046;
@@ -580,6 +585,10 @@ function recent(msg, user) {
 				if (body[0].rank.toLowerCase() == 'f') {
 					completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ppAndDiff[2]) * 10000)/100;
 				}
+				
+				if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT')) {
+					ppAndDiff[1] = Math.floor(beatmapData[0].difficultyrating * 100)/100;
+				} 
 
 				var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
@@ -763,7 +772,7 @@ function checkUser(msg, data, callback) {
 	});
 }
 
-function getRepoData(msg) {
+function getRepoData(msg,count = 5) {
 	request({
 		url: 'https://api.github.com/repos/moorad/the-beautiful-bot/commits',
 		headers: {
@@ -771,6 +780,10 @@ function getRepoData(msg) {
 		}
 	}, (err, res, body) => {
 		body = JSON.parse(body)
+		let commits = [];
+		for (var i = 0;i < count;i++) {
+			commits.push({	'name': '-','value': '**' + body[i].commit.message.slice(0,body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[i].sha.slice(0, 7) + '](' + body[i].html_url + ') by ' + body[i].author.login + ' on ' + timeSince(Date.parse(body[i].commit.committer.date))})
+		}
 		msg.channel.send({
 			'embed': {
 				'title': 'Latest activity on The Beautiful Bot\'s Github repo',
@@ -780,31 +793,7 @@ function getRepoData(msg) {
 					'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
 					'text': 'Always Remember, The beautiful bot loves you <3'
 				},
-				'fields': [{
-						'name': '-',
-						'value': '**' + body[0].commit.message.slice(0,body[0].commit.message.indexOf('\n\n') == -1 ? body[0].commit.message.length : body[0].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[0].sha.slice(0, 7) + '](' + body[0].html_url + ') by ' + body[0].author.login + ' on ' + timeSince(Date.parse(body[0].commit.committer.date))
-					},
-					{
-						'name': '-',
-						'value': '**' + body[1].commit.message.slice(0,body[1].commit.message.indexOf('\n\n') == -1 ? body[1].commit.message.length : body[1].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[1].sha.slice(0, 7) + '](' + body[1].html_url + ') by ' + body[1].author.login + ' on ' + timeSince(Date.parse(body[1].commit.committer.date)),
-
-					},
-					{
-						'name': '-',
-						'value': '**' + body[2].commit.message.slice(0,body[2].commit.message.indexOf('\n\n') == -1 ? body[2].commit.message.length : body[2].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[2].sha.slice(0, 7) + '](' + body[2].html_url + ') by ' + body[2].author.login + ' on ' + timeSince(Date.parse(body[2].commit.committer.date)),
-
-					},
-					{
-						'name': '-',
-						'value': '**' + body[3].commit.message.slice(0,body[3].commit.message.indexOf('\n\n') == -1 ? body[3].commit.message.length : body[3].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[3].sha.slice(0, 7) + '](' + body[3].html_url + ') by ' + body[3].author.login + ' on ' + timeSince(Date.parse(body[3].commit.committer.date)),
-
-					},
-					{
-						'name': '-',
-						'value': '**' + body[4].commit.message.slice(0,body[4].commit.message.indexOf('\n\n') == -1 ? body[4].commit.message.length : body[4].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[4].sha.slice(0, 7) + '](' + body[4].html_url + ') by ' + body[4].author.login + ' on ' + timeSince(Date.parse(body[4].commit.committer.date)),
-
-					}
-				]
+				'fields': commits
 			}
 		})
 	})
