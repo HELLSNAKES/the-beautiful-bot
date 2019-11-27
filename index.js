@@ -578,8 +578,8 @@ function recent(msg, user) {
 				else if (body[0].rank.toLowerCase() == 'a') colour = 3066993;
 				else if (body[0].rank.toLowerCase() == 's') colour = 15844367;
 				else if (body[0].rank.toLowerCase() == 'sh') colour = 12370112;
-				else if (body[0].rank.toLowerCase() == 'ss') colour = 15844367;
-				else if (body[0].rank.toLowerCase() == 'ssh') colour = 12370112;
+				else if (body[0].rank.toLowerCase() == 'x') colour = 16580705;
+				else if (body[0].rank.toLowerCase() == 'xh') colour = 16580705;
 
 				var completion = 0;
 				if (body[0].rank.toLowerCase() == 'f') {
