@@ -146,10 +146,12 @@ client.on('message', async msg => {
 			msg.channel.send(embed);
 		} else if (command == 'changelog') {
 			if (parameters.length != 0) {
-				getRepoData(msg,parameters[0]);
+				getRepoData(msg, parameters[0]);
 				return;
-			} 
+			}
 			getRepoData(msg);
+		} else if (command == 'c') {
+			getComparablePlay(msg);
 		}
 	}
 	if (msg.content === 'bot you alive?') { // bot are you alive
@@ -583,12 +585,12 @@ function recent(msg, user) {
 
 				var completion = 0;
 				if (body[0].rank.toLowerCase() == 'f') {
-					completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ppAndDiff[2]) * 10000)/100;
+					completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ppAndDiff[2]) * 10000) / 100;
 				}
-				
+
 				if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT')) {
-					ppAndDiff[1] = Math.floor(beatmapData[0].difficultyrating * 100)/100;
-				} 
+					ppAndDiff[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
+				}
 
 				var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
@@ -637,10 +639,15 @@ async function best(msg, user) {
 		var playString = [];
 		var playpp = [];
 		var urls = [];
+		console.log(body)
 		const embed = {
-			'title': `Here are the top 5 plays for ${user}`,
+			'title': ``,
+			'author': {
+				'name': `Here are the top 5 plays for ${user}`,
+				'url': `https://osu.ppy.sh/users/${body[0].user_id}`
+				// 'icon_url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
+			},
 			'description': '',
-			'url': `https://osu.ppy.sh/users/${body.user_id}`,
 			'color': 12352831,
 			'thumbnail': {
 				'url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
@@ -772,7 +779,7 @@ function checkUser(msg, data, callback) {
 	});
 }
 
-function getRepoData(msg,count = 5) {
+function getRepoData(msg, count = 5) {
 	request({
 		url: 'https://api.github.com/repos/moorad/the-beautiful-bot/commits',
 		headers: {
@@ -781,8 +788,11 @@ function getRepoData(msg,count = 5) {
 	}, (err, res, body) => {
 		body = JSON.parse(body)
 		let commits = [];
-		for (var i = 0;i < count;i++) {
-			commits.push({	'name': '-','value': '**' + body[i].commit.message.slice(0,body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[i].sha.slice(0, 7) + '](' + body[i].html_url + ') by ' + body[i].author.login + ' on ' + timeSince(Date.parse(body[i].commit.committer.date))})
+		for (var i = 0; i < count; i++) {
+			commits.push({
+				'name': '-',
+				'value': '**' + body[i].commit.message.slice(0, body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[i].sha.slice(0, 7) + '](' + body[i].html_url + ') by ' + body[i].author.login + ' on ' + timeSince(Date.parse(body[i].commit.committer.date))
+			})
 		}
 		msg.channel.send({
 			'embed': {
@@ -847,4 +857,16 @@ function errorMessage(msg, errCode) {
 		console.log('Error 4040');
 		msg.channel.send('Error 4040');
 	}
+}
+
+function getComparablePlay(msg) {
+	msg.channel.fetchMessages()
+		.then(messages => {console.log(messages.size);messages.forEach((x) => {
+		
+			msg.channel.fetchMessage(x.id).then(z => {
+				console.log(z.embeds[0].url)
+				console.log(z.embeds[0].author.name.includes('Here are the top 5 plays for') ? 'top' : 'recent')
+			}).catch(() => console.log(undefined))
+		})})
+		.catch(console.error);
 }
