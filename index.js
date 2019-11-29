@@ -873,7 +873,7 @@ function getComparablePlay(msg) {
 	var done = false;
 	msg.channel.fetchMessages()
 		.then(messages => messages.forEach((message) => {
-			if (message.author.id != 637205590652747778 || done) {
+			if (message.author.id != 647218819865116674 || done) {
 				return;
 			}
 			msg.channel.fetchMessage(message.id).then(fetchedMessage => {
