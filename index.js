@@ -23,7 +23,8 @@ const prefix = process.env.prefix || '$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 const {
-	exec
+	exec,
+	execSync
 } = require('child_process');
 
 const help = {
@@ -191,7 +192,7 @@ client.on('message', async msg => {
 });
 
 function searchBeatmap(msg, name) {
-	request(`https://osusearch.com/query/?title=${name}&query_order=favorites`, {
+	request(`https://osusearch.com/query/?title=${name}&query_order=play_count`, {
 		json: true
 	}, (err, res, body) => {
 		if (body.beatmaps.length == 0) {
@@ -220,7 +221,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 			}
 		}
 		data.difficulties = difficulties;
-		data.url = 'https: //osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid;
+		data.url = 'https://osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid;
 		if (msg) {
 			createBeatmapCard(msg, data);
 		} else {
@@ -243,19 +244,16 @@ async function createBeatmapCard(msg, data) {
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
 	Vibrant.from('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg').maxColorCount(64).getPalette(async function (err, palette) {
-		// var hello =		Vibrant.from('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg').getPalette((err,swatch) => {console.log(swatch.Vibrant.getTitleTextColor())});	  
-		// console.log(hello)
-		// var populationArray = [palette.Vibrant.population,]
 		var color = function(c,n,i,d){for(i=3;i--;c[i]=d<0?0:d>255?255:d|0)d=c[i]+n;return c}
-		var backgroundColour = color([palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]],-180);
+		var backgroundColour = color([palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]],-200);
 		backgroundColour = rgbToHex(backgroundColour[0],backgroundColour[1],backgroundColour[2])
-		var foregroundColour = rgbToHex(palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]);
+		var foregroundColour = palette.Vibrant.getHex();
 		console.log(backgroundColour);
 		console.log(foregroundColour);
 
 		// Beatmap Image
 		try {
-			const beatmapImage = await Canvas.loadImage('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg');
+			const beatmapImage = await Canvas.loadImage('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover.jpg');
 			ctx.drawImage(beatmapImage, 0, 0, canvas.width, 382);
 		} catch (err) { //change background to gradient if image is not found
 			console.log(err);
@@ -290,7 +288,7 @@ async function createBeatmapCard(msg, data) {
 		else if (data.approved == 4) approved = 'loved'
 
 		ctx.fillStyle = backgroundColour + 'DD';
-		rrect(ctx, 20, 20, 200, 50, 10);
+		rrect(ctx, 20, 20, 200, 50, 27);
 		ctx.font = '25px rubik';
 		ctx.textAlign = 'center';
 		ctx.fillStyle = foregroundColour;
@@ -307,7 +305,7 @@ async function createBeatmapCard(msg, data) {
 
 		// star rating
 		var svgFile = fs.readFileSync('assets/star.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="#[a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
 		fs.writeFileSync('assets/star.svg', svgFile)
 		const star = await Canvas.loadImage('assets/star.svg');
 		if (data.difficultyrating > 10) {
@@ -338,35 +336,40 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText(data.diff_overall, 420, 660 + 38);
 
 		ctx.beginPath();
-		ctx.fillStyle = foregroundColour + '1A';
+		ctx.fillStyle = foregroundColour+'31';
 		rrect(ctx, 100, 568 + 2, 300, 13, 7);
 		rrect(ctx, 100, 605 + 2, 300, 13, 7);
 		rrect(ctx, 100, 642 + 2, 300, 13, 7);
 		rrect(ctx, 100, 682 + 2, 300, 13, 7);
-		ctx.fill();
 		ctx.beginPath();
 		ctx.fillStyle = foregroundColour;
 		rrect(ctx, 100, 568 + 2, 300 / 8 * (data.diff_size - 2), 13, 7);
 		rrect(ctx, 100, 605 + 2, 30 * data.diff_approach, 13, 7);
 		rrect(ctx, 100, 642 + 2, 30 * data.diff_drain, 13, 7);
 		rrect(ctx, 100, 682 + 2, 30 * data.diff_overall, 13, 7);
-		ctx.fill();
-
+		
+		Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
+		Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
+		Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
+		console.log(Acc100);
+		console.log(Acc95);
+		console.log(Acc90);
+		
 		ctx.textAlign = 'center';
 		ctx.font = '42px rubik';
-		ctx.fillText('100 pp', 1195 + 65, 460 + 10);
-		ctx.font = '17px rubik';
-		ctx.fillText('100% Full Combo', 1195 + 65, 500 + 10);
+		ctx.fillText(`${Acc100}pp`, 1195 + 65, 460 + 10);
+		ctx.font = '20px rubik';
+		ctx.fillText('100% FC', 1195 + 65, 500 + 10);
 
 		ctx.font = '42px rubik';
-		ctx.fillText('100 pp', 1195 + 65, 550 + 10);
-		ctx.font = '17px rubik';
-		ctx.fillText('95% Full Combo', 1195 + 65, 590 + 10);
+		ctx.fillText(`${Acc95}pp`, 1195 + 65, 550 + 10);
+		ctx.font = '20px rubik';
+		ctx.fillText('95% FC', 1195 + 65, 590 + 10);
 
 		ctx.font = '42px rubik';
-		ctx.fillText('100 pp', 1195 + 65, 640 + 10);
-		ctx.font = '17px rubik';
-		ctx.fillText('90% Full Combo', 1195 + 65, 680 + 10);
+		ctx.fillText(`${Acc90}pp`, 1195 + 65, 640 + 10);
+		ctx.font = '20px rubik';
+		ctx.fillText('90% FC', 1195 + 65, 680 + 10);
 
 		const totalLength = await Canvas.loadImage('assets/total_length.png');
 		const bpm = await Canvas.loadImage('assets/bpm.png');
@@ -392,7 +395,7 @@ async function createBeatmapCard(msg, data) {
 				ctx.globalAlpha = 1;
 				ctx.beginPath();
 				ctx.fillStyle = '#ffffff21';
-				rrect(ctx, 630 + ((i % 7) * 83) - 5, 390 + (Math.floor(i / 7) * 83) - 5, 81, 81, 5);
+				rrect(ctx, 630 + ((i % 6) * 83) - 5, 390 + (Math.floor(i / 6) * 83) - 5, 81, 81, 5);
 				ctx.fill();
 			}
 			var icon;
@@ -409,24 +412,21 @@ async function createBeatmapCard(msg, data) {
 			} else {
 				icon = await Canvas.loadImage('assets/extra.png');
 			}
-			ctx.drawImage(icon, 630 + ((i % 7) * 83), 390 + (Math.floor(i / 7) * 83), 71, 71);
+			ctx.drawImage(icon, 630 + ((i % 6) * 83), 390 + (Math.floor(i / 6) * 83), 71, 71);
 		}
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'beatmap_stats.png');
 		const embed = {
-			'title': `${data.title} - ${data.artist} [Download]`,
-			'url': data.url,
-			'color': 2065919,
-			'footer': {
-				'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
-				'text': 'Always Remember, The beautiful bot loves you <3'
-			}
+				'title':`${data.artist} - ${data.title} by ${data.creator} [Download]`,
+				'url': data.url,
+			'color': 2065919
 		};
 		msg.channel.send({
 			embed
 		});
-		msg.channel.send(attachment);
-		console.log(Date(Date.now()) - time)
+
+		msg.channel.send(attachment)
+		console.log(data.url)
 	});
 }
 
@@ -650,7 +650,7 @@ function recent(msg, user) {
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
 				const embed = {
-					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
+					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\n♥ ${body[0].favourite_count} ▶ ${body[0].playcount}`, //\nAchieved: **${formattedDate}**
 					'url': 'https://discordapp.com',
 					'color': colour,
 					'thumbnail': {
@@ -1030,36 +1030,4 @@ function sendCompareEmbed(msg, playType, content, userid) {
 			});
 		}
 	});
-}
-
-function LightenDarkenColor(col, amt) {
-
-	var usePound = false;
-
-	if (col[0] == "#") {
-		col = col.slice(1);
-		usePound = true;
-	}
-
-	var num = parseInt(col, 16);
-
-	var r = (num >> 16) + amt;
-
-	if (r > 255) r = 255;
-	else if (r < 0) r = 0;
-
-	var b = ((num >> 8) & 0x00FF) + amt;
-
-	if (b > 255) b = 255;
-	else if (b < 0) b = 0;
-
-	var g = (num & 0x0000FF) + amt;
-
-	if (g > 255) g = 255;
-	else if (g < 0) g = 0;
-
-	var value = (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
-	// console.log(value + value[value.length-1].repeat(7 - value.length))
-	return value + value[value.length-1].repeat(7 - value.length); 
-
 }
