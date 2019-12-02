@@ -143,7 +143,7 @@ client.on('message', async msg => {
 				writedb(data);
 			});
 		} else if (command == 'help') {
-			const embed = help
+			const embed = help;
 			msg.channel.send(embed);
 		} else if (command == 'changelog') {
 			if (parameters.length != 0) {
@@ -153,18 +153,18 @@ client.on('message', async msg => {
 			getRepoData(msg);
 		} else if (command == 'c') {
 			getComparablePlay(msg);
-		} else if (command == 'dummy') {
-			getBeatmapData(msg, 396221, 862088)
-			// msg.channel.send({ embed: {
-			// 	"url": "https://discordapp.com",
-			// 	"color": 14869524,
-			// 	"author": {
-			// 	  "name": ".",
-			// 	  "url": "https://osu.ppy.sh/beatmapsets/952393#osu/2074851"
-			// 	}
-			// }
-			//   });
-		}
+		} //else if (command == 'dummy') {
+		// 	getBeatmapData(msg, 396221, 862088)
+		// 	// msg.channel.send({ embed: {
+		// 	// 	"url": "https://discordapp.com",
+		// 	// 	"color": 14869524,
+		// 	// 	"author": {
+		// 	// 	  "name": ".",
+		// 	// 	  "url": "https://osu.ppy.sh/beatmapsets/952393#osu/2074851"
+		// 	// 	}
+		// 	// }
+		// 	//   });
+		// }
 	}
 	if (msg.content === 'bot you alive?') { // bot are you alive
 		msg.reply('**YES!!!**');
@@ -199,7 +199,14 @@ function searchBeatmap(msg, name) {
 			errorMessage(msg, 4042);
 			return;
 		}
-		msg.channel.send('https://osu.ppy.sh/beatmapsets/' + body.beatmaps[0].beatmapset_id + '#osu/' + body.beatmaps[0].beatmap_id);
+		const embed = {
+			'title': `${data.artist} - ${data.title} by ${data.creator} [Download]`,
+			'url': data.url,
+			'color': 2065919
+		};
+		msg.channel.send({
+			embed
+		});
 		getBeatmapData(msg, body.beatmaps[0].beatmapset_id, body.beatmaps[0].beatmap_id);
 	});
 }
@@ -243,17 +250,28 @@ async function createBeatmapCard(msg, data) {
 	console.log(data)
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
-	Vibrant.from('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg').maxColorCount(64).getPalette(async function (err, palette) {
-		var color = function(c,n,i,d){for(i=3;i--;c[i]=d<0?0:d>255?255:d|0)d=c[i]+n;return c}
-		var backgroundColour = color([palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]],-200);
-		backgroundColour = rgbToHex(backgroundColour[0],backgroundColour[1],backgroundColour[2])
+	let url = 'https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg';
+	try {
+		beatmapImage = await Canvas.loadImage('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover.jpg');
+	} catch (err) {
+		z = 'assets/unknown_bg.png';
+	}
+	
+	Vibrant.from(url).maxColorCount(64).getPalette(async function (err, palette) {
+		console.log(url)
+		var color = function (c, n, i, d) {
+			for (i = 3; i--; c[i] = d < 0 ? 0 : d > 255 ? 255 : d | 0) d = c[i] + n;
+			return c
+		}
+		var backgroundColour = color([palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]], -200);
+		backgroundColour = rgbToHex(backgroundColour[0], backgroundColour[1], backgroundColour[2])
 		var foregroundColour = palette.Vibrant.getHex();
 		console.log(backgroundColour);
 		console.log(foregroundColour);
 
 		// Beatmap Image
 		try {
-			const beatmapImage = await Canvas.loadImage('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover.jpg');
+			const beatmapImage = await Canvas.loadImage(url);
 			ctx.drawImage(beatmapImage, 0, 0, canvas.width, 382);
 		} catch (err) { //change background to gradient if image is not found
 			console.log(err);
@@ -285,14 +303,14 @@ async function createBeatmapCard(msg, data) {
 		else if (data.approved == 1) approved = 'ranked';
 		else if (data.approved == 2) approved = 'approved';
 		else if (data.approved == 3) approved = 'qualified';
-		else if (data.approved == 4) approved = 'loved'
+		else if (data.approved == 4) approved = 'loved';
 
 		ctx.fillStyle = backgroundColour + 'DD';
 		rrect(ctx, 20, 20, 200, 50, 27);
 		ctx.font = '25px rubik';
 		ctx.textAlign = 'center';
 		ctx.fillStyle = foregroundColour;
-		ctx.fillText(approved.toUpperCase(), 120, 52);
+		ctx.fillText(approved.toUpperCase(), 120, 54);
 		ctx.textAlign = 'left';
 
 		//title and artist name
@@ -310,7 +328,7 @@ async function createBeatmapCard(msg, data) {
 		const star = await Canvas.loadImage('assets/star.svg');
 		if (data.difficultyrating > 10) {
 			for (var i = 0; i < 9; i++) {
-		
+
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 		} else {
@@ -334,9 +352,10 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText(data.diff_approach, 420, 584 + 38);
 		ctx.fillText(data.diff_drain, 420, 622 + 38);
 		ctx.fillText(data.diff_overall, 420, 660 + 38);
+		ctx.fillText(Math.floor(data.difficultyrating * 10) / 10, 420, 495 + 38);
 
 		ctx.beginPath();
-		ctx.fillStyle = foregroundColour+'31';
+		ctx.fillStyle = foregroundColour + '31';
 		rrect(ctx, 100, 568 + 2, 300, 13, 7);
 		rrect(ctx, 100, 605 + 2, 300, 13, 7);
 		rrect(ctx, 100, 642 + 2, 300, 13, 7);
@@ -347,14 +366,14 @@ async function createBeatmapCard(msg, data) {
 		rrect(ctx, 100, 605 + 2, 30 * data.diff_approach, 13, 7);
 		rrect(ctx, 100, 642 + 2, 30 * data.diff_drain, 13, 7);
 		rrect(ctx, 100, 682 + 2, 30 * data.diff_overall, 13, 7);
-		
-		Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
-		Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
-		Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
+
+		let Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
+		let Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
+		let Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
 		console.log(Acc100);
 		console.log(Acc95);
 		console.log(Acc90);
-		
+
 		ctx.textAlign = 'center';
 		ctx.font = '42px rubik';
 		ctx.fillText(`${Acc100}pp`, 1195 + 65, 460 + 10);
@@ -371,31 +390,44 @@ async function createBeatmapCard(msg, data) {
 		ctx.font = '20px rubik';
 		ctx.fillText('90% FC', 1195 + 65, 680 + 10);
 
-		const totalLength = await Canvas.loadImage('assets/total_length.png');
-		const bpm = await Canvas.loadImage('assets/bpm.png');
-		const totalCircles = await Canvas.loadImage('assets/count_circles.png');
-		const totalSliders = await Canvas.loadImage('assets/count_sliders.png');
+		var svgFile = fs.readFileSync('assets/clock.svg', 'utf8')
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		fs.writeFileSync('assets/clock.svg', svgFile)
+		let clock = await Canvas.loadImage('assets/clock.svg');
 
-		ctx.drawImage(totalLength, 450, 430, 50, 50);
-		ctx.drawImage(bpm, 450, 495, 50, 50);
-		ctx.drawImage(totalCircles, 450, 560, 50, 50);
-		ctx.drawImage(totalSliders, 450, 625, 50, 50);
+		ctx.drawImage(clock, 512, 510, 32, 32);
 
+		var svgFile = fs.readFileSync('assets/drum.svg', 'utf8')
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		fs.writeFileSync('assets/drum.svg', svgFile)
+		let drum = await Canvas.loadImage('assets/drum.svg');
+
+		ctx.drawImage(drum, 504, 591, 36, 32);
+
+		var svgFile = fs.readFileSync('assets/times.svg', 'utf8')
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		fs.writeFileSync('assets/times.svg', svgFile)
+		let times = await Canvas.loadImage('assets/times.svg');
+
+		ctx.drawImage(times, 512, 670, 26, 26);
+
+		ctx.textAlign = 'left';
 		ctx.font = '25px rubik';
 		var time = Math.floor(data.total_length / 60) + ':' + (data.total_length % 60 < 10 ? '0' + (data.total_length % 60) : data.total_length % 60);
 
-		ctx.fillText(time, 510, 465);
-		ctx.fillText(data.bpm, 510, 530);
-		ctx.fillText(data.count_normal, 510, 595);
-		ctx.fillText(data.count_slider, 510, 660);
+		ctx.fillText(time, 560, 534);
+		ctx.fillText(data.bpm + ' bpm', 560, 618);
+		ctx.fillText(data.max_combo + 'x', 560, 691);
+
+		ctx.fillText(data.version, 695, 440)
 		data.difficulties.sort();
 		for (var i = 0; i < data.difficulties.length; i++) {
 			ctx.globalAlpha = 0.33;
 			if (data.difficulties[i] == data.difficultyrating) {
 				ctx.globalAlpha = 1;
 				ctx.beginPath();
-				ctx.fillStyle = '#ffffff21';
-				rrect(ctx, 630 + ((i % 6) * 83) - 5, 390 + (Math.floor(i / 6) * 83) - 5, 81, 81, 5);
+				ctx.fillStyle = foregroundColour + '21';
+				rrect(ctx, 703 + ((i % 5) * 90) - 5, 457 + (Math.floor(i / 5) * 90) - 5, 87, 87, 10);
 				ctx.fill();
 			}
 			var icon;
@@ -412,19 +444,10 @@ async function createBeatmapCard(msg, data) {
 			} else {
 				icon = await Canvas.loadImage('assets/extra.png');
 			}
-			ctx.drawImage(icon, 630 + ((i % 6) * 83), 390 + (Math.floor(i / 6) * 83), 71, 71);
+			ctx.drawImage(icon, 703 + ((i % 5) * 90), 457 + (Math.floor(i / 5) * 90), 76, 76);
 		}
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'beatmap_stats.png');
-		const embed = {
-				'title':`${data.artist} - ${data.title} by ${data.creator} [Download]`,
-				'url': data.url,
-			'color': 2065919
-		};
-		msg.channel.send({
-			embed
-		});
-
 		msg.channel.send(attachment)
 		console.log(data.url)
 	});
