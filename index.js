@@ -18,7 +18,7 @@ const Vibrant = require('node-vibrant');
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
 });
-
+var time;
 const prefix = process.env.prefix || '$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
@@ -184,6 +184,7 @@ client.on('message', async msg => {
 		beatmapsetid = beatmapsetid.replace(beatmapsetid.match(/#\S+/g), '');
 		getBeatmapData(msg, beatmapsetid, beatmapid);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
+		time = new Date(Date.now()).getTime();
 		var userid = msg.content.replace('https://osu.ppy.sh/users/', '');
 		createUserCard(msg, userid);
 	}
@@ -231,21 +232,24 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 function componentToHex(c) {
 	var hex = c.toString(16);
 	return hex.length == 1 ? "0" + hex : hex;
-  }
-  function rgbToHex(r, g, b) {
+}
+
+function rgbToHex(r, g, b) {
 	return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-  }
+}
 async function createBeatmapCard(msg, data) {
 	// init the canvas
 	console.log(data)
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
-	 Vibrant.from('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg').maxColorCount(64).getPalette(async function (err, palette) {
+	Vibrant.from('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg').maxColorCount(64).getPalette(async function (err, palette) {
 		// var hello =		Vibrant.from('https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg').getPalette((err,swatch) => {console.log(swatch.Vibrant.getTitleTextColor())});	  
 		// console.log(hello)
 		// var populationArray = [palette.Vibrant.population,]
-		var backgroundColour = rgbToHex(palette.DarkVibrant._rgb[0],palette.DarkVibrant._rgb[1],palette.DarkVibrant._rgb[2]);
-		var foregroundColour = rgbToHex(palette.Vibrant._rgb[0],palette.Vibrant._rgb[1],palette.Vibrant._rgb[2]);
+		var color = function(c,n,i,d){for(i=3;i--;c[i]=d<0?0:d>255?255:d|0)d=c[i]+n;return c}
+		var backgroundColour = color([palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]],-180);
+		backgroundColour = rgbToHex(backgroundColour[0],backgroundColour[1],backgroundColour[2])
+		var foregroundColour = rgbToHex(palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]);
 		console.log(backgroundColour);
 		console.log(foregroundColour);
 
@@ -263,26 +267,34 @@ async function createBeatmapCard(msg, data) {
 			ctx.rect(0, 0, canvas.width, 382);
 			ctx.fill();
 		}
-
 		// Background
 		ctx.beginPath();
 		ctx.fillStyle = backgroundColour;
 		ctx.rect(0, 382, canvas.width, canvas.height);
 		ctx.fill();
 
-		// var grd = ctx.createLinearGradient(0, 64, 0, 382);
-		// grd.addColorStop(0, backgroundColour + '00');
-		// grd.addColorStop(1, backgroundColour);
-		// ctx.fillStyle = grd;
-		// ctx.fillRect(0, 0, canvas.width, 382);
-		// ctx.fill();
+		var grd = ctx.createLinearGradient(0, 64, 0, 382);
+		grd.addColorStop(0, backgroundColour + '00');
+		grd.addColorStop(1, backgroundColour);
+		ctx.fillStyle = grd;
+		ctx.fillRect(0, 0, canvas.width, 382);
+		ctx.fill();
+
+		var approved;
+		if (data.approved == -2) approved = 'graveyard';
+		else if (data.approved == -1) approved = 'WIP';
+		else if (data.approved == 0) approved = 'pending';
+		else if (data.approved == 1) approved = 'ranked';
+		else if (data.approved == 2) approved = 'approved';
+		else if (data.approved == 3) approved = 'qualified';
+		else if (data.approved == 4) approved = 'loved'
 
 		ctx.fillStyle = backgroundColour + 'DD';
 		rrect(ctx, 20, 20, 200, 50, 10);
 		ctx.font = '25px rubik';
 		ctx.textAlign = 'center';
 		ctx.fillStyle = foregroundColour;
-		ctx.fillText(data.approved == 1 ? 'RANKED' : 'UNRANKED', 120, 55);
+		ctx.fillText(approved.toUpperCase(), 120, 52);
 		ctx.textAlign = 'left';
 
 		//title and artist name
@@ -300,6 +312,7 @@ async function createBeatmapCard(msg, data) {
 		const star = await Canvas.loadImage('assets/star.svg');
 		if (data.difficultyrating > 10) {
 			for (var i = 0; i < 9; i++) {
+		
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 		} else {
@@ -413,6 +426,7 @@ async function createBeatmapCard(msg, data) {
 			embed
 		});
 		msg.channel.send(attachment);
+		console.log(Date(Date.now()) - time)
 	});
 }
 
@@ -1016,4 +1030,36 @@ function sendCompareEmbed(msg, playType, content, userid) {
 			});
 		}
 	});
+}
+
+function LightenDarkenColor(col, amt) {
+
+	var usePound = false;
+
+	if (col[0] == "#") {
+		col = col.slice(1);
+		usePound = true;
+	}
+
+	var num = parseInt(col, 16);
+
+	var r = (num >> 16) + amt;
+
+	if (r > 255) r = 255;
+	else if (r < 0) r = 0;
+
+	var b = ((num >> 8) & 0x00FF) + amt;
+
+	if (b > 255) b = 255;
+	else if (b < 0) b = 0;
+
+	var g = (num & 0x0000FF) + amt;
+
+	if (g > 255) g = 255;
+	else if (g < 0) g = 0;
+
+	var value = (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
+	// console.log(value + value[value.length-1].repeat(7 - value.length))
+	return value + value[value.length-1].repeat(7 - value.length); 
+
 }
