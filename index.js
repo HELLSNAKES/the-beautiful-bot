@@ -673,7 +673,7 @@ function recent(msg, user) {
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
 				const embed = {
-					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\n♥ ${body[0].favourite_count} ▶ ${body[0].playcount}`, //\nAchieved: **${formattedDate}**
+					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
 					'url': 'https://discordapp.com',
 					'color': colour,
 					'thumbnail': {
