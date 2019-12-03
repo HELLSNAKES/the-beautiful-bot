@@ -15,6 +15,7 @@
     "discord.js": "^11.5.1",
     "dotenv": "^8.1.0",
     "mongodb": "^3.3.2",
+    "node-vibrant": "^3.1.5",
     "ojsama": "^1.2.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
