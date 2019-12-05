@@ -4,6 +4,9 @@
 // 4041 - Username not found
 // 4042 - Beatmap not found
 // 4043 - File not found
+// 4044 - No recent play found
+// 4045 - Badly formatted arguments
+
 require('dotenv').config();
 const Discord = require('discord.js');
 const request = require('request');
@@ -67,7 +70,7 @@ client.on('ready', () => {
 
 // client.on('guildMemberRemove', (member) => {
 // 	client.channels.find('id',config.byeChannelID).send('Sadly, **'+member.user.username+'** left the server ;-;. I hope they come back some day.\nThere are currently '+(client.users.size-2)+' members in the server\n-');
-// });
+// });}
 
 client.on('message', async msg => {
 	msg.content = msg.content.toLowerCase();
@@ -83,76 +86,94 @@ client.on('message', async msg => {
 		var parameters = msg.content.slice(prefix.length).split(' ');
 		var command = parameters[0];
 		parameters.splice(0, 1);
-		if (command == 'osu') {
-			if (/<@[0-9]{18}>/g.test(parameters[0])) {
-				var discordID = parameters[0].slice(2, 20);
+		switch (command) {
+			case 'osu':
+				if (/<@[0-9]{18}>/g.test(parameters[0])) {
+					var discordID = parameters[0].slice(2, 20);
 
-				readDB(msg, discordID, (doc) => {
-					createUserCard(msg, doc.osuUsername);
+					readDB(msg, discordID, (doc) => {
+						createUserCard(msg, doc.osuUsername);
+					});
+				} else if (parameters.length != 0) {
+					createUserCard(msg, parameters.join('_'));
+				} else {
+					readDB(msg, msg.author.id, function (doc) {
+						createUserCard(msg, doc.osuUsername);
+					});
+				}
+				break;
+			case 'rs':
+				var options = {};
+				for (var i = 0; i < parameters.length; i++) {
+					if (parameters[i] == '-p') {
+						options.previous = parseInt(parameters[i + 1]);
+						parameters.splice(i, 1);
+						parameters.splice(i, 1);
+					}
+				}
+				if (/<@[0-9]{18}>/g.test(parameters[0])) {
+					var discordID = parameters[0].slice(2, 20);
+					readDB(msg, discordID, (doc) => {
+						recent(msg, doc.osuUsername, options);
+					});
+				} else if (parameters.length != 0) {
+					recent(msg, parameters.join('_'), options);
+				} else {
+					readDB(msg, msg.author.id, function (doc) {
+						recent(msg, doc.osuUsername, options);
+					});
+				}
+				break;
+			case 'best':
+				if (/<@[0-9]{18}>/g.test(parameters[0])) {
+					var discordID = parameters[0].slice(2, 20);
+					readDB(msg, discordID, (doc) => {
+						best(msg, doc.osuUsername);
+					});
+				} else if (parameters.length != 0) {
+					best(msg, parameters.join('_'));
+				} else {
+					readDB(msg, msg.author.id, function (doc) {
+						best(msg, doc.osuUsername);
+					});
+				}
+				break;
+			case 'mp':
+				if (parameters.length != 0) {
+					searchBeatmap(msg, parameters.join(' '));
+				}
+				break;
+			case 'osurename':
+				if (parameters.length != 0) {
+					updatedb(msg, parameters.join('_'), function () {
+						msg.channel.send('Your osu username linked with your account has been successfully updated!');
+					});
+				} else {
+					msg.channel.send('Osu username has not been provided.');
+				}
+				break;
+			case 'osuset':
+				checkUser(msg, {
+					discordID: msg.author.id,
+					osuUsername: parameters.join(' ')
+				}, function (data) {
+					writedb(data);
 				});
-			} else if (parameters.length != 0) {
-				createUserCard(msg, parameters.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					createUserCard(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'rs') {
-			if (/<@[0-9]{18}>/g.test(parameters[0])) {
-				var discordID = parameters[0].slice(2, 20);
-				readDB(msg, discordID, (doc) => {
-					recent(msg, doc.osuUsername);
-				});
-			} else if (parameters.length != 0) {
-				recent(msg, parameters.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					recent(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'best') {
-			if (/<@[0-9]{18}>/g.test(parameters[0])) {
-				var discordID = parameters[0].slice(2, 20);
-				readDB(msg, discordID, (doc) => {
-					best(msg, doc.osuUsername);
-				});
-			} else if (parameters.length != 0) {
-				best(msg, parameters.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					best(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'mp') {
-			if (parameters.length != 0) {
-				searchBeatmap(msg, parameters.join(' '));
-			}
-		} else if (command == 'osurename') {
-			if (parameters.length != 0) {
-				updatedb(msg, parameters.join('_'), function () {
-					msg.channel.send('Your osu username linked with your account has been successfully updated!');
-				});
-			} else {
-				msg.channel.send('Osu username has not been provided.');
-			}
-		} else if (command == 'osuset') {
-			checkUser(msg, {
-				discordID: msg.author.id,
-				osuUsername: parameters.join(' ')
-			}, function (data) {
-				writedb(data);
-			});
-		} else if (command == 'help') {
-			const embed = help;
-			msg.channel.send(embed);
-		} else if (command == 'changelog') {
-			if (parameters.length != 0) {
-				getRepoData(msg, parameters[0]);
-				return;
-			}
-			getRepoData(msg);
-		} else if (command == 'c') {
-			getComparablePlay(msg);
+				break;
+			case 'help':
+				const embed = help;
+				msg.channel.send(embed);
+				break;
+			case 'changelog':
+				if (parameters.length != 0) {
+					getRepoData(msg, parameters[0]);
+					return;
+				}
+				getRepoData(msg);
+				break;
+			case 'c':
+				getComparablePlay(msg);
+				break;
 		} //else if (command == 'dummy') {
 		// 	getBeatmapData(msg, 396221, 862088)
 		// 	// msg.channel.send({ embed: {
@@ -199,9 +220,10 @@ function searchBeatmap(msg, name) {
 			errorMessage(msg, 4042);
 			return;
 		}
+		console.log(body)
 		const embed = {
-			'title': `${data.artist} - ${data.title} by ${data.creator} [Download]`,
-			'url': data.url,
+			'title': `${ body.beatmaps[0].artist} - ${body.beatmaps[0].title} by ${ body.beatmaps[0].mapper} [Download]`,
+			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmaps[0].beatmapset_id}#osu/${body.beatmaps[0].beatmap_id}`,
 			'color': 2065919
 		};
 		msg.channel.send({
@@ -256,7 +278,7 @@ async function createBeatmapCard(msg, data) {
 	} catch (err) {
 		z = 'assets/unknown_bg.png';
 	}
-	
+
 	Vibrant.from(url).maxColorCount(64).getPalette(async function (err, palette) {
 		console.log(url)
 		var color = function (c, n, i, d) {
@@ -611,78 +633,81 @@ function format(number) {
 	return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }
 
-function recent(msg, user) {
-	request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}`, {
+function recent(msg, user, options = {}) {
+
+	options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
+	if (0 > options.previous || options.previous > 49 || isNaN(options.previous)) {
+		errorMessage(msg, 4045);
+		return;
+	}
+	request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
 		json: true
 	}, (err, res, body) => {
 		if (body.length == 0) {
 			errorMessage(msg, 4044);
 			return;
 		}
-
-		const grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[0].rank.toLowerCase());
-		request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[0].beatmap_id}`, {
+		let play = body[options.previous];
+		let grade = client.emojis.find(emoji => emoji.name === 'grade_' + play.rank.toLowerCase());
+		let accuracy = Math.floor((50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)))*10000) / 100;
+		let date = timeSince(Date.parse(play.date))
+		request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${play.beatmap_id}`, {
 			json: true
 		}, (err, res, beatmapData) => {
-			var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
-			accuracy = Math.floor(accuracy * 10000) / 100;
-			console.log();
-			exec(`curl -s https://osu.ppy.sh/osu/${body[0].beatmap_id} | node pp.js +${getMods(body[0].enabled_mods)} ${accuracy}% ${body[0].maxcombo}x ${body[0].countmiss}m`, (err, stdout, stderr) => {
+			
+			
+			exec(`curl -s https://osu.ppy.sh/osu/${play.beatmap_id} | node pp.js +${getMods(play.enabled_mods)} ${accuracy}% ${play.maxcombo}x ${play.countmiss}m`, (err, stdout, stderr) => {
 				if (err) {
 					// node couldn't execute the command
 					return;
 				}
 
 				// the *entire* stdout and stderr (buffered)
-				var ppAndDiff = stdout.replace('\n', '').split('$')
-				console.log(ppAndDiff)
-				console.log(`stdout: ${stdout}`);
-				console.log(`stderr: ${stderr}`);
+				var ojsama = stdout.replace('\n', '').split('$')
+
+				// var datebefore = new Date(play.date);
+				// var datenow = new Date();
+				// datenow = new Date(datenow.getUTCFullYear(), datenow.getUTCMonth(), datenow.getUTCDate(), datenow.getUTCHours(), datenow.getUTCMinutes(), datenow.getUTCSeconds(), datenow.getUTCMilliseconds());
+				// console.log(datenow);
+
+				// var difference = new Date(datenow - datebefore);
+				// var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
 
 
-				var datebefore = new Date(body[0].date);
-				var datenow = new Date();
-				datenow = new Date(datenow.getUTCFullYear(), datenow.getUTCMonth(), datenow.getUTCDate(), datenow.getUTCHours(), datenow.getUTCMinutes(), datenow.getUTCSeconds(), datenow.getUTCMilliseconds());
-				console.log(datenow);
-
-				var difference = new Date(datenow - datebefore);
-				var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
-				console.log(formattedDate);
-
-				let mods = getMods(body[0].enabled_mods);
+				let mods = getMods(play.enabled_mods);
 				var colour = 0;
-				if (body[0].rank.toLowerCase() == 'f' || body[0].rank.toLowerCase() == 'd') colour = 15158332;
-				else if (body[0].rank.toLowerCase() == 'c') colour = 10181046;
-				else if (body[0].rank.toLowerCase() == 'b') colour = 3447003;
-				else if (body[0].rank.toLowerCase() == 'a') colour = 3066993;
-				else if (body[0].rank.toLowerCase() == 's') colour = 15844367;
-				else if (body[0].rank.toLowerCase() == 'sh') colour = 12370112;
-				else if (body[0].rank.toLowerCase() == 'x') colour = 16580705;
-				else if (body[0].rank.toLowerCase() == 'xh') colour = 16580705;
+				if (play.rank.toLowerCase() == 'f' || play.rank.toLowerCase() == 'd') colour = 15158332;
+				else if (play.rank.toLowerCase() == 'c') colour = 10181046;
+				else if (play.rank.toLowerCase() == 'b') colour = 3447003;
+				else if (play.rank.toLowerCase() == 'a') colour = 3066993;
+				else if (play.rank.toLowerCase() == 's') colour = 15844367;
+				else if (play.rank.toLowerCase() == 'sh') colour = 12370112;
+				else if (play.rank.toLowerCase() == 'x') colour = 16580705;
+				else if (play.rank.toLowerCase() == 'xh') colour = 16580705;
 
 				var completion = 0;
-				if (body[0].rank.toLowerCase() == 'f') {
-					completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ppAndDiff[2]) * 10000) / 100;
+				if (play.rank.toLowerCase() == 'f') {
+					completion = Math.floor((parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
 				}
 
 				if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT')) {
-					ppAndDiff[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
+					ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
 				}
 
-				var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
+				var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
 				const embed = {
-					'description': `${grade} - **${ppAndDiff[0]}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
+					'description': `${grade} - **${ojsama[0]}pp** - ${accuracy}%${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]${play.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
 					'url': 'https://discordapp.com',
 					'color': colour,
 					'thumbnail': {
 						'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
 					},
 					'author': {
-						'name': `${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(body[0].enabled_mods)}`,
+						'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
 						'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
-						'icon_url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
+						'icon_url': `https://a.ppy.sh/${play.user_id}?1566997187.jpeg`
 					},
 					'footer': {
 						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
@@ -786,7 +811,10 @@ console.log(process.env.discordAPI);
 client.login(process.env.discordAPI);
 
 function readDB(msg, id, callback) {
-	MongoClient.connect(url, function (err, client) {
+	MongoClient.connect(url, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	}, function (err, client) {
 
 		const db = client.db(dbName);
 		// Get the documents collection
@@ -864,12 +892,15 @@ function getRepoData(msg, count = 5) {
 		}
 	}, (err, res, body) => {
 		body = JSON.parse(body)
+		
 		let commits = [];
 		for (var i = 0; i < count; i++) {
+			let message = body[i].commit.message.slice(0, body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'))
+			let description = body[i].commit.message.slice(body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'),body[i].commit.message.length);
 			commits.push({
 				'name': '-',
-				'value': '**' + body[i].commit.message.slice(0, body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n')) + '**\ncommit [' + body[i].sha.slice(0, 7) + '](' + body[i].html_url + ') by ' + body[i].author.login + ' on ' + timeSince(Date.parse(body[i].commit.committer.date))
-			})
+				'value': `**${message}**${description.replace('\n\n','\n')}\ncommit [${body[i].sha.slice(0, 7)}](${body[i].html_url}) by ${body[i].author.login}, ${timeSince(Date.parse(body[i].commit.committer.date))} ago`
+			});
 		}
 		msg.channel.send({
 			'embed': {
@@ -930,6 +961,9 @@ function errorMessage(msg, errCode) {
 	} else if (errCode == 4044) {
 		console.log('Error 4044');
 		msg.channel.send('There were no recent plays in the last 24h or Invalid username\nCheck if you spelled the name correctly or click some circles :)');
+	} else if (errCode == 4045) {
+		console.log('Error 4045');
+		msg.channel.send('**Command arguments are badly formatted**. Please use the commands in this format `$command -a -b 10 -c Username`.\nMake sure that the Username goes last.');
 	} else {
 		console.log('Error 4040');
 		msg.channel.send('Error 4040');
@@ -985,12 +1019,7 @@ function sendCompareEmbed(msg, playType, content, userid) {
 							return;
 						}
 
-						// the *entire* stdout and stderr (buffered)
-						var ppAndDiff = stdout.replace('\n', '').split('$')
-						console.log(ppAndDiff)
-						console.log(`stdout: ${stdout}`);
-						console.log(`stderr: ${stderr}`);
-
+						var ojsama = stdout.replace('\n', '').split('$')
 
 						var datebefore = new Date(body[0].date);
 						var datenow = new Date();
@@ -1014,18 +1043,18 @@ function sendCompareEmbed(msg, playType, content, userid) {
 
 						var completion = 0;
 						if (body[0].rank.toLowerCase() == 'f') {
-							completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ppAndDiff[2]) * 10000) / 100;
+							completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
 						}
 
 						if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT')) {
-							ppAndDiff[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
+							ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
 						}
 
 						var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 						accuracy = Math.floor(accuracy * 10000) / 100;
 
 						const embed = {
-							'description': `${grade} - **${body[0].pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ppAndDiff[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ppAndDiff[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
+							'description': `${grade} - **${body[0].pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
 							'url': 'https://discordapp.com',
 							'color': colour,
 							'thumbnail': {
