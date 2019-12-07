@@ -1,7 +1,7 @@
 const Vibrant = require('node-vibrant');
 const FastAverageColor = require('fast-average-color')
-function getVibrant() {
-
+function getVibrant(directory,callback) {
+	Vibrant.from(directory,callback);
 }
 
 function getAverage() {
@@ -9,4 +9,4 @@ function getAverage() {
 	return myColor;
 }
 
-getAverage();
+getVibrant();

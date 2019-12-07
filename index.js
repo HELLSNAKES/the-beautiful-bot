@@ -21,6 +21,14 @@ const Vibrant = require('node-vibrant');
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
 });
+
+Canvas.registerFont('assets/SegoeUI.ttf', {
+	family: 'segoeUI'
+});
+
+Canvas.registerFont('assets/SegoeUIBold.ttf', {
+	family: 'segoeUIBold'
+});
 var time;
 const prefix = process.env.prefix || '$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
@@ -549,10 +557,10 @@ function createUserCard(msg, id) {
 		ctx.restore();
 
 		ctx.fillStyle = '#ffffff';
-		ctx.font = '51px rubik';
+		ctx.font = '51px segoeUIBold';
 		ctx.fillText(body[0].username, 330, 95);
 
-		ctx.font = '40px rubik';
+		ctx.font = '40px segoeUI';
 		let country = countryCodes[body[0].country];
 		ctx.fillText(country, 330, 140);
 
@@ -568,7 +576,7 @@ function createUserCard(msg, id) {
 		ctx.drawImage(gradeS, 760, 180, 95, 48);
 		ctx.drawImage(gradeA, 890, 180, 95, 48);
 
-		ctx.font = '25px rubik';
+		ctx.font = '25px segoeUIBold';
 		ctx.textAlign = 'center';
 		ctx.fillText(body[0].count_rank_ssh, 417, 260, 95, 48);
 		ctx.fillText(body[0].count_rank_ss, 549, 260, 95, 48);
@@ -576,21 +584,21 @@ function createUserCard(msg, id) {
 		ctx.fillText(body[0].count_rank_s, 809, 260, 95, 48);
 		ctx.fillText(body[0].count_rank_a, 939, 260, 95, 48);
 		ctx.textAlign = 'left';
-		ctx.font = '37px rubik';
+		ctx.font = '37px segoeUIBold';
 		ctx.fillText('Global Rank', 50, 350);
-		ctx.font = '65px rubik';
+		ctx.font = '62px segoeUI';
 		ctx.fillText('#' + format(body[0].pp_rank), 50, 420);
 
-		ctx.font = '20px rubik';
+		ctx.font = '20px segoeUIBold';
 		ctx.fillText('Country Rank', 50, 450);
-		ctx.font = '42px rubik';
+		ctx.font = '42px segoeUI';
 		ctx.fillText('#' + format(body[0].pp_country_rank), 50, 500);
 
 		var hexagon = await Canvas.loadImage('./assets/hexagon.png');
 		ctx.drawImage(hexagon, 340, 271, 70, 76);
 
 		ctx.textAlign = 'center';
-		ctx.font = '33px rubik';
+		ctx.font = '33px segoeUI';
 		ctx.fillText(Math.floor(body[0].level), 375, 320);
 
 		rrect(ctx, 440, 305, 462, 11, 7);
@@ -598,7 +606,7 @@ function createUserCard(msg, id) {
 		rrect(ctx, 440, 305, 462 * (body[0].level - Math.floor(body[0].level)), 11, 7);
 		ctx.textAlign = 'left';
 		ctx.fillStyle = '#ffffff';
-		ctx.font = '21px rubik';
+		ctx.font = '21px segoeUI';
 		ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 920, 317);
 
 		// ctx.beginPath();
@@ -612,11 +620,11 @@ function createUserCard(msg, id) {
 
 		ctx.fillStyle = '#ffffff';
 		ctx.textAlign = 'center';
-		ctx.font = '30px rubik';
+		ctx.font = '30px segoeUIBold';
 		ctx.fillText('pp', 425, 418);
 		ctx.fillText('Accuracy', 655, 418);
 		ctx.fillText('hours played', 905, 418);
-		ctx.font = '35px rubik';
+		ctx.font = '35px segoeUI';
 		ctx.fillText(Math.floor(body[0].pp_raw), 425, 468);
 		ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 655, 468);
 		ctx.fillText(format(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 905, 468);
