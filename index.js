@@ -280,7 +280,7 @@ async function createBeatmapCard(msg, data) {
 	console.log(data)
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
-	let url = 'https://i1.sndcdn.com/artworks-000301064430-zeuz02-t500x500.jpg';
+	let url = 'https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg';
 	try {
 		beatmapImage = await Canvas.loadImage(url);
 	} catch (err) {
