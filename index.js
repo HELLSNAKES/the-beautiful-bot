@@ -715,7 +715,7 @@ function recent(msg, user, options = {}) {
 					'author': {
 						'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
 						'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
-						'icon_url': `https://a.ppy.sh/${play.user_id}?1566997187.jpeg`
+						'icon_url': `https://a.ppy.sh/${body[0].user_id}`
 					},
 					'footer': {
 						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
@@ -760,7 +760,7 @@ async function best(msg, user) {
 			'description': '',
 			'color': 12352831,
 			'thumbnail': {
-				'url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
+				'url': `https://a.ppy.sh/${body[0].user_id}`
 			},
 			'footer': {
 				'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
@@ -1071,7 +1071,7 @@ function sendCompareEmbed(msg, playType, content, userid) {
 							'author': {
 								'name': `${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(body[0].enabled_mods)}`,
 								'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
-								'icon_url': `https://a.ppy.sh/${body[0].user_id}?1566997187.jpeg`
+								'icon_url': `https://a.ppy.sh/${body[0].user_id}`
 							},
 							'footer': {
 								'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
