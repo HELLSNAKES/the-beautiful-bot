@@ -389,10 +389,15 @@ async function createBeatmapCard(msg, data) {
 		rrect(ctx, 100, 605 + 2, 30 * data.diff_approach, 13, 7);
 		rrect(ctx, 100, 642 + 2, 30 * data.diff_drain, 13, 7);
 		rrect(ctx, 100, 682 + 2, 30 * data.diff_overall, 13, 7);
-
-		let Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
-		let Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
-		let Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
+		try {
+			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
+			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
+			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
+		} catch(e) {
+			var Acc100 = '-';
+			var Acc95 = '-';
+			var Acc90 = '-';
+		}
 		console.log(Acc100);
 		console.log(Acc95);
 		console.log(Acc90);
@@ -454,18 +459,19 @@ async function createBeatmapCard(msg, data) {
 				ctx.fill();
 			}
 			var icon;
+			var modes = ['','_taiko','_ctb','_mania']
 			if (data.difficulties[i] < 2) {
-				icon = await Canvas.loadImage('assets/easy.png');
+				icon = await Canvas.loadImage(`assets/easy${modes[data.mode]}.png`);
 			} else if (data.difficulties[i] < 2.7) {
-				icon = await Canvas.loadImage('assets/normal.png');
+				icon = await Canvas.loadImage(`assets/normal${modes[data.mode]}.png`);
 			} else if (data.difficulties[i] < 4) {
-				icon = await Canvas.loadImage('assets/hard.png');
+				icon = await Canvas.loadImage(`assets/hard${modes[data.mode]}.png`);
 			} else if (data.difficulties[i] < 5.3) {
-				icon = await Canvas.loadImage('assets/insane.png');
+				icon = await Canvas.loadImage(`assets/insane${modes[data.mode]}.png`);
 			} else if (data.difficulties[i] < 6.5) {
-				icon = await Canvas.loadImage('assets/expert.png');
+				icon = await Canvas.loadImage(`assets/expert${modes[data.mode]}.png`);
 			} else {
-				icon = await Canvas.loadImage('assets/extra.png');
+				icon = await Canvas.loadImage(`assets/extra${modes[data.mode]}.png`);
 			}
 			ctx.drawImage(icon, 703 + ((i % 5) * 90), 457 + (Math.floor(i / 5) * 90), 76, 76);
 		}
