@@ -66,11 +66,13 @@ setInterval(function () {
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-	let messages = ['osu! | $help','https://github.com/moorad/the-beautiful-bot','with FL. Imagine not being able to FC with FL lol']
+	let messages = ['osu! | $help', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol']
 	let counter = 0;
 	setInterval(() => {
-		client.user.setActivity(messages[counter],{type:'playing'})
-		.then(console.log)
+		client.user.setActivity(messages[counter], {
+				type: 'playing'
+			})
+			.then(console.log)
 		counter = (counter + 1) % messages.length;
 	}, 600000);
 
@@ -105,7 +107,7 @@ client.on('message', async msg => {
 		switch (command) {
 			case 'osu':
 				if (/<@![0-9]{18}>/g.test(parameters[0])) {
-					var discordID = parameters[0].slice(2, 20);
+					var discordID = parameters[0].slice(3, 21);
 
 					readDB(msg, discordID, (doc) => {
 						createUserCard(msg, doc.osuUsername);
@@ -127,8 +129,9 @@ client.on('message', async msg => {
 						parameters.splice(i, 1);
 					}
 				}
-				if (/<@[0-9]{18}>/g.test(parameters[0])) {
-					var discordID = parameters[0].slice(2, 20);
+				if (/<@![0-9]{18}>/g.test(parameters[0])) {
+					var discordID = parameters[0].slice(3, 21);
+					console.log(discordID)
 					readDB(msg, discordID, (doc) => {
 						recent(msg, doc.osuUsername, options);
 					});
@@ -194,11 +197,11 @@ client.on('message', async msg => {
 		} //else if (command == 'dummy') {
 		// 	getBeatmapData(msg, 396221, 862088)
 		// 	// msg.channel.send({ embed: {
-		// 	// 	"url": "https://discordapp.com",
-		// 	// 	"color": 14869524,
-		// 	// 	"author": {
-		// 	// 	  "name": ".",
-		// 	// 	  "url": "https://osu.ppy.sh/beatmapsets/952393#osu/2074851"
+		// 	// 	'url': 'https://discordapp.com',
+		// 	// 	'color': 14869524,
+		// 	// 	'author': {
+		// 	// 	  'name': '.',
+		// 	// 	  'url': 'https://osu.ppy.sh/beatmapsets/952393#osu/2074851'
 		// 	// 	}
 		// 	// }
 		// 	//   });
@@ -289,8 +292,8 @@ async function createBeatmapCard(msg, data) {
 		z = 'assets/unknown_bg.png';
 	}
 
-	colours.getColours(url,async function (coloursExtracted) {
-		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground),colours.toRGB(coloursExtracted.background));
+	colours.getColours(url, async function (coloursExtracted) {
+		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
 		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground)
 		coloursExtracted.background = colours.toHex(coloursExtracted.background)
 		// Beatmap Image
@@ -347,7 +350,7 @@ async function createBeatmapCard(msg, data) {
 
 		// star rating
 		var svgFile = fs.readFileSync('assets/star.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
+		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
 		fs.writeFileSync('assets/star.svg', svgFile)
 		const star = await Canvas.loadImage('assets/star.svg');
 		if (data.difficultyrating > 10) {
@@ -394,7 +397,7 @@ async function createBeatmapCard(msg, data) {
 			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
 			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
 			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
-		} catch(e) {
+		} catch (e) {
 			var Acc100 = '-';
 			var Acc95 = '-';
 			var Acc90 = '-';
@@ -420,21 +423,21 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText('90% FC', 1195 + 65, 680 + 10);
 
 		var svgFile = fs.readFileSync('assets/clock.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
+		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
 		fs.writeFileSync('assets/clock.svg', svgFile)
 		let clock = await Canvas.loadImage('assets/clock.svg');
 
 		ctx.drawImage(clock, 512, 510, 32, 32);
 
 		var svgFile = fs.readFileSync('assets/drum.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
+		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
 		fs.writeFileSync('assets/drum.svg', svgFile)
 		let drum = await Canvas.loadImage('assets/drum.svg');
 
 		ctx.drawImage(drum, 504, 591, 36, 32);
 
 		var svgFile = fs.readFileSync('assets/times.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
+		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
 		fs.writeFileSync('assets/times.svg', svgFile)
 		let times = await Canvas.loadImage('assets/times.svg');
 
@@ -460,7 +463,7 @@ async function createBeatmapCard(msg, data) {
 				ctx.fill();
 			}
 			var icon;
-			var modes = ['','_taiko','_ctb','_mania']
+			var modes = ['', '_taiko', '_ctb', '_mania']
 			if (data.difficulties[i] < 2) {
 				icon = await Canvas.loadImage(`assets/easy${modes[data.mode]}.png`);
 			} else if (data.difficulties[i] < 2.7) {
@@ -657,13 +660,13 @@ function recent(msg, user, options = {}) {
 		}
 		let play = body[options.previous];
 		let grade = client.emojis.find(emoji => emoji.name === 'grade_' + play.rank.toLowerCase());
-		let accuracy = Math.floor((50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)))*10000) / 100;
+		let accuracy = Math.floor((50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss))) * 10000) / 100;
 		let date = timeSince(Date.parse(play.date))
 		request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${play.beatmap_id}`, {
 			json: true
 		}, (err, res, beatmapData) => {
-			
-			
+
+
 			exec(`curl -s https://osu.ppy.sh/osu/${play.beatmap_id} | node pp.js +${getMods(play.enabled_mods)} ${accuracy}% ${play.maxcombo}x ${play.countmiss}m`, (err, stdout, stderr) => {
 				if (err) {
 					// node couldn't execute the command
@@ -706,20 +709,50 @@ function recent(msg, user, options = {}) {
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
 				const embed = {
-					'description': `${grade} - **${ojsama[0]}pp** - ${accuracy}%${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]${play.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
 					'url': 'https://discordapp.com',
 					'color': colour,
-					'thumbnail': {
-						'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
+					'image': {
+						'url': `https://assets.ppy.sh/beatmaps/${beatmapData[0].beatmapset_id}/covers/cover.jpg`
 					},
 					'author': {
 						'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
 						'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
 						'icon_url': `https://a.ppy.sh/${body[0].user_id}`
 					},
+					'fields': [{
+							'name': 'Grade and pp',
+							'value': `${grade} **${ojsama[0]}pp** `,
+							'inline': true
+						},
+						{
+							'name': 'Difficulty',
+							'value': `${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**`,
+							'inline': true
+						},
+						{
+							'name': 'Combo',
+							'value': `**x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**${play.perfect == 1 ? ' __**[Full Combo!]**__' : ''}`,
+							'inline': true
+						},
+						{
+							'name': 'Score',
+							'value': `**${format(play.score)}** [${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]`,
+							'inline': true
+						},
+						{
+							'name': 'Achieved',
+							'value': `**${date}**`,
+							'inline': true
+						},
+						{
+							'name': 'Accuracy',
+							'value': `**${accuracy}%**`,
+							'inline': true
+						}
+					],
 					'footer': {
 						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
-						'text': 'Always Remember, The beautiful bot loves you <3'
+						'text': `<3 | Achieved: ${date} ${play.rank.toLowerCase() == 'f' ? ` | Completion: ${completion}%` : ''}`
 					}
 				};
 				msg.channel.send({
@@ -902,11 +935,11 @@ function getRepoData(msg, count = 5) {
 		}
 	}, (err, res, body) => {
 		body = JSON.parse(body)
-		
+
 		let commits = [];
 		for (var i = 0; i < count; i++) {
 			let message = body[i].commit.message.slice(0, body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'))
-			let description = body[i].commit.message.slice(body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'),body[i].commit.message.length);
+			let description = body[i].commit.message.slice(body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'), body[i].commit.message.length);
 			commits.push({
 				'name': '-',
 				'value': `**${message}**${description.replace('\n\n','\n')}\ncommit [${body[i].sha.slice(0, 7)}](${body[i].html_url}) by ${body[i].author.login}, ${timeSince(Date.parse(body[i].commit.committer.date))} ago`
