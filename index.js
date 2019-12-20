@@ -90,10 +90,10 @@ client.on('ready', () => {
 client.on('message', async msg => {
 
 	msg.content = msg.content.toLowerCase();
-	if (msg.author.id == '647218819865116674') {
+	if (msg.author.id == '637205590652747778') {
 		return;
 	}
-	if (msg.content == '<@647218819865116674>') {
+	if (msg.content == '<@!637205590652747778>') {
 		const embed = help
 		msg.channel.send(embed);
 	}
@@ -104,7 +104,7 @@ client.on('message', async msg => {
 		parameters.splice(0, 1);
 		switch (command) {
 			case 'osu':
-				if (/<@[0-9]{18}>/g.test(parameters[0])) {
+				if (/<@![0-9]{18}>/g.test(parameters[0])) {
 					var discordID = parameters[0].slice(2, 20);
 
 					readDB(msg, discordID, (doc) => {
@@ -141,9 +141,10 @@ client.on('message', async msg => {
 				}
 				break;
 			case 'best':
-				if (/<@[0-9]{18}>/g.test(parameters[0])) {
-					var discordID = parameters[0].slice(2, 20);
+				if (/<@![0-9]{18}>/g.test(parameters[0])) {
+					var discordID = parameters[0].slice(3, 21);
 					readDB(msg, discordID, (doc) => {
+						console.log('read the db')
 						best(msg, doc.osuUsername);
 					});
 				} else if (parameters.length != 0) {
@@ -741,6 +742,7 @@ async function best(msg, user) {
 	}, (err, res, body) => {
 		console.log(res.statusCode);
 		if (body.length == 0) {
+			console.log(user)
 			errorMessage(msg, 4041);
 			return;
 		}
@@ -831,7 +833,7 @@ function readDB(msg, id, callback) {
 			discordID: id
 		}).toArray(function (err, docs) {
 			if (docs.length == 0) {
-				console.log(msg.author)
+				console.log(docs)
 				msg.reply(`I could not find you/user in the Database. Use the command \`${prefix}osuset [Your osu username]\` to link your osu account.`)
 				return;
 			}
@@ -882,6 +884,7 @@ function checkUser(msg, data, callback) {
 		json: true
 	}, (err, res, body) => {
 		if (body.length == 0) {
+			console.log(body)
 			errorMessage(msg, 4041);
 			return;
 		} else {
