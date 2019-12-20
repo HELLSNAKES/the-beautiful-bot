@@ -17,7 +17,7 @@ const countryCodes = JSON.parse(fs.readFileSync('country_codes.json'));
 const Canvas = require('canvas');
 const requestPromiseNative = require('request-promise-native');
 const MongoClient = require('mongodb').MongoClient;
-const Vibrant = require('node-vibrant');
+const colours = require('./colours.js');
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
 });
@@ -66,6 +66,13 @@ setInterval(function () {
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
+	let messages = ['osu! | $help','https://github.com/moorad/the-beautiful-bot','with FL. Imagine not being able to FC with FL lol']
+	let counter = 0;
+	setInterval(() => {
+		client.user.setActivity(messages[counter],{type:'playing'})
+		.then(console.log)
+		counter = (counter + 1) % messages.length;
+	}, 600000);
 
 });
 
@@ -81,6 +88,7 @@ client.on('ready', () => {
 // });}
 
 client.on('message', async msg => {
+
 	msg.content = msg.content.toLowerCase();
 	if (msg.author.id == '647218819865116674') {
 		return;
@@ -267,38 +275,23 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 	});
 }
 
-function componentToHex(c) {
-	var hex = c.toString(16);
-	return hex.length == 1 ? "0" + hex : hex;
-}
 
-function rgbToHex(r, g, b) {
-	return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
 async function createBeatmapCard(msg, data) {
 	// init the canvas
 	console.log(data)
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
-	let url = 'https://i1.sndcdn.com/artworks-000301064430-zeuz02-t500x500.jpg';
+	let url = 'https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg';
 	try {
 		beatmapImage = await Canvas.loadImage(url);
 	} catch (err) {
 		z = 'assets/unknown_bg.png';
 	}
 
-	Vibrant.from(url).maxColorCount(64).getPalette(async function (err, palette) {
-		console.log(url)
-		var color = function (c, n, i, d) {
-			for (i = 3; i--; c[i] = d < 0 ? 0 : d > 255 ? 255 : d | 0) d = c[i] + n;
-			return c
-		}
-		var backgroundColour = color([palette.Vibrant._rgb[0], palette.Vibrant._rgb[1], palette.Vibrant._rgb[2]], -200);
-		backgroundColour = rgbToHex(backgroundColour[0], backgroundColour[1], backgroundColour[2])
-		var foregroundColour = palette.Vibrant.getHex();
-		console.log(backgroundColour);
-		console.log(foregroundColour);
-
+	colours.getColours(url,async function (coloursExtracted) {
+		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground),colours.toRGB(coloursExtracted.background));
+		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground)
+		coloursExtracted.background = colours.toHex(coloursExtracted.background)
 		// Beatmap Image
 		try {
 			const beatmapImage = await Canvas.loadImage(url);
@@ -315,13 +308,13 @@ async function createBeatmapCard(msg, data) {
 		}
 		// Background
 		ctx.beginPath();
-		ctx.fillStyle = backgroundColour;
+		ctx.fillStyle = coloursExtracted.background;
 		ctx.rect(0, 382, canvas.width, canvas.height);
 		ctx.fill();
 
 		var grd = ctx.createLinearGradient(0, 64, 0, 382);
-		grd.addColorStop(0, backgroundColour + '00');
-		grd.addColorStop(1, backgroundColour);
+		grd.addColorStop(0, coloursExtracted.background + '00');
+		grd.addColorStop(1, coloursExtracted.background);
 		ctx.fillStyle = grd;
 		ctx.fillRect(0, 0, canvas.width, 382);
 		ctx.fill();
@@ -335,16 +328,16 @@ async function createBeatmapCard(msg, data) {
 		else if (data.approved == 3) approved = 'qualified';
 		else if (data.approved == 4) approved = 'loved';
 
-		ctx.fillStyle = backgroundColour + 'DD';
+		ctx.fillStyle = coloursExtracted.background + 'DD';
 		rrect(ctx, 20, 20, 200, 50, 27);
 		ctx.font = '25px rubik';
 		ctx.textAlign = 'center';
-		ctx.fillStyle = foregroundColour;
+		ctx.fillStyle = coloursExtracted.foreground;
 		ctx.fillText(approved.toUpperCase(), 120, 54);
 		ctx.textAlign = 'left';
 
 		//title and artist name
-		ctx.fillStyle = foregroundColour;
+		ctx.fillStyle = coloursExtracted.foreground;
 		ctx.font = '54px rubik';
 		data.title = data.title.length <= 23 ? data.title : data.title.slice(0, 22) + '...';
 		ctx.fillText(data.title, 34, 380 + 64);
@@ -353,7 +346,7 @@ async function createBeatmapCard(msg, data) {
 
 		// star rating
 		var svgFile = fs.readFileSync('assets/star.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
 		fs.writeFileSync('assets/star.svg', svgFile)
 		const star = await Canvas.loadImage('assets/star.svg');
 		if (data.difficultyrating > 10) {
@@ -371,7 +364,7 @@ async function createBeatmapCard(msg, data) {
 		}
 		//CS / AR /HP / OD
 
-		ctx.fillStyle = foregroundColour;
+		ctx.fillStyle = coloursExtracted.foreground;
 		ctx.font = '32px rubik';
 		ctx.fillText('CS', 37, 548 + 38);
 		ctx.fillText('AR', 37, 584 + 38);
@@ -385,13 +378,13 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText(Math.floor(data.difficultyrating * 10) / 10, 420, 495 + 38);
 
 		ctx.beginPath();
-		ctx.fillStyle = foregroundColour + '31';
+		ctx.fillStyle = coloursExtracted.foreground + '31';
 		rrect(ctx, 100, 568 + 2, 300, 13, 7);
 		rrect(ctx, 100, 605 + 2, 300, 13, 7);
 		rrect(ctx, 100, 642 + 2, 300, 13, 7);
 		rrect(ctx, 100, 682 + 2, 300, 13, 7);
 		ctx.beginPath();
-		ctx.fillStyle = foregroundColour;
+		ctx.fillStyle = coloursExtracted.foreground;
 		rrect(ctx, 100, 568 + 2, 300 / 8 * (data.diff_size - 2), 13, 7);
 		rrect(ctx, 100, 605 + 2, 30 * data.diff_approach, 13, 7);
 		rrect(ctx, 100, 642 + 2, 30 * data.diff_drain, 13, 7);
@@ -421,21 +414,21 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText('90% FC', 1195 + 65, 680 + 10);
 
 		var svgFile = fs.readFileSync('assets/clock.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
 		fs.writeFileSync('assets/clock.svg', svgFile)
 		let clock = await Canvas.loadImage('assets/clock.svg');
 
 		ctx.drawImage(clock, 512, 510, 32, 32);
 
 		var svgFile = fs.readFileSync('assets/drum.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
 		fs.writeFileSync('assets/drum.svg', svgFile)
 		let drum = await Canvas.loadImage('assets/drum.svg');
 
 		ctx.drawImage(drum, 504, 591, 36, 32);
 
 		var svgFile = fs.readFileSync('assets/times.svg', 'utf8')
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${foregroundColour}"`)
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`)
 		fs.writeFileSync('assets/times.svg', svgFile)
 		let times = await Canvas.loadImage('assets/times.svg');
 
@@ -456,7 +449,7 @@ async function createBeatmapCard(msg, data) {
 			if (data.difficulties[i] == data.difficultyrating) {
 				ctx.globalAlpha = 1;
 				ctx.beginPath();
-				ctx.fillStyle = foregroundColour + '21';
+				ctx.fillStyle = coloursExtracted.foreground + '21';
 				rrect(ctx, 703 + ((i % 5) * 90) - 5, 457 + (Math.floor(i / 5) * 90) - 5, 87, 87, 10);
 				ctx.fill();
 			}
