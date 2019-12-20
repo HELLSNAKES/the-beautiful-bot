@@ -104,97 +104,89 @@ client.on('message', async msg => {
 		var parameters = msg.content.slice(prefix.length).split(' ');
 		var command = parameters[0];
 		parameters.splice(0, 1);
-		switch (command) {
-			case 'osu':
-				if (/<@![0-9]{18}>/g.test(parameters[0])) {
-					var discordID = parameters[0].slice(3, 21);
 
-					readDB(msg, discordID, (doc) => {
-						createUserCard(msg, doc.osuUsername);
-					});
-				} else if (parameters.length != 0) {
-					createUserCard(msg, parameters.join('_'));
-				} else {
-					readDB(msg, msg.author.id, function (doc) {
-						createUserCard(msg, doc.osuUsername);
-					});
-				}
-				break;
-			case 'rs':
-				var options = {};
-				for (var i = 0; i < parameters.length; i++) {
-					if (parameters[i] == '-p') {
-						options.previous = parseInt(parameters[i + 1]);
-						parameters.splice(i, 1);
-						parameters.splice(i, 1);
-					}
-				}
-				if (/<@![0-9]{18}>/g.test(parameters[0])) {
-					var discordID = parameters[0].slice(3, 21);
-					console.log(discordID)
-					readDB(msg, discordID, (doc) => {
-						recent(msg, doc.osuUsername, options);
-					});
-				} else if (parameters.length != 0) {
-					recent(msg, parameters.join('_'), options);
-				} else {
-					readDB(msg, msg.author.id, function (doc) {
-						recent(msg, doc.osuUsername, options);
-					});
-				}
-				break;
-			case 'best':
-				if (/<@![0-9]{18}>/g.test(parameters[0])) {
-					var discordID = parameters[0].slice(3, 21);
-					readDB(msg, discordID, (doc) => {
-						console.log('read the db')
-						best(msg, doc.osuUsername);
-					});
-				} else if (parameters.length != 0) {
-					best(msg, parameters.join('_'));
-				} else {
-					readDB(msg, msg.author.id, function (doc) {
-						best(msg, doc.osuUsername);
-					});
-				}
-				break;
-			case 'mp':
-				if (parameters.length != 0) {
-					searchBeatmap(msg, parameters.join(' '));
-				}
-				break;
-			case 'osurename':
-				if (parameters.length != 0) {
-					updatedb(msg, parameters.join('_'), function () {
-						msg.channel.send('Your osu username linked with your account has been successfully updated!');
-					});
-				} else {
-					msg.channel.send('Osu username has not been provided.');
-				}
-				break;
-			case 'osuset':
-				checkUser(msg, {
-					discordID: msg.author.id,
-					osuUsername: parameters.join(' ')
-				}, function (data) {
-					writedb(data);
+		if (command == 'osu') {
+			if (/<@![0-9]{18}>/g.test(parameters[0])) {
+				var discordID = parameters[0].slice(3, 21);
+
+				readDB(msg, discordID, (doc) => {
+					createUserCard(msg, doc.osuUsername);
 				});
-				break;
-			case 'help':
-				const embed = help;
-				msg.channel.send(embed);
-				break;
-			case 'changelog':
-				if (parameters.length != 0) {
-					getRepoData(msg, parameters[0]);
-					return;
+			} else if (parameters.length != 0) {
+				createUserCard(msg, parameters.join('_'));
+			} else {
+				readDB(msg, msg.author.id, function (doc) {
+					createUserCard(msg, doc.osuUsername);
+				});
+			}
+		} else if (command == 'rs' || command == 'recent') {
+			var options = {};
+			for (var i = 0; i < parameters.length; i++) {
+				if (parameters[i] == '-p') {
+					options.previous = parseInt(parameters[i + 1]);
+					parameters.splice(i, 1);
+					parameters.splice(i, 1);
 				}
-				getRepoData(msg);
-				break;
-			case 'c':
-				getComparablePlay(msg);
-				break;
-		} //else if (command == 'dummy') {
+			}
+			if (/<@![0-9]{18}>/g.test(parameters[0])) {
+				var discordID = parameters[0].slice(3, 21);
+				console.log(discordID)
+				readDB(msg, discordID, (doc) => {
+					recent(msg, doc.osuUsername, options);
+				});
+			} else if (parameters.length != 0) {
+				recent(msg, parameters.join('_'), options);
+			} else {
+				readDB(msg, msg.author.id, function (doc) {
+					recent(msg, doc.osuUsername, options);
+				});
+			}
+		} else if (command == 'bt' || command == 'best') {
+			if (/<@![0-9]{18}>/g.test(parameters[0])) {
+				var discordID = parameters[0].slice(3, 21);
+				readDB(msg, discordID, (doc) => {
+					console.log('read the db')
+					best(msg, doc.osuUsername);
+				});
+			} else if (parameters.length != 0) {
+				best(msg, parameters.join('_'));
+			} else {
+				readDB(msg, msg.author.id, function (doc) {
+					best(msg, doc.osuUsername);
+				});
+			}
+		} else if (command == 'mp' || command == 'map') {
+			if (parameters.length != 0) {
+				searchBeatmap(msg, parameters.join(' '));
+			}
+		} else if (command == 'or' || command == 'osurename') {
+			if (parameters.length != 0) {
+				updatedb(msg, parameters.join('_'), function () {
+					msg.channel.send('Your osu username linked with your account has been successfully updated!');
+				});
+			} else {
+				msg.channel.send('Osu username has not been provided.');
+			}
+		} else if (command == 'os' || command == 'osuset') {
+			checkUser(msg, {
+				discordID: msg.author.id,
+				osuUsername: parameters.join(' ')
+			}, function (data) {
+				writedb(data);
+			});
+		} else if (command == 'help') {
+			const embed = help;
+			msg.channel.send(embed);
+		} else if (command == 'cl' || command == 'changelog') {
+			if (parameters.length != 0) {
+				getRepoData(msg, parameters[0]);
+				return;
+			}
+			getRepoData(msg);
+		} else if (command == 'c' || command == 'compare') {
+			getComparablePlay(msg);
+		}
+		//else if (command == 'dummy') {
 		// 	getBeatmapData(msg, 396221, 862088)
 		// 	// msg.channel.send({ embed: {
 		// 	// 	'url': 'https://discordapp.com',
