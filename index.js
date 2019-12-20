@@ -701,7 +701,7 @@ function recent(msg, user, options = {}) {
 					completion = Math.floor((parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
 				}
 
-				if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT')) {
+				if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT') && !mods.includes('NC')) {
 					ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
 				}
 
@@ -726,17 +726,17 @@ function recent(msg, user, options = {}) {
 						},
 						{
 							'name': 'Difficulty',
-							'value': `${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**`,
+							'value': `${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]\n${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**`,
 							'inline': true
 						},
 						{
 							'name': 'Combo',
-							'value': `**x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**${play.perfect == 1 ? ' __**[Full Combo!]**__' : ''}`,
+							'value': `**x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**\n${play.perfect == 1 ? ' __**[Full Combo!]**__' : ''}`,
 							'inline': true
 						},
 						{
 							'name': 'Score',
-							'value': `**${format(play.score)}** [${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]`,
+							'value': `**${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]`,
 							'inline': true
 						},
 						{
@@ -1089,7 +1089,7 @@ function sendCompareEmbed(msg, playType, content, userid) {
 							completion = Math.floor((parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
 						}
 
-						if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT')) {
+						if (mods.includes('DT') || mods.includes('HR') || mods.includes('EZ') || mods.includes('HT') || mods.includes('NC')) {
 							ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
 						}
 
