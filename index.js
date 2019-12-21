@@ -29,7 +29,6 @@ Canvas.registerFont('assets/SegoeUI.ttf', {
 Canvas.registerFont('assets/SegoeUIBold.ttf', {
 	family: 'segoeUIBold'
 });
-var time;
 const prefix = process.env.prefix || '$';
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
@@ -51,8 +50,8 @@ const help = {
 http.createServer((req, res) => {
 
 	if (req.url == '/') {
-		console.log('ping');
-		res.write('ping');
+		console.log('Ping');
+		res.write('Pong');
 		res.end();
 	}
 
@@ -66,13 +65,13 @@ setInterval(function () {
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-	let messages = ['osu! | $help', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol']
+	let messages = ['osu! | $help', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol'];
 	let counter = 0;
 	setInterval(() => {
 		client.user.setActivity(messages[counter], {
 				type: 'playing'
 			})
-			.then(console.log)
+			.then(console.log);
 		counter = (counter + 1) % messages.length;
 	}, 600000);
 
@@ -90,13 +89,12 @@ client.on('ready', () => {
 // });}
 
 client.on('message', async msg => {
-
 	msg.content = msg.content.toLowerCase();
 	if (msg.author.id == '637205590652747778') {
 		return;
 	}
 	if (msg.content == '<@!637205590652747778>') {
-		const embed = help
+		const embed = help;
 		msg.channel.send(embed);
 	}
 
@@ -129,8 +127,7 @@ client.on('message', async msg => {
 				}
 			}
 			if (/<@![0-9]{18}>/g.test(parameters[0])) {
-				var discordID = parameters[0].slice(3, 21);
-				console.log(discordID)
+				discordID = parameters[0].slice(3, 21);
 				readDB(msg, discordID, (doc) => {
 					recent(msg, doc.osuUsername, options);
 				});
@@ -143,9 +140,8 @@ client.on('message', async msg => {
 			}
 		} else if (command == 'bt' || command == 'best') {
 			if (/<@![0-9]{18}>/g.test(parameters[0])) {
-				var discordID = parameters[0].slice(3, 21);
+				discordID = parameters[0].slice(3, 21);
 				readDB(msg, discordID, (doc) => {
-					console.log('read the db')
 					best(msg, doc.osuUsername);
 				});
 			} else if (parameters.length != 0) {
@@ -166,6 +162,7 @@ client.on('message', async msg => {
 				});
 			} else {
 				msg.channel.send('Osu username has not been provided.');
+				console.log(`FAILED TO RENAME : ${msg.author.id}`);
 			}
 		} else if (command == 'os' || command == 'osuset') {
 			checkUser(msg, {
@@ -174,9 +171,11 @@ client.on('message', async msg => {
 			}, function (data) {
 				writedb(data);
 			});
-		} else if (command == 'help') {
+		} else if (command == 'hl' || command == 'help') {
 			const embed = help;
 			msg.channel.send(embed);
+			console.log(`HELP : ${msg.author.id}`);
+
 		} else if (command == 'cl' || command == 'changelog') {
 			if (parameters.length != 0) {
 				getRepoData(msg, parameters[0]);
@@ -204,11 +203,13 @@ client.on('message', async msg => {
 	} else if (msg.content === 'cat') { // cat
 		request('https://api.thecatapi.com/v1/images/search', function (err, res, body) {
 			msg.reply(JSON.parse(body)[0].url);
+			console.log('CAT :3');
 		});
-	} else if (msg.content.includes('bye')) {
-		// bye
-		msg.reply('See you next time ;). I hope you get the Joke.');
-	} else if (msg.content === 'good bot') {
+	} // else if (msg.content.includes('bye')) {
+	// 	// bye
+	// 	msg.reply('See you next time ;). I hope you get the Joke.');
+	// }
+	else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
 		var beatmapsetid = msg.content.match(/osu.ppy.sh\S+/g)[0];
@@ -218,7 +219,6 @@ client.on('message', async msg => {
 		beatmapsetid = beatmapsetid.replace(beatmapsetid.match(/#\S+/g), '');
 		getBeatmapData(msg, beatmapsetid, beatmapid);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
-		time = new Date(Date.now()).getTime();
 		var userid = msg.content.replace('https://osu.ppy.sh/users/', '');
 		createUserCard(msg, userid);
 	}
@@ -232,7 +232,6 @@ function searchBeatmap(msg, name) {
 			errorMessage(msg, 4042);
 			return;
 		}
-		console.log(body)
 		const embed = {
 			'title': `${ body.beatmaps[0].artist} - ${body.beatmaps[0].title} by ${ body.beatmaps[0].mapper} [Download]`,
 			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmaps[0].beatmapset_id}#osu/${body.beatmaps[0].beatmap_id}`,
@@ -241,8 +240,11 @@ function searchBeatmap(msg, name) {
 		msg.channel.send({
 			embed
 		});
+		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmaps[0].beatmapset_id}#osu/${body.beatmaps[0].beatmap_id}`);
 		getBeatmapData(msg, body.beatmaps[0].beatmapset_id, body.beatmaps[0].beatmap_id);
 	});
+
+
 }
 
 function getBeatmapData(msg, beatmapsetid, beatmapid) {
@@ -263,37 +265,35 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 		}
 		data.difficulties = difficulties;
 		data.url = 'https://osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid;
+		console.log(`BEATMAP DATA : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`);
+
 		if (msg) {
 			createBeatmapCard(msg, data);
 		} else {
 			return (data);
 		}
+
 	});
+
 }
 
 
 async function createBeatmapCard(msg, data) {
 	// init the canvas
-	console.log(data)
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
 	let url = 'https://assets.ppy.sh/beatmaps/' + data.beatmapset_id + '/covers/cover@2x.jpg';
-	try {
-		beatmapImage = await Canvas.loadImage(url);
-	} catch (err) {
-		z = 'assets/unknown_bg.png';
-	}
 
 	colours.getColours(url, async function (coloursExtracted) {
 		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
-		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground)
-		coloursExtracted.background = colours.toHex(coloursExtracted.background)
+		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
+		coloursExtracted.background = colours.toHex(coloursExtracted.background);
+		console.log(coloursExtracted.foreground,coloursExtracted.background);
 		// Beatmap Image
 		try {
 			const beatmapImage = await Canvas.loadImage(url);
 			ctx.drawImage(beatmapImage, 0, 0, canvas.width, 382);
 		} catch (err) { //change background to gradient if image is not found
-			console.log(err);
 			ctx.beginPath();
 			var gradient = ctx.createLinearGradient(0, 0, 0, 346);
 			gradient.addColorStop(0, '#2B2B2C');
@@ -341,9 +341,9 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText(data.artist, 37, 451 + 29);
 
 		// star rating
-		var svgFile = fs.readFileSync('assets/star.svg', 'utf8')
-		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
-		fs.writeFileSync('assets/star.svg', svgFile)
+		var svgFile = fs.readFileSync('assets/star.svg', 'utf8');
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
+		fs.writeFileSync('assets/star.svg', svgFile);
 		const star = await Canvas.loadImage('assets/star.svg');
 		if (data.difficultyrating > 10) {
 			for (var i = 0; i < 9; i++) {
@@ -394,9 +394,6 @@ async function createBeatmapCard(msg, data) {
 			var Acc95 = '-';
 			var Acc90 = '-';
 		}
-		console.log(Acc100);
-		console.log(Acc95);
-		console.log(Acc90);
 
 		ctx.textAlign = 'center';
 		ctx.font = '42px rubik';
@@ -414,23 +411,23 @@ async function createBeatmapCard(msg, data) {
 		ctx.font = '20px rubik';
 		ctx.fillText('90% FC', 1195 + 65, 680 + 10);
 
-		var svgFile = fs.readFileSync('assets/clock.svg', 'utf8')
-		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
-		fs.writeFileSync('assets/clock.svg', svgFile)
+		svgFile = fs.readFileSync('assets/clock.svg', 'utf8');
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
+		fs.writeFileSync('assets/clock.svg', svgFile);
 		let clock = await Canvas.loadImage('assets/clock.svg');
 
 		ctx.drawImage(clock, 512, 510, 32, 32);
 
-		var svgFile = fs.readFileSync('assets/drum.svg', 'utf8')
-		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
-		fs.writeFileSync('assets/drum.svg', svgFile)
+		svgFile = fs.readFileSync('assets/drum.svg', 'utf8');
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
+		fs.writeFileSync('assets/drum.svg', svgFile);
 		let drum = await Canvas.loadImage('assets/drum.svg');
 
 		ctx.drawImage(drum, 504, 591, 36, 32);
 
-		var svgFile = fs.readFileSync('assets/times.svg', 'utf8')
-		svgFile = svgFile.replace(/fill='[#\.a-zA-Z0-9]+'/g, `fill='${coloursExtracted.foreground}'`)
-		fs.writeFileSync('assets/times.svg', svgFile)
+		svgFile = fs.readFileSync('assets/times.svg', 'utf8');
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
+		fs.writeFileSync('assets/times.svg', svgFile);
 		let times = await Canvas.loadImage('assets/times.svg');
 
 		ctx.drawImage(times, 512, 670, 26, 26);
@@ -443,7 +440,7 @@ async function createBeatmapCard(msg, data) {
 		ctx.fillText(data.bpm + ' bpm', 560, 618);
 		ctx.fillText(data.max_combo + 'x', 560, 691);
 
-		ctx.fillText(data.version, 695, 440)
+		ctx.fillText(data.version, 695, 440);
 		data.difficulties.sort();
 		for (var i = 0; i < data.difficulties.length; i++) {
 			ctx.globalAlpha = 0.33;
@@ -455,7 +452,7 @@ async function createBeatmapCard(msg, data) {
 				ctx.fill();
 			}
 			var icon;
-			var modes = ['', '_taiko', '_ctb', '_mania']
+			var modes = ['', '_taiko', '_ctb', '_mania'];
 			if (data.difficulties[i] < 2) {
 				icon = await Canvas.loadImage(`assets/easy${modes[data.mode]}.png`);
 			} else if (data.difficulties[i] < 2.7) {
@@ -473,8 +470,8 @@ async function createBeatmapCard(msg, data) {
 		}
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'beatmap_stats.png');
-		msg.channel.send(attachment)
-		console.log(data.url)
+		msg.channel.send(attachment);
+		console.log(`GENERATED BEATMAP CARD : ${msg.author.id} :https://osu.ppy.sh/beatmapsets/${data.beatmapset_id}#osu/${data.beatmap_id}`);
 	});
 }
 
@@ -523,7 +520,6 @@ function createUserCard(msg, id) {
 		json: true
 	}, async (err, res, body) => {
 		var afterFetch = new Date(Date.now());
-		console.log((afterFetch - now) + 'ms');
 		if (body.length == 0) {
 			errorMessage(msg, 4041);
 			return;
@@ -626,8 +622,7 @@ function createUserCard(msg, id) {
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 		msg.channel.send(attachment);
-		console.log((new Date(Date.now()) - afterFetch) + 'ms');
-
+		console.log(`GENERATED USER CARD : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
 	});
 
 }
@@ -653,7 +648,7 @@ function recent(msg, user, options = {}) {
 		let play = body[options.previous];
 		let grade = client.emojis.find(emoji => emoji.name === 'grade_' + play.rank.toLowerCase());
 		let accuracy = Math.floor((50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss))) * 10000) / 100;
-		let date = timeSince(Date.parse(play.date))
+		let date = timeSince(Date.parse(play.date));
 		request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${play.beatmap_id}`, {
 			json: true
 		}, (err, res, beatmapData) => {
@@ -666,15 +661,7 @@ function recent(msg, user, options = {}) {
 				}
 
 				// the *entire* stdout and stderr (buffered)
-				var ojsama = stdout.replace('\n', '').split('$')
-
-				// var datebefore = new Date(play.date);
-				// var datenow = new Date();
-				// datenow = new Date(datenow.getUTCFullYear(), datenow.getUTCMonth(), datenow.getUTCDate(), datenow.getUTCHours(), datenow.getUTCMinutes(), datenow.getUTCSeconds(), datenow.getUTCMilliseconds());
-				// console.log(datenow);
-
-				// var difference = new Date(datenow - datebefore);
-				// var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
+				var ojsama = stdout.replace('\n', '').split('$');
 
 
 				let mods = getMods(play.enabled_mods);
@@ -750,7 +737,7 @@ function recent(msg, user, options = {}) {
 				msg.channel.send({
 					embed
 				});
-
+				console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
 			});
 
 
@@ -765,9 +752,7 @@ async function best(msg, user) {
 	request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=5`, {
 		json: true
 	}, (err, res, body) => {
-		console.log(res.statusCode);
 		if (body.length == 0) {
-			console.log(user)
 			errorMessage(msg, 4041);
 			return;
 		}
@@ -775,7 +760,6 @@ async function best(msg, user) {
 		var playString = [];
 		var playpp = [];
 		var urls = [];
-		console.log(body)
 		const embed = {
 			'title': ``,
 			'author': {
@@ -821,6 +805,7 @@ async function best(msg, user) {
 			msg.channel.send({
 				embed
 			});
+			console.log(`BEST : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
 		});
 
 	});
@@ -841,7 +826,7 @@ function getMods(number) { // Rewrite using a two lists and a for loop
 	}
 	return (mods.reverse().join(''));
 }
-console.log(process.env.discordAPI);
+
 client.login(process.env.discordAPI);
 
 function readDB(msg, id, callback) {
@@ -857,9 +842,11 @@ function readDB(msg, id, callback) {
 		collection.find({
 			discordID: id
 		}).toArray(function (err, docs) {
+			console.log(`READ : ${msg.channel.id}`);
 			if (docs.length == 0) {
-				console.log(docs)
-				msg.reply(`I could not find you/user in the Database. Use the command \`${prefix}osuset [Your osu username]\` to link your osu account.`)
+				msg.reply(`I could not find you/user in the Database. Use the command \`${prefix}osuset [Your osu username]\` to link your osu account.`);
+				console.log(`FAILED TO READ : ${msg.channel.id}`);
+
 				return;
 			}
 			callback(docs[0]);
@@ -877,7 +864,7 @@ function writedb(data) {
 		const collection = db.collection('users');
 		// Find some documents
 		collection.insertOne(data, function (err, result) {
-
+			console.log('WRITE');
 		});
 		client.close();
 	});
@@ -897,7 +884,7 @@ function updatedb(msg, osuUsername, callback) {
 				osuUsername: osuUsername
 			}
 		}, function (err, result) {
-
+			console.log(`UPDATE : ${msg.channel.id}`);
 		});
 		callback(msg);
 		client.close();
@@ -909,7 +896,6 @@ function checkUser(msg, data, callback) {
 		json: true
 	}, (err, res, body) => {
 		if (body.length == 0) {
-			console.log(body)
 			errorMessage(msg, 4041);
 			return;
 		} else {
@@ -926,11 +912,11 @@ function getRepoData(msg, count = 5) {
 			'User-Agent': 'Moorad'
 		}
 	}, (err, res, body) => {
-		body = JSON.parse(body)
+		body = JSON.parse(body);
 
 		let commits = [];
 		for (var i = 0; i < count; i++) {
-			let message = body[i].commit.message.slice(0, body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'))
+			let message = body[i].commit.message.slice(0, body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'));
 			let description = body[i].commit.message.slice(body[i].commit.message.indexOf('\n\n') == -1 ? body[i].commit.message.length : body[i].commit.message.indexOf('\n\n'), body[i].commit.message.length);
 			commits.push({
 				'name': '-',
@@ -948,8 +934,9 @@ function getRepoData(msg, count = 5) {
 				},
 				'fields': commits
 			}
-		})
-	})
+		});
+		console.log(`CHANGELOG : ${msg.channel.id}`);
+	});
 }
 
 function timeSince(date) {
@@ -979,9 +966,6 @@ function timeSince(date) {
 	}
 	return Math.floor(seconds) + ' seconds';
 }
-var aDay = 24 * 60 * 60 * 1000;
-console.log(timeSince(new Date(Date.now() - aDay)));
-console.log(timeSince(new Date(Date.now() - aDay * 2)));
 
 function errorMessage(msg, errCode) {
 	if (errCode == 4041) {
@@ -1014,27 +998,24 @@ function getComparablePlay(msg) {
 			}
 			msg.channel.fetchMessage(message.id).then(fetchedMessage => {
 
-				console.log(fetchedMessage.embeds[0].author.url)
 				if (fetchedMessage.embeds[0].author.name.includes('Here are the top 5 plays for')) {
 					sendCompareEmbed(msg, 0, fetchedMessage.embeds[0].description, msg.author.id);
 				} else {
-					console.log('recent')
 					sendCompareEmbed(msg, 1, fetchedMessage.embeds[0].author.url, msg.author.id);
 
 				}
 
-			}).catch(() => console.log(undefined))
-			done = true
+			}).catch(() => console.log(undefined));
+			done = true;
 		}))
 		.catch(console.error);
 }
 
 function sendCompareEmbed(msg, playType, content, userid) {
 	readDB(msg, userid, (doc) => {
-		console.log(doc.osuUsername)
 		if (playType == 1) {
 			request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${doc.osuUsername}&b=${content.slice(content.indexOf('#osu/')+5)}`, (err, res, body) => {
-				body = JSON.parse(body)
+				body = JSON.parse(body);
 
 
 				request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${content.slice(content.indexOf('#osu/')+5)}`, {
@@ -1054,16 +1035,7 @@ function sendCompareEmbed(msg, playType, content, userid) {
 							return;
 						}
 
-						var ojsama = stdout.replace('\n', '').split('$')
-
-						var datebefore = new Date(body[0].date);
-						var datenow = new Date();
-						datenow = new Date(datenow.getUTCFullYear(), datenow.getUTCMonth(), datenow.getUTCDate(), datenow.getUTCHours(), datenow.getUTCMinutes(), datenow.getUTCSeconds(), datenow.getUTCMilliseconds());
-						console.log(datenow);
-
-						var difference = new Date(datenow - datebefore);
-						var formattedDate = `${difference.getMonth() == 0 ? '' : ' ' + difference.getMonth() + ' Months'}${difference.getDate() - 1 == 0 ? '' : ' ' + difference.getDate() - 1 + ' Days'}${difference.getHours() - 1 == 0 ? '' : ' ' + difference.getHours() - 1 + ' Hours'}${difference.getMinutes() == 0 ? '' : ' ' + difference.getMinutes() + ' Minutes'}${difference.getSeconds() == 0 ? '' : ' ' + difference.getSeconds() + ' Seconds'} ago`;
-						console.log(formattedDate);
+						var ojsama = stdout.replace('\n', '').split('$');
 
 						let mods = getMods(body[0].enabled_mods);
 						var colour = 0;
@@ -1109,6 +1081,7 @@ function sendCompareEmbed(msg, playType, content, userid) {
 							embed
 						});
 
+						console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
 					});
 
 
