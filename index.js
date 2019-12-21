@@ -39,7 +39,7 @@ const {
 
 const help = {
 	'embed': {
-		'description': '**---- osu! ----**\n**`' + prefix + 'osuset [Username]`**\nThe osuset command will link your discord with your osu account which will be used in other osu commands\n**`' + prefix + 'osu [Username]`**\nThe user command displays the stats of the specified user. if no osu username is specified then the username linked with account will be used (refer to `' + prefix + 'osuset`)\n**`' + prefix + 'best [Username]`**\nThe best command displays top 5 plays of the specified user. if no osu username is specified then the username linked with account will be used (refer to `' + prefix + 'osuset`)\n**`' + prefix + 'mp [Beatmap name or beatmap id]`**\nThe Beatmap command shows you the stats of the specified map\n**`' + prefix + 'rs [Username]`**\nThe recent command shows you the stats of the most recent play/s\n**`' + prefix + 'osurename [Username]`**\nThe rename command will change the osu account linked with your discord.\n**---- General ----**\n**`' + prefix + 'help`**\nThe help commands will display this command list`',
+		'description': `**---- osu! ----**\n**\`${prefix}osuset [Username]\`** or **\`$os [Username]\`**\nThe osuset command will link your discord with your osu account which will be used in other osu commands\n**\`${prefix}osu [Username]\`**\nThe user command displays the stats of the specified user. if no osu username is specified then the username linked with account will be used (refer to **\`${prefix}osuset\`**)\n**\`${prefix}best\`** or **\`$bt\`**\nThe best command displays top 5 plays of the specified user. if no osu username is specified then the username linked with account will be used (refer to **\`${prefix}osuset\`**)\n**\`${prefix}map [Beatmap name or beatmap id]\`** or **\`${prefix}mp [Beatmap name or beatmap id]\`**\nThe Beatmap command shows you the stats of the specified map\n**\`${prefix}recent -p [previous play number] [Username]\`** or **\`${prefix}rs -p [previous play number] [Username]\`**\n(Note the \`-p\` argument is optional)The recent command shows you the stats of the most recent play/s\n**\`${prefix}osurename [Username]\`** or **\`${prefix}or [Username]\`**\nThe rename command will change the osu account linked with your discord.\n**---- General ----**\n**\`${prefix}help\`** or **\`${prefix}hl\`**\nThe help commands will display this command list\n**\`${prefix}cat\`**\n:)\n**\`${prefix}changelog [Number of commits (optional)]\`** or **\`${prefix}cl [Number of commits (optional)]\`**\n The changelog command shows the latest specified number of commits and merges (5 if no number was given) on [the beautiful bot's repo](https://github.com/Moorad/the-beautiful-bot)`,
 		'color': 3066993,
 		'footer': {
 			'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
@@ -67,33 +67,26 @@ client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 	let messages = ['osu! | $help', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol'];
 	let counter = 0;
+	client.user.setActivity(messages[counter], {
+		type: 'playing'
+	}).then(console.log('CHANGED PLAYING'))
+	counter = (counter + 1) % messages.length;
 	setInterval(() => {
 		client.user.setActivity(messages[counter], {
 				type: 'playing'
 			})
-			.then(console.log);
+			.then(console.log('CHANGED PLAYING'));
 		counter = (counter + 1) % messages.length;
 	}, 600000);
-
 });
 
-// client.on('guildMemberAdd', (member) => {
-// 	client.channels.find('id',config.welcomeChannelID).send('Welcome to the server **'+member.user.username+'**!! I hope you enjoy it around here, if you ever need me either @ me or type `'+prefix+'help`.\nThere are currently '+(client.users.size-1)+' members in the server\n-');
-
-// 	var role = member.guild.roles.find(role => role.id === config.memberRoleID);
-// 	member.addRole(role);
-// });
-
-// client.on('guildMemberRemove', (member) => {
-// 	client.channels.find('id',config.byeChannelID).send('Sadly, **'+member.user.username+'** left the server ;-;. I hope they come back some day.\nThere are currently '+(client.users.size-2)+' members in the server\n-');
-// });}
 
 client.on('message', async msg => {
 	msg.content = msg.content.toLowerCase();
-	if (msg.author.id == '637205590652747778') {
+	if (msg.author.id == client.user.id) {
 		return;
 	}
-	if (msg.content == '<@!637205590652747778>') {
+	if (msg.content == `<@!${client.user.id}>`) {
 		const embed = help;
 		msg.channel.send(embed);
 	}
