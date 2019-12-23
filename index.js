@@ -680,53 +680,26 @@ function recent(msg, user, options = {}) {
 				var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
+				var ppFC = play.perfect == 0 ? '(' + (accuracy >= 80 ? accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${beatmapData[0].beatmap_id} | node pp.js ${(accuracy >= 80 ? accuracy : 80)}%`)).toString().split('$')[0]+'pp)' : '';
+
 				const embed = {
+					'description': `${grade} - **${ojsama[0]}pp** - ${accuracy}% ${ppFC} ${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]${play.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
 					'url': 'https://discordapp.com',
 					'color': colour,
-					'image': {
-						'url': `https://assets.ppy.sh/beatmaps/${beatmapData[0].beatmapset_id}/covers/cover.jpg`
+					'thumbnail': {
+						'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
 					},
 					'author': {
 						'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
 						'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
 						'icon_url': `https://a.ppy.sh/${body[0].user_id}`
 					},
-					'fields': [{
-							'name': 'Grade and pp',
-							'value': `${grade} **${ojsama[0]}pp** `,
-							'inline': true
-						},
-						{
-							'name': 'Difficulty',
-							'value': `${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]\n${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**`,
-							'inline': true
-						},
-						{
-							'name': 'Combo',
-							'value': `**x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**\n${play.perfect == 1 ? ' __**[Full Combo!]**__' : ''}`,
-							'inline': true
-						},
-						{
-							'name': 'Score',
-							'value': `**${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]`,
-							'inline': true
-						},
-						{
-							'name': 'Achieved',
-							'value': `**${date}**`,
-							'inline': true
-						},
-						{
-							'name': 'Accuracy',
-							'value': `**${accuracy}%**`,
-							'inline': true
-						}
-					],
 					'footer': {
 						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
-						'text': `<3 | Achieved: ${date} ${play.rank.toLowerCase() == 'f' ? ` | Completion: ${completion}%` : ''}`
+						'text': 'Always Remember, The beautiful bot loves you <3'
 					}
 				};
+				
 				msg.channel.send({
 					embed
 				});
