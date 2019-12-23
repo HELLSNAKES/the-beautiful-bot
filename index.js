@@ -680,8 +680,10 @@ function recent(msg, user, options = {}) {
 				var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
+				var ppFC = play.perfect == 0 ? '(' + (accuracy >= 80 ? accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${beatmapData[0].beatmap_id} | node pp.js ${(accuracy >= 80 ? accuracy : 80)}%`)).toString().split('$')[0]+'pp)' : '';
+
 				const embed = {
-					'description': `${grade} - **${ojsama[0]}pp** - ${accuracy}%${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]${play.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
+					'description': `${grade} - **${ojsama[0]}pp** - ${accuracy}% ${ppFC} ${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]${play.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
 					'url': 'https://discordapp.com',
 					'color': colour,
 					'thumbnail': {
