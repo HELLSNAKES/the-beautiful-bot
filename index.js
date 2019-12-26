@@ -18,6 +18,7 @@ const Canvas = require('canvas');
 const requestPromiseNative = require('request-promise-native');
 const MongoClient = require('mongodb').MongoClient;
 const colours = require('./colours.js');
+const handler = require('./handlers/handler.js');
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
 });
@@ -115,6 +116,10 @@ client.on('message', async msg => {
 			for (var i = 0; i < parameters.length; i++) {
 				if (parameters[i] == '-p') {
 					options.previous = parseInt(parameters[i + 1]);
+					parameters.splice(i, 1);
+					parameters.splice(i, 1);
+				} else if (parameters[i] == '-m') {
+					options.mode = parseInt(parameters[i + 1]);
 					parameters.splice(i, 1);
 					parameters.splice(i, 1);
 				}
@@ -222,7 +227,7 @@ function searchBeatmap(msg, name) {
 		json: true
 	}, (err, res, body) => {
 		if (body.beatmaps.length == 0) {
-			errorMessage(msg, 4042);
+			handler.error.log(msg, 4042);
 			return;
 		}
 		const embed = {
@@ -245,7 +250,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 		json: true
 	}, (err, res, body) => {
 		if (body.length == 0) {
-			errorMessage(msg, 4042);
+			handler.error.log(msg, 4042);
 			return;
 		}
 		var data = body[0];
@@ -514,7 +519,7 @@ function createUserCard(msg, id) {
 	}, async (err, res, body) => {
 		var afterFetch = new Date(Date.now());
 		if (body.length == 0) {
-			errorMessage(msg, 4041);
+			handler.error.log(msg, 4041);
 			return;
 		}
 		// init the canvas
@@ -627,15 +632,31 @@ function format(number) {
 function recent(msg, user, options = {}) {
 
 	options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
+	options.mode = (typeof options.mode !== 'undefined') ? options.mode : 0;
 	if (0 > options.previous || options.previous > 49 || isNaN(options.previous)) {
-		errorMessage(msg, 4045);
+		handler.error.log(msg, 4045);
 		return;
 	}
+
+	if (0 > options.mode || options.mode > 4 || isNaN(options.mode)) {
+		handler.error.log(msg, 4045);
+		return;
+	}
+	
+	if (options.mode == 3) {
+		recentMania(msg,user,options);
+		return;
+	} else if (options.mode == 2 || options.mode == 1) {
+		msg.channel.send('Sorry but this modes are not supported yet.');
+		return;
+	}
+
 	request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
 		json: true
 	}, (err, res, body) => {
+		console.log(body)
 		if (body.length == 0) {
-			errorMessage(msg, 4044);
+			handler.error.log(msg, 4044);
 			return;
 		}
 		let play = body[options.previous];
@@ -712,6 +733,79 @@ function recent(msg, user, options = {}) {
 	});
 }
 
+function recentMania(msg, user, options = {}) {
+
+	options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
+	if (0 > options.previous || options.previous > 49 || isNaN(options.previous)) {
+		handler.error.log(msg, 4045);
+		return;
+	}
+	
+	request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=3`, {
+		json: true
+	}, (err, res, body) => {
+		
+		if (body.length == 0) {
+			handler.error.log(msg, 4044);
+			return;
+		}
+		let play = body[options.previous];
+		let grade = client.emojis.find(emoji => emoji.name === 'grade_' + play.rank.toLowerCase());
+		let date = timeSince(Date.parse(play.date));
+		request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${play.beatmap_id}&m=3&a=1`, {
+			json: true
+		}, (err, res, beatmapData) => {
+			console.log(beatmapData)
+				// let mods = getMods(play.enabled_mods);
+				var colour = 0;
+				if (play.rank.toLowerCase() == 'f' || play.rank.toLowerCase() == 'd') colour = 15158332;
+				else if (play.rank.toLowerCase() == 'c') colour = 10181046;
+				else if (play.rank.toLowerCase() == 'b') colour = 3447003;
+				else if (play.rank.toLowerCase() == 'a') colour = 3066993;
+				else if (play.rank.toLowerCase() == 's') colour = 15844367;
+				else if (play.rank.toLowerCase() == 'sh') colour = 12370112;
+				else if (play.rank.toLowerCase() == 'x') colour = 16580705;
+				else if (play.rank.toLowerCase() == 'xh') colour = 16580705;
+
+				// var completion = 0;
+				// if (play.rank.toLowerCase() == 'f') {
+				// 	completion = Math.floor((parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
+				// }
+
+				// if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT') && !mods.includes('NC')) {
+				// 	ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
+				// }
+				
+				var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
+				accuracy = Math.floor(accuracy * 10000) / 100;
+
+				const embed = {
+					'description': `${grade} - **--pp** - ${accuracy}% ${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(play.maxcombo)} **Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]\nAchieved: **${date}**`,
+					'url': 'https://discordapp.com',
+					'color': colour,
+					'thumbnail': {
+						'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
+					},
+					'author': {
+						'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
+						'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
+						'icon_url': `https://a.ppy.sh/${body[0].user_id}`
+					},
+					'footer': {
+						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
+						'text': 'Always Remember, The beautiful bot loves you <3'
+					}
+				};
+				
+				msg.channel.send({
+					embed
+				});
+				console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
+			});
+
+
+		});
+}
 
 async function best(msg, user) {
 
@@ -719,7 +813,7 @@ async function best(msg, user) {
 		json: true
 	}, (err, res, body) => {
 		if (body.length == 0) {
-			errorMessage(msg, 4041);
+			handler.error.log(msg, 4041);
 			return;
 		}
 		var plays = [];
@@ -862,7 +956,7 @@ function checkUser(msg, data, callback) {
 		json: true
 	}, (err, res, body) => {
 		if (body.length == 0) {
-			errorMessage(msg, 4041);
+			handler.error.log(msg, 4041);
 			return;
 		} else {
 			msg.channel.send('**Your osu Username has been successfully connected!**\nType `' + prefix + 'help` to see the list of commands available');
@@ -933,33 +1027,12 @@ function timeSince(date) {
 	return Math.floor(seconds) + ' seconds';
 }
 
-function errorMessage(msg, errCode) {
-	if (errCode == 4041) {
-		console.log('Error 4041');
-		msg.channel.send('**Unknown username!** This username doesn\'t seem to exist, check if you spelled the name correctly');
-	} else if (errCode == 4042) {
-		console.log('Error 4042');
-		msg.channel.send('**Unknown beatmap!** Sadly I couldn\'t find the map your are searching for :(, check if you spelled the name of the beatmap correctly');
-	} else if (errCode == 4043) {
-		console.log('Error 4043');
-		msg.channel.send('File is not recognised\nCheck if the file is uploaded coreectly, it  is a json file and isn\'t corrupted');
-	} else if (errCode == 4044) {
-		console.log('Error 4044');
-		msg.channel.send('There were no recent plays in the last 24h or Invalid username\nCheck if you spelled the name correctly or click some circles :)');
-	} else if (errCode == 4045) {
-		console.log('Error 4045');
-		msg.channel.send('**Command arguments are badly formatted**. Please use the commands in this format `$command -a -b 10 -c Username`.\nMake sure that the Username goes last.');
-	} else {
-		console.log('Error 4040');
-		msg.channel.send('Error 4040');
-	}
-}
 
 function getComparablePlay(msg) {
 	var done = false;
 	msg.channel.fetchMessages()
 		.then(messages => messages.forEach((message) => {
-			if (message.author.id != 647218819865116674 || done) {
+			if (message.author.id != client.user.id || done) {
 				return;
 			}
 			msg.channel.fetchMessage(message.id).then(fetchedMessage => {
@@ -1025,9 +1098,10 @@ function sendCompareEmbed(msg, playType, content, userid) {
 
 						var accuracy = (50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss)));
 						accuracy = Math.floor(accuracy * 10000) / 100;
+						let date = timeSince(Date.parse(body[0].date));
 
 						const embed = {
-							'description': `${grade} - **${body[0].pp}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}`, //\nAchieved: **${formattedDate}**
+							'description': `${grade} - **${Math.floor(body[0].pp*100)/100}pp** - ${accuracy}%${body[0].perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(body[0].maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(body[0].score)}**\n[${body[0].count300}/${body[0].count100}/${body[0].count50}/${body[0].countmiss}]${body[0].rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
 							'url': 'https://discordapp.com',
 							'color': colour,
 							'thumbnail': {
