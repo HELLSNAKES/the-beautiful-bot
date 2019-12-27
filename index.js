@@ -91,7 +91,13 @@ client.on('message', async msg => {
 		const embed = help;
 		msg.channel.send(embed);
 	}
-
+	if (msg.content == `<@!${client.user.id}> i know you are ill and stuff but don't act like this`) {
+		msg.channel.startTyping();
+		setTimeout(() => {
+		msg.reply('Sorry :sweat_smile:');
+		msg.channel.stopTyping();
+		},4000);
+	}
 	if (msg.content.startsWith(prefix)) { // Prefix is used
 		var parameters = msg.content.slice(prefix.length).split(' ');
 		var command = parameters[0];
