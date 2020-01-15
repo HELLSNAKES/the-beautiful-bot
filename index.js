@@ -83,10 +83,9 @@ client.on('ready', () => {
 
 
 client.on('message', async msg => {
+	time = Date.now();
 	msg.content = msg.content.toLowerCase();
-	if (msg.author.id == client.user.id) {
-		return;
-	}
+	if (msg.author.bot) return;
 	if (msg.content == `<@!${client.user.id}>`) {
 		const embed = help;
 		msg.channel.send(embed);
@@ -98,110 +97,8 @@ client.on('message', async msg => {
 		msg.channel.stopTyping();
 		},4000);
 	}
-	if (msg.content.startsWith(prefix)) { // Prefix is used
-		var parameters = msg.content.slice(prefix.length).split(' ');
-		var command = parameters[0];
-		parameters.splice(0, 1);
 
-		if (command == 'osu') {
-			if (/<@![0-9]{18}>/g.test(parameters[0])) {
-				var discordID = parameters[0].slice(3, 21);
 
-				readDB(msg, discordID, (doc) => {
-					createUserCard(msg, doc.osuUsername);
-				});
-			} else if (parameters.length != 0) {
-				createUserCard(msg, parameters.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					createUserCard(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'rs' || command == 'recent') {
-			var options = {};
-			for (var i = 0; i < parameters.length; i++) {
-				if (parameters[i] == '-p') {
-					options.previous = parseInt(parameters[i + 1]);
-					parameters.splice(i, 1);
-					parameters.splice(i, 1);
-				} else if (parameters[i] == '-m') {
-					options.mode = parseInt(parameters[i + 1]);
-					parameters.splice(i, 1);
-					parameters.splice(i, 1);
-				}
-			}
-			if (/<@![0-9]{18}>/g.test(parameters[0])) {
-				discordID = parameters[0].slice(3, 21);
-				readDB(msg, discordID, (doc) => {
-					recent(msg, doc.osuUsername, options);
-				});
-			} else if (parameters.length != 0) {
-				recent(msg, parameters.join('_'), options);
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					recent(msg, doc.osuUsername, options);
-				});
-			}
-		} else if (command == 'bt' || command == 'best') {
-			if (/<@![0-9]{18}>/g.test(parameters[0])) {
-				discordID = parameters[0].slice(3, 21);
-				readDB(msg, discordID, (doc) => {
-					best(msg, doc.osuUsername);
-				});
-			} else if (parameters.length != 0) {
-				best(msg, parameters.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					best(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'mp' || command == 'map') {
-			if (parameters.length != 0) {
-				searchBeatmap(msg, parameters.join(' '));
-			}
-		} else if (command == 'or' || command == 'osurename') {
-			if (parameters.length != 0) {
-				updatedb(msg, parameters.join('_'), function () {
-					msg.channel.send('Your osu username linked with your account has been successfully updated!');
-				});
-			} else {
-				msg.channel.send('Osu username has not been provided.');
-				console.log(`FAILED TO RENAME : ${msg.author.id}`);
-			}
-		} else if (command == 'os' || command == 'osuset') {
-			checkUser(msg, {
-				discordID: msg.author.id,
-				osuUsername: parameters.join(' ')
-			}, function (data) {
-				writedb(data);
-			});
-		} else if (command == 'hl' || command == 'help') {
-			const embed = help;
-			msg.channel.send(embed);
-			console.log(`HELP : ${msg.author.id}`);
-
-		} else if (command == 'cl' || command == 'changelog') {
-			if (parameters.length != 0) {
-				getRepoData(msg, parameters[0]);
-				return;
-			}
-			getRepoData(msg);
-		} else if (command == 'c' || command == 'compare') {
-			getComparablePlay(msg);
-		}
-		//else if (command == 'dummy') {
-		// 	getBeatmapData(msg, 396221, 862088)
-		// 	// msg.channel.send({ embed: {
-		// 	// 	'url': 'https://discordapp.com',
-		// 	// 	'color': 14869524,
-		// 	// 	'author': {
-		// 	// 	  'name': '.',
-		// 	// 	  'url': 'https://osu.ppy.sh/beatmapsets/952393#osu/2074851'
-		// 	// 	}
-		// 	// }
-		// 	//   });
-		// }
-	}
 	if (msg.content === 'bot you alive?') { // bot are you alive
 		msg.reply('**YES!!!**');
 	} else if (msg.content === 'cat') { // cat
@@ -226,6 +123,117 @@ client.on('message', async msg => {
 		var userid = msg.content.replace('https://osu.ppy.sh/users/', '');
 		createUserCard(msg, userid);
 	}
+
+	if (!msg.content.startsWith(prefix)) return;
+	var args = msg.content.slice(prefix.length).trim().split(' ');
+	var command = args[0];
+	args.splice(0, 1);
+
+	if (command === "ping") {
+		require('./commands/ping').ping(client,msg);
+    }
+
+
+		if (command == 'osu') {
+			if (/<@![0-9]{18}>/g.test(args[0])) {
+				var discordID = args[0].slice(3, 21);
+
+				readDB(msg, discordID, (doc) => {
+					createUserCard(msg, doc.osuUsername);
+				});
+			} else if (args.length != 0) {
+				createUserCard(msg, args.join('_'));
+			} else {
+				readDB(msg, msg.author.id, function (doc) {
+					createUserCard(msg, doc.osuUsername);
+				});
+			}
+		} else if (command == 'rs' || command == 'recent') {
+			var options = {};
+			for (var i = 0; i < args.length; i++) {
+				if (args[i] == '-p') {
+					options.previous = parseInt(args[i + 1]);
+					args.splice(i, 1);
+					args.splice(i, 1);
+				} else if (args[i] == '-m') {
+					options.mode = parseInt(args[i + 1]);
+					args.splice(i, 1);
+					args.splice(i, 1);
+				}
+			}
+			if (/<@![0-9]{18}>/g.test(args[0])) {
+				discordID = args[0].slice(3, 21);
+				readDB(msg, discordID, (doc) => {
+					recent(msg, doc.osuUsername, options);
+				});
+			} else if (args.length != 0) {
+				recent(msg, args.join('_'), options);
+			} else {
+				readDB(msg, msg.author.id, function (doc) {
+					recent(msg, doc.osuUsername, options);
+				});
+			}
+		} else if (command == 'bt' || command == 'best') {
+			if (/<@![0-9]{18}>/g.test(args[0])) {
+				discordID = args[0].slice(3, 21);
+				readDB(msg, discordID, (doc) => {
+					best(msg, doc.osuUsername);
+				});
+			} else if (args.length != 0) {
+				best(msg, args.join('_'));
+			} else {
+				readDB(msg, msg.author.id, function (doc) {
+					best(msg, doc.osuUsername);
+				});
+			}
+		} else if (command == 'mp' || command == 'map') {
+			if (args.length != 0) {
+				searchBeatmap(msg, args.join(' '));
+			}
+		} else if (command == 'or' || command == 'osurename') {
+			if (args.length != 0) {
+				updatedb(msg, args.join('_'), function () {
+					msg.channel.send('Your osu username linked with your account has been successfully updated!');
+				});
+			} else {
+				msg.channel.send('Osu username has not been provided.');
+				console.log(`FAILED TO RENAME : ${msg.author.id}`);
+			}
+		} else if (command == 'os' || command == 'osuset') {
+			checkUser(msg, {
+				discordID: msg.author.id,
+				osuUsername: args.join(' ')
+			}, function (data) {
+				writedb(data);
+			});
+		} else if (command == 'hl' || command == 'help') {
+			const embed = help;
+			msg.channel.send(embed);
+			console.log(`HELP : ${msg.author.id}`);
+
+		} else if (command == 'cl' || command == 'changelog') {
+			if (args.length != 0) {
+				getRepoData(msg, args[0]);
+				return;
+			}
+			getRepoData(msg);
+		} else if (command == 'c' || command == 'compare') {
+			getComparablePlay(msg);
+		}
+		//else if (command == 'dummy') {
+		// 	getBeatmapData(msg, 396221, 862088)
+		// 	// msg.channel.send({ embed: {
+		// 	// 	'url': 'https://discordapp.com',
+		// 	// 	'color': 14869524,
+		// 	// 	'author': {
+		// 	// 	  'name': '.',
+		// 	// 	  'url': 'https://osu.ppy.sh/beatmapsets/952393#osu/2074851'
+		// 	// 	}
+		// 	// }
+		// 	//   });
+		// }
+	
+	
 });
 
 function searchBeatmap(msg, name) {
@@ -726,7 +734,6 @@ function recent(msg, user, options = {}) {
 						'text': 'Always Remember, The beautiful bot loves you <3'
 					}
 				};
-				
 				msg.channel.send({
 					embed
 				});
