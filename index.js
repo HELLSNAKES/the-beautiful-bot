@@ -18,7 +18,7 @@ const Canvas = require('canvas');
 const requestPromiseNative = require('request-promise-native');
 const MongoClient = require('mongodb').MongoClient;
 const colours = require('./colours.js');
-const handler = require('./handlers/handler.js');
+// const handler = require('./handlers/handler.js');
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
 });
@@ -93,9 +93,9 @@ client.on('message', async msg => {
 	if (msg.content == `<@!${client.user.id}> i know you are ill and stuff but don't act like this`) {
 		msg.channel.startTyping();
 		setTimeout(() => {
-		msg.reply('Sorry :sweat_smile:');
-		msg.channel.stopTyping();
-		},4000);
+			msg.reply('Sorry :sweat_smile:');
+			msg.channel.stopTyping();
+		}, 4000);
 	}
 
 
@@ -126,114 +126,115 @@ client.on('message', async msg => {
 
 	if (!msg.content.startsWith(prefix)) return;
 	var args = msg.content.slice(prefix.length).trim().split(' ');
-	var command = args[0];
-	args.splice(0, 1);
+	var cmd = args.shift();
+	console.log(args)
 
-	if (command === "ping") {
-		require('./commands/ping').ping(client,msg);
-    }
+	if (cmd === 'ping') {
+		require('./commands/ping').ping(client, msg);
+	}
 
 
-		if (command == 'osu') {
-			if (/<@![0-9]{18}>/g.test(args[0])) {
-				var discordID = args[0].slice(3, 21);
+	if (cmd == 'osu') {
+		require('./commands/osu.js').osu(client, msg, args);
+		// if (/<@![0-9]{18}>/g.test(args[0])) {
+		// 	var discordID = args[0].slice(3, 21);
 
-				readDB(msg, discordID, (doc) => {
-					createUserCard(msg, doc.osuUsername);
-				});
-			} else if (args.length != 0) {
-				createUserCard(msg, args.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					createUserCard(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'rs' || command == 'recent') {
-			var options = {};
-			for (var i = 0; i < args.length; i++) {
-				if (args[i] == '-p') {
-					options.previous = parseInt(args[i + 1]);
-					args.splice(i, 1);
-					args.splice(i, 1);
-				} else if (args[i] == '-m') {
-					options.mode = parseInt(args[i + 1]);
-					args.splice(i, 1);
-					args.splice(i, 1);
-				}
-			}
-			if (/<@![0-9]{18}>/g.test(args[0])) {
-				discordID = args[0].slice(3, 21);
-				readDB(msg, discordID, (doc) => {
-					recent(msg, doc.osuUsername, options);
-				});
-			} else if (args.length != 0) {
-				recent(msg, args.join('_'), options);
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					recent(msg, doc.osuUsername, options);
-				});
-			}
-		} else if (command == 'bt' || command == 'best') {
-			if (/<@![0-9]{18}>/g.test(args[0])) {
-				discordID = args[0].slice(3, 21);
-				readDB(msg, discordID, (doc) => {
-					best(msg, doc.osuUsername);
-				});
-			} else if (args.length != 0) {
-				best(msg, args.join('_'));
-			} else {
-				readDB(msg, msg.author.id, function (doc) {
-					best(msg, doc.osuUsername);
-				});
-			}
-		} else if (command == 'mp' || command == 'map') {
-			if (args.length != 0) {
-				searchBeatmap(msg, args.join(' '));
-			}
-		} else if (command == 'or' || command == 'osurename') {
-			if (args.length != 0) {
-				updatedb(msg, args.join('_'), function () {
-					msg.channel.send('Your osu username linked with your account has been successfully updated!');
-				});
-			} else {
-				msg.channel.send('Osu username has not been provided.');
-				console.log(`FAILED TO RENAME : ${msg.author.id}`);
-			}
-		} else if (command == 'os' || command == 'osuset') {
-			checkUser(msg, {
-				discordID: msg.author.id,
-				osuUsername: args.join(' ')
-			}, function (data) {
-				writedb(data);
-			});
-		} else if (command == 'hl' || command == 'help') {
-			const embed = help;
-			msg.channel.send(embed);
-			console.log(`HELP : ${msg.author.id}`);
+		// 	readDB(msg, discordID, (doc) => {
+		// 		createUserCard(msg, doc.osuUsername);
+		// 	});
+		// } else if (args.length != 0) {
+		// 	createUserCard(msg, args.join('_'));
+		// } else {
+		// 	readDB(msg, msg.author.id, function (doc) {
+		// 		createUserCard(msg, doc.osuUsername);
+		// 	});
 
-		} else if (command == 'cl' || command == 'changelog') {
-			if (args.length != 0) {
-				getRepoData(msg, args[0]);
-				return;
+	} else if (cmd == 'rs' || cmd == 'recent') {
+		var options = {};
+		for (var i = 0; i < args.length; i++) {
+			if (args[i] == '-p') {
+				options.previous = parseInt(args[i + 1]);
+				args.splice(i, 1);
+				args.splice(i, 1);
+			} else if (args[i] == '-m') {
+				options.mode = parseInt(args[i + 1]);
+				args.splice(i, 1);
+				args.splice(i, 1);
 			}
-			getRepoData(msg);
-		} else if (command == 'c' || command == 'compare') {
-			getComparablePlay(msg);
 		}
-		//else if (command == 'dummy') {
-		// 	getBeatmapData(msg, 396221, 862088)
-		// 	// msg.channel.send({ embed: {
-		// 	// 	'url': 'https://discordapp.com',
-		// 	// 	'color': 14869524,
-		// 	// 	'author': {
-		// 	// 	  'name': '.',
-		// 	// 	  'url': 'https://osu.ppy.sh/beatmapsets/952393#osu/2074851'
-		// 	// 	}
-		// 	// }
-		// 	//   });
-		// }
-	
-	
+		if (/<@![0-9]{18}>/g.test(args[0])) {
+			discordID = args[0].slice(3, 21);
+			readDB(msg, discordID, (doc) => {
+				recent(msg, doc.osuUsername, options);
+			});
+		} else if (args.length != 0) {
+			recent(msg, args.join('_'), options);
+		} else {
+			readDB(msg, msg.author.id, function (doc) {
+				recent(msg, doc.osuUsername, options);
+			});
+		}
+	} else if (cmd == 'bt' || cmd == 'best') {
+		if (/<@![0-9]{18}>/g.test(args[0])) {
+			discordID = args[0].slice(3, 21);
+			readDB(msg, discordID, (doc) => {
+				best(msg, doc.osuUsername);
+			});
+		} else if (args.length != 0) {
+			best(msg, args.join('_'));
+		} else {
+			readDB(msg, msg.author.id, function (doc) {
+				best(msg, doc.osuUsername);
+			});
+		}
+	} else if (cmd == 'mp' || cmd == 'map') {
+		if (args.length != 0) {
+			searchBeatmap(msg, args.join(' '));
+		}
+	} else if (cmd == 'or' || cmd == 'osurename') {
+		if (args.length != 0) {
+			updatedb(msg, args.join('_'), function () {
+				msg.channel.send('Your osu username linked with your account has been successfully updated!');
+			});
+		} else {
+			msg.channel.send('Osu username has not been provided.');
+			console.log(`FAILED TO RENAME : ${msg.author.id}`);
+		}
+	} else if (cmd == 'os' || cmd == 'osuset') {
+		checkUser(msg, {
+			discordID: msg.author.id,
+			osuUsername: args.join(' ')
+		}, function (data) {
+			writedb(data);
+		});
+	} else if (cmd == 'hl' || cmd == 'help') {
+		const embed = help;
+		msg.channel.send(embed);
+		console.log(`HELP : ${msg.author.id}`);
+
+	} else if (cmd == 'cl' || cmd == 'changelog') {
+		if (args.length != 0) {
+			getRepoData(msg, args[0]);
+			return;
+		}
+		getRepoData(msg);
+	} else if (cmd == 'c' || cmd == 'compare') {
+		getComparablePlay(msg);
+	}
+	//else if (command == 'dummy') {
+	// 	getBeatmapData(msg, 396221, 862088)
+	// 	// msg.channel.send({ embed: {
+	// 	// 	'url': 'https://discordapp.com',
+	// 	// 	'color': 14869524,
+	// 	// 	'author': {
+	// 	// 	  'name': '.',
+	// 	// 	  'url': 'https://osu.ppy.sh/beatmapsets/952393#osu/2074851'
+	// 	// 	}
+	// 	// }
+	// 	//   });
+	// }
+
+
 });
 
 function searchBeatmap(msg, name) {
@@ -300,7 +301,7 @@ async function createBeatmapCard(msg, data) {
 		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
 		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
 		coloursExtracted.background = colours.toHex(coloursExtracted.background);
-		console.log(coloursExtracted.foreground,coloursExtracted.background);
+		console.log(coloursExtracted.foreground, coloursExtracted.background);
 		// Beatmap Image
 		try {
 			const beatmapImage = await Canvas.loadImage(url);
@@ -656,9 +657,9 @@ function recent(msg, user, options = {}) {
 		handler.error.log(msg, 4045);
 		return;
 	}
-	
+
 	if (options.mode == 3) {
-		recentMania(msg,user,options);
+		recentMania(msg, user, options);
 		return;
 	} else if (options.mode == 2 || options.mode == 1) {
 		msg.channel.send('Sorry but this modes are not supported yet.');
@@ -715,7 +716,7 @@ function recent(msg, user, options = {}) {
 				var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
 				accuracy = Math.floor(accuracy * 10000) / 100;
 
-				var ppFC = play.perfect == 0 ? '(' + (accuracy >= 80 ? accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${beatmapData[0].beatmap_id} | node pp.js ${(accuracy >= 80 ? accuracy : 80)}%`)).toString().split('$')[0]+'pp)' : '';
+				var ppFC = play.perfect == 0 ? '(' + (accuracy >= 80 ? accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${beatmapData[0].beatmap_id} | node pp.js ${(accuracy >= 80 ? accuracy : 80)}%`)).toString().split('$')[0] + 'pp)' : '';
 
 				const embed = {
 					'description': `${grade} - **${ojsama[0]}pp** - ${accuracy}% ${ppFC} ${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]${ojsama[1] != Math.floor(beatmapData[0].difficultyrating * 100)/100 ? ` (${ojsama[1]}★ with Mods)` : ''}**\nCombo: **x${format(play.maxcombo)}/x${format(beatmapData[0].max_combo)}**	Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]${play.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
@@ -753,11 +754,11 @@ function recentMania(msg, user, options = {}) {
 		handler.error.log(msg, 4045);
 		return;
 	}
-	
+
 	request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=3`, {
 		json: true
 	}, (err, res, body) => {
-		
+
 		if (body.length == 0) {
 			handler.error.log(msg, 4044);
 			return;
@@ -769,55 +770,55 @@ function recentMania(msg, user, options = {}) {
 			json: true
 		}, (err, res, beatmapData) => {
 			console.log(beatmapData)
-				// let mods = getMods(play.enabled_mods);
-				var colour = 0;
-				if (play.rank.toLowerCase() == 'f' || play.rank.toLowerCase() == 'd') colour = 15158332;
-				else if (play.rank.toLowerCase() == 'c') colour = 10181046;
-				else if (play.rank.toLowerCase() == 'b') colour = 3447003;
-				else if (play.rank.toLowerCase() == 'a') colour = 3066993;
-				else if (play.rank.toLowerCase() == 's') colour = 15844367;
-				else if (play.rank.toLowerCase() == 'sh') colour = 12370112;
-				else if (play.rank.toLowerCase() == 'x') colour = 16580705;
-				else if (play.rank.toLowerCase() == 'xh') colour = 16580705;
+			// let mods = getMods(play.enabled_mods);
+			var colour = 0;
+			if (play.rank.toLowerCase() == 'f' || play.rank.toLowerCase() == 'd') colour = 15158332;
+			else if (play.rank.toLowerCase() == 'c') colour = 10181046;
+			else if (play.rank.toLowerCase() == 'b') colour = 3447003;
+			else if (play.rank.toLowerCase() == 'a') colour = 3066993;
+			else if (play.rank.toLowerCase() == 's') colour = 15844367;
+			else if (play.rank.toLowerCase() == 'sh') colour = 12370112;
+			else if (play.rank.toLowerCase() == 'x') colour = 16580705;
+			else if (play.rank.toLowerCase() == 'xh') colour = 16580705;
 
-				// var completion = 0;
-				// if (play.rank.toLowerCase() == 'f') {
-				// 	completion = Math.floor((parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
-				// }
+			// var completion = 0;
+			// if (play.rank.toLowerCase() == 'f') {
+			// 	completion = Math.floor((parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)) / parseInt(ojsama[2]) * 10000) / 100;
+			// }
 
-				// if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT') && !mods.includes('NC')) {
-				// 	ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
-				// }
-				
-				var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
-				accuracy = Math.floor(accuracy * 10000) / 100;
+			// if (!mods.includes('DT') && !mods.includes('HR') && !mods.includes('EZ') && !mods.includes('HT') && !mods.includes('NC')) {
+			// 	ojsama[1] = Math.floor(beatmapData[0].difficultyrating * 100) / 100;
+			// }
 
-				const embed = {
-					'description': `${grade} - **--pp** - ${accuracy}% ${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(play.maxcombo)} **Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]\nAchieved: **${date}**`,
-					'url': 'https://discordapp.com',
-					'color': colour,
-					'thumbnail': {
-						'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
-					},
-					'author': {
-						'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
-						'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
-						'icon_url': `https://a.ppy.sh/${body[0].user_id}`
-					},
-					'footer': {
-						'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
-						'text': 'Always Remember, The beautiful bot loves you <3'
-					}
-				};
-				
-				msg.channel.send({
-					embed
-				});
-				console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
+			var accuracy = (50 * parseInt(play.count50) + 100 * parseInt(play.count100) + 300 * parseInt(play.count300)) / (300 * (parseInt(play.count50) + parseInt(play.count100) + parseInt(play.count300) + parseInt(play.countmiss)));
+			accuracy = Math.floor(accuracy * 10000) / 100;
+
+			const embed = {
+				'description': `${grade} - **--pp** - ${accuracy}% ${play.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(beatmapData[0].difficultyrating))} **[${Math.floor(beatmapData[0].difficultyrating * 100)/100}★]**\nCombo: **x${format(play.maxcombo)} **Score: **${format(play.score)}**\n[${play.count300}/${play.count100}/${play.count50}/${play.countmiss}]\nAchieved: **${date}**`,
+				'url': 'https://discordapp.com',
+				'color': colour,
+				'thumbnail': {
+					'url': `https://b.ppy.sh/thumb/${beatmapData[0].beatmapset_id}.jpg`
+				},
+				'author': {
+					'name': `${options.previous > 0 ? options.previous+'. ': ''}${beatmapData[0].title} [${beatmapData[0].version}] +${getMods(play.enabled_mods)}`,
+					'url': `https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`,
+					'icon_url': `https://a.ppy.sh/${body[0].user_id}`
+				},
+				'footer': {
+					'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
+					'text': 'Always Remember, The beautiful bot loves you <3'
+				}
+			};
+
+			msg.channel.send({
+				embed
 			});
-
-
+			console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
 		});
+
+
+	});
 }
 
 async function best(msg, user) {
