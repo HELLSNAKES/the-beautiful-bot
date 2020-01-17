@@ -158,8 +158,7 @@ client.on('message', async msg => {
 			writedb(data);
 		});
 	} else if (cmd == 'hl' || cmd == 'help') {
-		const embed = help;
-		msg.channel.send(embed);
+		require('./commands/help').help(msg, prefix);
 		console.log(`HELP : ${msg.author.id}`);
 
 	} else if (cmd == 'cl' || cmd == 'changelog') {
