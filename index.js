@@ -135,43 +135,8 @@ client.on('message', async msg => {
 		require('./commands/osu').osu(client, msg, args);
 	} else if (cmd == 'rs' || cmd == 'recent') {
 		require('./commands/recent').recent(client, msg, args);
-		// var options = {};
-		// for (var i = 0; i < args.length; i++) {
-		// 	if (args[i] == '-p') {
-		// 		options.previous = parseInt(args[i + 1]);
-		// 		args.splice(i, 1);
-		// 		args.splice(i, 1);
-		// 	} else if (args[i] == '-m') {
-		// 		options.mode = parseInt(args[i + 1]);
-		// 		args.splice(i, 1);
-		// 		args.splice(i, 1);
-		// 	}
-		// }
-		// if (/<@![0-9]{18}>/g.test(args[0])) {
-		// 	discordID = args[0].slice(3, 21);
-		// 	readDB(msg, discordID, (doc) => {
-		// 		recent(msg, doc.osuUsername, options);
-		// 	});
-		// } else if (args.length != 0) {
-		// 	recent(msg, args.join('_'), options);
-		// } else {
-		// 	readDB(msg, msg.author.id, function (doc) {
-		// 		recent(msg, doc.osuUsername, options);
-		// 	});
-		// }
 	} else if (cmd == 'bt' || cmd == 'best') {
-		if (/<@![0-9]{18}>/g.test(args[0])) {
-			discordID = args[0].slice(3, 21);
-			readDB(msg, discordID, (doc) => {
-				best(msg, doc.osuUsername);
-			});
-		} else if (args.length != 0) {
-			best(msg, args.join('_'));
-		} else {
-			readDB(msg, msg.author.id, function (doc) {
-				best(msg, doc.osuUsername);
-			});
-		}
+		require('./commands/best').best(client, msg, args);
 	} else if (cmd == 'mp' || cmd == 'map') {
 		if (args.length != 0) {
 			searchBeatmap(msg, args.join(' '));

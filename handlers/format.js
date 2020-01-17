@@ -57,4 +57,4 @@ module.exports = {
 	rect: rect,
 	number:number,
 	time: time
-}
+};
