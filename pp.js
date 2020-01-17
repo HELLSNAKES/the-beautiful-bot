@@ -30,7 +30,7 @@ readline.createInterface({
 	.on("line", parser.feed_line.bind(parser))
 	.on("close", function () {
 		var map = parser.map;
-		//   console.log(map.toString());
+		// console.log(map);
 
 		if (mods) {
 			// console.log("+" + osu.modbits.string(mods));

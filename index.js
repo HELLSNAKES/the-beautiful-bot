@@ -127,53 +127,38 @@ client.on('message', async msg => {
 	if (!msg.content.startsWith(prefix)) return;
 	var args = msg.content.slice(prefix.length).trim().split(' ');
 	var cmd = args.shift();
-	console.log(args)
+
 
 	if (cmd === 'ping') {
 		require('./commands/ping').ping(client, msg);
-	}
-
-
-	if (cmd == 'osu') {
-		require('./commands/osu.js').osu(client, msg, args);
+	}else if (cmd == 'osu') {
+		require('./commands/osu').osu(client, msg, args);
+	} else if (cmd == 'rs' || cmd == 'recent') {
+		require('./commands/recent').recent(client, msg, args);
+		// var options = {};
+		// for (var i = 0; i < args.length; i++) {
+		// 	if (args[i] == '-p') {
+		// 		options.previous = parseInt(args[i + 1]);
+		// 		args.splice(i, 1);
+		// 		args.splice(i, 1);
+		// 	} else if (args[i] == '-m') {
+		// 		options.mode = parseInt(args[i + 1]);
+		// 		args.splice(i, 1);
+		// 		args.splice(i, 1);
+		// 	}
+		// }
 		// if (/<@![0-9]{18}>/g.test(args[0])) {
-		// 	var discordID = args[0].slice(3, 21);
-
+		// 	discordID = args[0].slice(3, 21);
 		// 	readDB(msg, discordID, (doc) => {
-		// 		createUserCard(msg, doc.osuUsername);
+		// 		recent(msg, doc.osuUsername, options);
 		// 	});
 		// } else if (args.length != 0) {
-		// 	createUserCard(msg, args.join('_'));
+		// 	recent(msg, args.join('_'), options);
 		// } else {
 		// 	readDB(msg, msg.author.id, function (doc) {
-		// 		createUserCard(msg, doc.osuUsername);
+		// 		recent(msg, doc.osuUsername, options);
 		// 	});
-
-	} else if (cmd == 'rs' || cmd == 'recent') {
-		var options = {};
-		for (var i = 0; i < args.length; i++) {
-			if (args[i] == '-p') {
-				options.previous = parseInt(args[i + 1]);
-				args.splice(i, 1);
-				args.splice(i, 1);
-			} else if (args[i] == '-m') {
-				options.mode = parseInt(args[i + 1]);
-				args.splice(i, 1);
-				args.splice(i, 1);
-			}
-		}
-		if (/<@![0-9]{18}>/g.test(args[0])) {
-			discordID = args[0].slice(3, 21);
-			readDB(msg, discordID, (doc) => {
-				recent(msg, doc.osuUsername, options);
-			});
-		} else if (args.length != 0) {
-			recent(msg, args.join('_'), options);
-		} else {
-			readDB(msg, msg.author.id, function (doc) {
-				recent(msg, doc.osuUsername, options);
-			});
-		}
+		// }
 	} else if (cmd == 'bt' || cmd == 'best') {
 		if (/<@![0-9]{18}>/g.test(args[0])) {
 			discordID = args[0].slice(3, 21);
