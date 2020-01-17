@@ -60,27 +60,34 @@ function sendRecent(client, msg, user, options = {}) {
 		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
 			json: true
 		}, (err, res, body) => {
+			if (body.length == 0) {
+				error.log(msg, 4044);
+				return;
+			}
 			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}`,{
 				json: true
 			}, (beatmapErr,beatmapRes,beatmapBody) => {
-				console.log(beatmapBody)
 			if (err) console.log(err);
 			let accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
 			body[options.previous].accuracy = accuracy;
 			exec(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node pp.js +${mods.toString(body[options.previous].enabled_mods)} ${accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`, (err, stdout, stderr) => {
-				console.log(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node pp.js +${mods.toString(body[options.previous].enabled_mods)} ${accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`)
 				if (err) return;
 
 				var ojsama = stdout.replace('\n', '').split('$');
 				body[options.previous].pp = ojsama[0];
 				body[options.previous].calculated_difficulty = ojsama[1];
 				body[options.previous].max_map_combo = ojsama[2];
-				body[options.previous].title = beatmapBody[0].title;
-				body[options.previous].version = beatmapBody[0].version;
-				body[options.previous].beatmapset_id = beatmapBody[0].beatmapset_id;
-				body[options.previous].difficultyrating = beatmapBody[0].difficultyrating;
+				body[options.previous] = {
+					...body[options.previous],
+					...beatmapBody[0]
+				}
+				// body[options.previous].title = beatmapBody[0].title;
+				// body[options.previous].version = beatmapBody[0].version;
+				// body[options.previous].beatmapset_id = beatmapBody[0].beatmapset_id;
+				// body[options.previous].difficultyrating = beatmapBody[0].difficultyrating;
+				// body[options.previous].
 
-				console.log(body);
+				console.log(body[options.previous]);
 				generateRecent(client, msg, body[options.previous]);
 			});
 		});
@@ -98,16 +105,13 @@ function sendRecent(client, msg, user, options = {}) {
 }
 
 function generateRecent(client, msg, body) {
-	console.log(body);
 	if (body.length == 0) {
 		error.log(msg, 4044);
 		return;
 	}
 
 	let grade = client.emojis.find(emoji => emoji.name === 'grade_' + body.rank.toLowerCase());
-	// let accuracy = Math.floor((50 * parseInt(body.count50) + 100 * parseInt(body.count100) + 300 * parseInt(body.count300)) / (300 * (parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss))) * 10000) / 100;
-	// accuracy = Math.floor(accuracy * 10000) / 100;
-
+	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
 	let date = format.time(Date.parse(body.date));
 
 	let selectedMods = mods.toString(body.enabled_mods);
@@ -133,7 +137,7 @@ function generateRecent(client, msg, body) {
 	var ppFC = body.perfect == 0 ? '(' + (body.accuracy >= 80 ? body.accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}%`)).toString().split('$')[0] + 'pp)' : '';
 
 	const embed = {
-		'description': `${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **x${format.number(body.maxcombo)}/x${format.number(body.max_map_combo)}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
+		'description': `${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **x${format.number(body.maxcombo)}/x${format.number(body.max_combo)}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**`,
 		'url': 'https://discordapp.com',
 		'color': colour,
 		'thumbnail': {
