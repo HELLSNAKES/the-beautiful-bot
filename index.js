@@ -138,9 +138,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'bt' || cmd == 'best') {
 		require('./commands/best').best(client, msg, args);
 	} else if (cmd == 'mp' || cmd == 'map') {
-		if (args.length != 0) {
-			searchBeatmap(msg, args.join(' '));
-		}
+		require('./commands/map').search(msg, args);
 	} else if (cmd == 'or' || cmd == 'osurename') {
 		if (args.length != 0) {
 			updatedb(msg, args.join('_'), function () {
@@ -159,8 +157,6 @@ client.on('message', async msg => {
 		});
 	} else if (cmd == 'hl' || cmd == 'help') {
 		require('./commands/help').help(msg, prefix);
-		console.log(`HELP : ${msg.author.id}`);
-
 	} else if (cmd == 'cl' || cmd == 'changelog') {
 		if (args.length != 0) {
 			getRepoData(msg, args[0]);
