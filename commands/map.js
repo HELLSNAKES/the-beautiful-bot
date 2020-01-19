@@ -261,4 +261,4 @@ async function generateBeatmap(msg, data) {
 module.exports = {
 	search: search,
 	generateBeatmap: generateBeatmap
-}
+};

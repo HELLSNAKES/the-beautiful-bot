@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 
-function read(findObject,callback) {
+function read(findObject, callback) {
 	MongoClient.connect(url, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
@@ -34,8 +34,21 @@ function write() {
 
 }
 
-function update() {
+function update(findObject, setObject, callback) {
+	MongoClient.connect(url, function (err, client) {
 
+		const db = client.db(dbName);
+
+		const collection = db.collection('users');
+
+		collection.updateOne(findObject, {
+			$set: setObject
+		}, function (err, result) {
+			console.log(`UPDATE : ${Object.values(findObject)}`);
+		});
+		callback();
+		client.close();
+	});
 }
 
 

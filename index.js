@@ -140,14 +140,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'mp' || cmd == 'map') {
 		require('./commands/map').search(msg, args);
 	} else if (cmd == 'or' || cmd == 'osurename') {
-		if (args.length != 0) {
-			updatedb(msg, args.join('_'), function () {
-				msg.channel.send('Your osu username linked with your account has been successfully updated!');
-			});
-		} else {
-			msg.channel.send('Osu username has not been provided.');
-			console.log(`FAILED TO RENAME : ${msg.author.id}`);
-		}
+		require('./commands/rename').rename(msg, args);
 	} else if (cmd == 'os' || cmd == 'osuset') {
 		checkUser(msg, {
 			discordID: msg.author.id,
