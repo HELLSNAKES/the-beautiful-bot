@@ -35,7 +35,10 @@ function write() {
 }
 
 function update(findObject, setObject, callback) {
-	MongoClient.connect(url, function (err, client) {
+	MongoClient.connect(url,{
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	}, function (err, client) {
 
 		const db = client.db(dbName);
 
