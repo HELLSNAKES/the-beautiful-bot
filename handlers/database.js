@@ -30,8 +30,17 @@ function read(findObject, callback) {
 	});
 }
 
-function write() {
+function write(writeObject) {
+	MongoClient.connect(url, function (err, client) {
+		const db = client.db(dbName);
 
+		const collection = db.collection('users');
+
+		collection.insertOne(writeObject, function (err, result) {
+			console.log('WRITE');
+		});
+		client.close();
+	});
 }
 
 function update(findObject, setObject, callback) {

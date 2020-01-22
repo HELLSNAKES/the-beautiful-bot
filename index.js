@@ -140,14 +140,9 @@ client.on('message', async msg => {
 	} else if (cmd == 'mp' || cmd == 'map') {
 		require('./commands/map').search(msg, args);
 	} else if (cmd == 'or' || cmd == 'osurename') {
-		require('./commands/rename').rename(msg, args);
+		require('./commands/set').rename(msg, args);
 	} else if (cmd == 'os' || cmd == 'osuset') {
-		checkUser(msg, {
-			discordID: msg.author.id,
-			osuUsername: args.join(' ')
-		}, function (data) {
-			writedb(data);
-		});
+		require('./commands/set').set(msg, args);
 	} else if (cmd == 'hl' || cmd == 'help') {
 		require('./commands/help').help(msg, prefix);
 	} else if (cmd == 'cl' || cmd == 'changelog') {
