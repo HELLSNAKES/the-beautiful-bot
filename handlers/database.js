@@ -1,5 +1,6 @@
-
-require('dotenv').config({path:'../.env'});
+require('dotenv').config({
+	path: '../.env'
+});
 const MongoClient = require('mongodb').MongoClient;
 
 const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
@@ -15,7 +16,7 @@ function read(findObject, callback) {
 
 		const collection = db.collection('users');
 
-		collection.find(findObject).toArray(function (err, docs) {	
+		collection.find(findObject).toArray(function (err, docs) {
 			if (docs.length == 0) {
 				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 				callback({
@@ -31,7 +32,10 @@ function read(findObject, callback) {
 }
 
 function write(writeObject) {
-	MongoClient.connect(url, function (err, client) {
+	MongoClient.connect(url, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	}, function (err, client) {
 		const db = client.db(dbName);
 
 		const collection = db.collection('users');
@@ -44,7 +48,7 @@ function write(writeObject) {
 }
 
 function update(findObject, setObject, callback) {
-	MongoClient.connect(url,{
+	MongoClient.connect(url, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}, function (err, client) {
