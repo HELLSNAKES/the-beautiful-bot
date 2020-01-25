@@ -15,6 +15,9 @@ function log(msg, errCode) {
 	} else if (errCode == 4045) {
 		console.log('Error 4045');
 		msg.channel.send('**Command arguments are badly formatted**. Please use the commands in this format `$command -a -b 10 -c Username`.\nMake sure that the Username goes last.');
+	} else if (errCode == 4046) {
+		msg.channel.send('I could not find you/user in the Database. Use the command `$osuset [Your osu username]` to link your osu account.');
+
 	} else {
 		console.log('Error 4040');
 		msg.channel.send('Error 4040');
