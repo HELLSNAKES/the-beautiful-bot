@@ -152,7 +152,7 @@ client.on('message', async msg => {
 		}
 		getRepoData(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
-		getComparablePlay(msg);
+		require('./commands/compare').compare(client, msg);
 	}
 	//else if (command == 'dummy') {
 	// 	getBeatmapData(msg, 396221, 862088)
