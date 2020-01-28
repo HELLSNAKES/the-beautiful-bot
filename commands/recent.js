@@ -170,5 +170,6 @@ function generateRecent(client, msg, body) {
 
 
 module.exports = {
-	recent: recent
+	recent: recent,
+	generateRecent: generateRecent
 };
