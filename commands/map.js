@@ -39,8 +39,10 @@ function search(msg, args) {
 		body.beatmapsets[0].beatmap = body.beatmapsets[0].beatmaps[highestDiffIndex];
 
 		const embed = {
-			'title': `${ body.beatmapsets[0].artist} - ${body.beatmapsets[0].title} by ${ body.beatmapsets[0].creator} [Download]`,
-			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`,
+			'author': {
+				'name': `${ body.beatmapsets[0].artist} - ${body.beatmapsets[0].title} by ${ body.beatmapsets[0].creator} [Download]`,
+				'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`
+			},
 			'color': 2065919
 		};
 		msg.channel.send({
