@@ -28,23 +28,6 @@ function compare(client, msg) {
 
 
 		})).catch(console.error);
-	// console.log(message.embeds)
-	// if (done) {
-	// 	return;
-	// }
-	// msg.channel.fetchMessage(message.id).then(fetchedMessage => {
-	// 	
-	// 	if (fetchedMessage.embeds.length > 0 && fetchedMessage.embeds[0].type == 'rich' && regex.test(fetchedMessage.embeds[0].author.url)) {
-	// 		fetchedMessageArray.push(fetchedMessage.embeds[0].author.url)
-	// 		// 
-	// 	}
-	// 	if (regex.test(fetchedMessage.content)) {
-	// 		fetchedMessageArray.push(fetchedMessage.content);
-	// 		// sendCompareEmbed(msg, client, fetchedMessage.content, msg.author.id);
-	// 	}
-	// 	console.log(fetchedMessageArray);
-	// }).catch((e) => console.log(e));
-	// done = true;
 
 }
 
@@ -80,4 +63,4 @@ function sendCompareEmbed(msg, client, url, userid) {
 
 module.exports = {
 	compare: compare
-}
+};

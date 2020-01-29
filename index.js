@@ -146,11 +146,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'hl' || cmd == 'help') {
 		require('./commands/help').help(msg, prefix);
 	} else if (cmd == 'cl' || cmd == 'changelog') {
-		if (args.length != 0) {
-			getRepoData(msg, args[0]);
-			return;
-		}
-		getRepoData(msg);
+		require('./commands/changelog').changelog(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
 		require('./commands/compare').compare(client, msg);
 	}
