@@ -1,12 +1,17 @@
 const request = require('request');
 const error = require('../handlers/error');
 const Canvas = require('canvas');
-const colours = require('../colours');
+const colours = require('../handlers/colours');
 const fs = require('fs');
 const path = require('path');
 const format = require('../handlers/format');
 const {execSync} = require('child_process');
 const Discord = require('discord.js');
+
+Canvas.registerFont('assets/Rubik-Bold.ttf', {
+	family: 'rubik'
+});
+
 
 function search(msg, args) {
 	if (args.length != 0) {

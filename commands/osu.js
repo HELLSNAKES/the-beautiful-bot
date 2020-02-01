@@ -8,6 +8,15 @@ const request = require('request');
 const Canvas = require('canvas');
 const Discord = require('discord.js');
 
+Canvas.registerFont('assets/SegoeUI.ttf', {
+	family: 'segoeUI'
+});
+
+Canvas.registerFont('assets/SegoeUIBold.ttf', {
+	family: 'segoeUIBold'
+});
+
+
 function osu(client, msg, args) {
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
