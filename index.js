@@ -14,7 +14,7 @@ http.createServer((req, res) => {
 
 // Ping the app evert 5 minutes to prevent the app from sleeping
 setInterval(function () {
-	http.get(process.env.server);
+	http.get(process.env.server.replace('https','http'));
 }, 300000);
 
 client.on('ready', () => {
