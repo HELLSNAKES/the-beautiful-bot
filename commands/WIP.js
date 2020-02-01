@@ -105,7 +105,7 @@ async function createBeatmapCard(msg, data) {
 		//title and artist name
 		ctx.fillStyle = coloursExtracted.foreground;
 		ctx.font = '54px rubik';
-		data.title = data.title.length <= 23 ? data.title : data.title.slice(0, 22) + '...';
+		data.title = data.title.length <= 23 ? data.title : data.title.slice(0, 20) + '...';
 		ctx.fillText(data.title, 34, 380 + 64);
 		ctx.font = '25px rubik';
 		ctx.fillText(data.artist, 37, 451 + 29);

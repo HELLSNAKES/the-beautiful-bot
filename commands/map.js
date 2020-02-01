@@ -20,7 +20,7 @@ function search(msg, args) {
 		console.log('no map specified');
 		return;
 	}
-	console.log(`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`)
+	console.log(`https://osu.ppy.sh/beatmapsetsdata.titleearch?sort=plays_desc&q=${name}`)
 	request({
 		url:`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`,
 		headers:{
@@ -168,7 +168,7 @@ async function generateBeatmap(msg, data) {
 		//title and artist name
 		ctx.fillStyle = coloursExtracted.foreground;
 		ctx.font = '54px rubik';
-		data.title = data.title.length <= 23 ? data.title : data.title.slice(0, 22) + '...';
+		data.title = data.title.length <= 23 ? data.title : data.title.slice(0, 20) + '...';
 		ctx.fillText(data.title, 34, 380 + 64);
 		ctx.font = '25px rubik';
 		ctx.fillText(data.artist, 37, 451 + 29);
