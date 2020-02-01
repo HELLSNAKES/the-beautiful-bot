@@ -85,31 +85,13 @@ client.on('ready', () => {
 client.on('message', async msg => {
 	time = Date.now();
 	msg.content = msg.content.toLowerCase();
+	console.log(msg.content)
 	if (msg.author.bot) return;
-	if (msg.content == `<@!${client.user.id}>`) {
-		const embed = help;
-		msg.channel.send(embed);
-	}
-	if (msg.content == `<@!${client.user.id}> i know you are ill and stuff but don't act like this`) {
-		msg.channel.startTyping();
-		setTimeout(() => {
-			msg.reply('Sorry :sweat_smile:');
-			msg.channel.stopTyping();
-		}, 4000);
-	}
-
+	if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
 
 	if (msg.content === 'bot you alive?') { // bot are you alive
 		msg.reply('**YES!!!**');
-	} else if (msg.content === 'cat') { // cat
-		request('https://api.thecatapi.com/v1/images/search', function (err, res, body) {
-			msg.reply(JSON.parse(body)[0].url);
-			console.log('CAT :3');
-		});
-	} // else if (msg.content.includes('bye')) {
-	// 	// bye
-	// 	msg.reply('See you next time ;). I hope you get the Joke.');
-	// }
+	}  
 	else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
@@ -121,7 +103,7 @@ client.on('message', async msg => {
 		getBeatmapData(msg, beatmapsetid, beatmapid);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
 		var userid = msg.content.replace('https://osu.ppy.sh/users/', '');
-		createUserCard(msg, userid);
+		require('./commands/osu').generateUser(msg, userid);
 	}
 
 	if (!msg.content.startsWith(prefix)) return;
@@ -149,6 +131,8 @@ client.on('message', async msg => {
 		require('./commands/changelog').changelog(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
 		require('./commands/compare').compare(client, msg);
+	} else if (cmd === 'cat') {
+		require('./commands/cat').cat(msg);	
 	}
 	//else if (command == 'dummy') {
 	// 	getBeatmapData(msg, 396221, 862088)

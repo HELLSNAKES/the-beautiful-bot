@@ -57,6 +57,55 @@ function search(msg, args) {
 	});
 }
 
+function map(msg, args) {
+	if (args.length != 0) {
+		var name = args.join(' ');
+	} else {
+		console.log('no map specified');
+		return;
+	}
+	console.log(`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`)
+	request({
+		url:`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`,
+		headers:{
+			cookie: process.env.cookie
+		},
+		json: true
+	}, (err, res, body) => {
+		console.log(body.beatmapsets[0])
+		if (body.length == 0) {
+			error.log(msg, 4042);
+			return;
+		}
+		var highestDiff = 0;
+		var highestDiffIndex = 0;
+		for (var i = 0;i < body.beatmapsets[0].beatmaps.length;i++) {
+			if (highestDiff < body.beatmapsets[0].beatmaps[i].difficulty_rating) {
+				highestDiff = body.beatmapsets[0].beatmaps[i].difficulty_rating;
+				highestDiffIndex = i;
+			}
+		}
+		body.beatmapsets[0].beatmap = body.beatmapsets[0].beatmaps[highestDiffIndex];
+
+		const embed = {
+			'author': {
+				'name': `${ body.beatmapsets[0].artist} - ${body.beatmapsets[0].title} by ${ body.beatmapsets[0].creator} [Download]`,
+				'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`
+			},
+			'color': 2065919
+		};
+		msg.channel.send({
+			embed
+		});
+		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].beatmapset_id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
+		request(`https://osu.ppy.sh/api/get_beatmaps?b=${body.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`,{json: true}, (err,res,beatmapBody) => {
+			console.log(beatmapBody)
+			body.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = beatmapBody[0].max_combo;
+			generateBeatmap(msg, body.beatmapsets[0]);
+		});
+	});
+}
+
 
 async function generateBeatmap(msg, data) {
 	// init the canvas
