@@ -1,3 +1,11 @@
+// Errors
+// 4040 - Any other error
+// 4041 - Username not found
+// 4042 - Beatmap not found
+// 4043 - File not found
+// 4044 - No recent play found
+// 4045 - Badly formatted arguments
+// 4046 - User not found in the database
 
 function log(msg, errCode) {
 	if (errCode == 4041) {

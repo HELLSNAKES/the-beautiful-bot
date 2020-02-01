@@ -125,7 +125,7 @@ async function createBeatmapCard(msg, data) {
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 
-			var lastStarSize = 40 * (data.difficultyrating - Math.floor(data.difficultyrating));
+			var lastStarSize = 32 * (data.difficultyrating - Math.floor(data.difficultyrating));
 			ctx.drawImage(star, 30 + 40 * Math.floor(data.difficultyrating + 1) + ((33 - lastStarSize) / 2), 505 + ((32 - lastStarSize) / 2), lastStarSize, lastStarSize);
 		}
 		//CS / AR /HP / OD
@@ -156,9 +156,9 @@ async function createBeatmapCard(msg, data) {
 		rrect(ctx, 100, 642 + 2, 30 * data.diff_drain, 13, 7);
 		rrect(ctx, 100, 682 + 2, 30 * data.diff_overall, 13, 7);
 		try {
-			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 100%`))).toString().split('$')[0];
-			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 95%`))).toString().split('$')[0];
-			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node pp.js 90%`))).toString().split('$')[0];
+			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 100%`))).toString().split('$')[0];
+			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 95%`))).toString().split('$')[0];
+			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 90%`))).toString().split('$')[0];
 		} catch (e) {
 			var Acc100 = '-';
 			var Acc95 = '-';

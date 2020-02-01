@@ -187,7 +187,7 @@ async function generateBeatmap(msg, data) {
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 
-			var lastStarSize = 40 * (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating));
+			var lastStarSize = 32 * (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating));
 			ctx.drawImage(star, 40 * Math.floor(data.beatmap.difficulty_rating + 1) + ((33 - lastStarSize) / 2) - 10, 505 + ((32 - lastStarSize) / 2), lastStarSize, lastStarSize);
 		}
 		//CS / AR /HP / OD
@@ -218,9 +218,9 @@ async function generateBeatmap(msg, data) {
 		format.rect(ctx, 100, 642 + 2, 30 * data.beatmap.drain, 13, 7);
 		format.rect(ctx, 100, 682 + 2, 30 * data.beatmap.accuracy, 13, 7);
 		try {
-			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node pp.js 100%`))).toString().split('$')[0];
-			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node pp.js 95%`))).toString().split('$')[0];
-			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node pp.js 90%`))).toString().split('$')[0];
+			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 100%`))).toString().split('$')[0];
+			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 95%`))).toString().split('$')[0];
+			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 90%`))).toString().split('$')[0];
 		} catch (e) {
 			Acc100 = '-';
 			Acc95 = '-';

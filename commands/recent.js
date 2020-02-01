@@ -68,7 +68,7 @@ function sendRecent(client, msg, user, options = {}) {
 			}, (beatmapErr, beatmapRes, beatmapBody) => {
 				if (err) console.log(err);
 				body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
-				exec(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node pp.js +${mods.toString(body[options.previous].enabled_mods)} ${body[options.previous].accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`, (err, stdout, stderr) => {
+				exec(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node handlers/pp.js +${mods.toString(body[options.previous].enabled_mods)} ${body[options.previous].accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`, (err, stdout, stderr) => {
 					if (err) console.log(err);
 					var ojsama = stdout.replace('\n', '').split('$');
 					body[options.previous].pp = ojsama[0];
@@ -142,7 +142,7 @@ function generateRecent(client, msg, body) {
 
 	var ppFC = '-';
 	if (body.mode == 0) {
-		ppFC = body.perfect == 0 ? '(' + (body.accuracy >= 80 ? body.accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}%`)).toString().split('$')[0] + 'pp)' : '';
+		ppFC = body.perfect == 0 ? '(' + (body.accuracy >= 80 ? body.accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}%`)).toString().split('$')[0] + 'pp)' : '';
 	}
 	const embed = {
 		'description': `${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**\n[Supporter](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id})`,

@@ -1,12 +1,3 @@
-// Prettier ruined my code ;-;. I hate prettier. Never going to use it again
-// Errors
-// 4040 - Any other error
-// 4041 - Username not found
-// 4042 - Beatmap not found
-// 4043 - File not found
-// 4044 - No recent play found
-// 4045 - Badly formatted arguments
-
 require('dotenv').config();
 const Discord = require('discord.js');
 const http = require('http');
@@ -32,7 +23,7 @@ client.on('ready', () => {
 	let counter = 0;
 	client.user.setActivity(messages[counter], {
 		type: 'playing'
-	}).then(console.log('CHANGED PLAYING'))
+	}).then(console.log('CHANGED PLAYING'));
 	counter = (counter + 1) % messages.length;
 	setInterval(() => {
 		client.user.setActivity(messages[counter], {
