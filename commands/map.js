@@ -213,10 +213,10 @@ async function generateBeatmap(msg, data) {
 		format.rect(ctx, 100, 682 + 2, 300, 13, 7);
 		ctx.beginPath();
 		ctx.fillStyle = coloursExtracted.foreground;
-		format.rect(ctx, 100, 568 + 2, 300 / 8 * (data.beatmap.cs - 2), 13, 7);
-		format.rect(ctx, 100, 605 + 2, 30 * data.beatmap.ar, 13, 7);
-		format.rect(ctx, 100, 642 + 2, 30 * data.beatmap.drain, 13, 7);
-		format.rect(ctx, 100, 682 + 2, 30 * data.beatmap.accuracy, 13, 7);
+		format.rect(ctx, 100, 568 + 2, 30 * (data.beatmap.cs > 0 ? data.beatmap.cs : 0.5), 13, 7);
+		format.rect(ctx, 100, 605 + 2, 30 * (data.beatmap.ar > 0 ? data.beatmap.ar : 0.5), 13, 7);
+		format.rect(ctx, 100, 642 + 2, 30 * (data.beatmap.drain > 0 ? data.beatmap.drain : 0.5), 13, 7);
+		format.rect(ctx, 100, 682 + 2, 30 * (data.beatmap.accuracy > 0 ? data.beatmap.accuracy : 0.5), 13, 7);
 		try {
 			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 100%`))).toString().split('$')[0];
 			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 95%`))).toString().split('$')[0];

@@ -151,10 +151,10 @@ async function createBeatmapCard(msg, data) {
 		rrect(ctx, 100, 682 + 2, 300, 13, 7);
 		ctx.beginPath();
 		ctx.fillStyle = coloursExtracted.foreground;
-		rrect(ctx, 100, 568 + 2, 300 / 8 * (data.diff_size - 2), 13, 7);
-		rrect(ctx, 100, 605 + 2, 30 * data.diff_approach, 13, 7);
-		rrect(ctx, 100, 642 + 2, 30 * data.diff_drain, 13, 7);
-		rrect(ctx, 100, 682 + 2, 30 * data.diff_overall, 13, 7);
+		rrect(ctx, 100, 568 + 2, 30 * (data.diff_size > 0 ? data.diff_size : 0.5), 13, 7);
+		rrect(ctx, 100, 605 + 2, 30 * (data.diff_approach > 0 ? data.diff_approach : 0.5), 13, 7);
+		rrect(ctx, 100, 642 + 2, 30 * (data.diff_drain > 0 ? data.diff_drain : 0.5), 13, 7);
+		rrect(ctx, 100, 682 + 2, 30 * (data.diff_overall > 0 ? data.diff_overall : 0.5), 13, 7);
 		try {
 			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 100%`))).toString().split('$')[0];
 			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 95%`))).toString().split('$')[0];
