@@ -110,11 +110,11 @@ function sendRecent(client, msg, user, options = {}) {
 		});
 	}
 	} else if (type == 1) {
-		request(``, {json:true},() => {
-			request(`https://api.gatari.pw/user/scores/recent?id=${}&l=${option.previous+1}&mode=${options.mode}&f=1`, {json: true}, () => {
-				
+
+			request(`https://api.gatari.pw/user/scores/recent?id=17270&l=${option.previous+1}&mode=${options.mode}&f=1`, {json: true}, (err, res, body) => {
+				console.log(body)
 			})
-		})
+
 	}
 
 
