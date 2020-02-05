@@ -21,6 +21,33 @@ function userData(data, dataInfo) {
 	})
 }
 
+function bestData(data, dataInfo) {
+	console.log(data.scores[0].beatmap)
+	objectArray = []
+	for (var i = 0; i < data.scores.length; i++) {
+		objectArray.push({
+			beatmap_id: data.scores[i].beatmap.beatmap_id,
+			score_id: data.scores[i].id,
+			score: data.scores[i].score,
+			maxcombo: data.scores[i].max_combo,
+			count50: data.scores[i].count_50,
+			count100: data.scores[i].count_100,
+			count300: data.scores[i].count_300,
+			countmiss: data.scores[i].count_miss,	
+			countkatu: data.scores[i].count_katu,
+			countgeki: data.scores[i].count_gekis,	
+			perfect: data.scores[i].full_combo,
+			enabled_mods: data.scores[i].mods,
+			user_id: dataInfo.users[0].id,
+			date: data.scores[i].time,
+			rank: data.scores[i].ranking,
+			pp: data.scores[i].pp
+		})
+	} 
+	return(objectArray);
+}
+
 module.exports = {
-	userData: userData
+	userData: userData,
+	bestData: bestData
 }

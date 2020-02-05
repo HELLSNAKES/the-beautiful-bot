@@ -17,6 +17,9 @@ function recent(client, msg, args) {
 		} else if (args[i] == '-m') {
 			options.mode = parseInt(args[i + 1]);
 			args.splice(i, 2);
+		} else if (args[i] == '-t') {
+			options.type = parseInt(args[i + 1]);
+			args.splice(i, 2);
 		}
 	}
 	if (/<@![0-9]{18}>/g.test(args[0])) {
@@ -55,6 +58,7 @@ function sendRecent(client, msg, user, options = {}) {
 		return;
 	}
 
+	if (options.type == 0) {
 	if (options.mode == 0) {
 		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
 			json: true
@@ -105,7 +109,13 @@ function sendRecent(client, msg, user, options = {}) {
 			});
 		});
 	}
-
+	} else if (type == 1) {
+		request(``, {json:true},() => {
+			request(`https://api.gatari.pw/user/scores/recent?id=${}&l=${option.previous+1}&mode=${options.mode}&f=1`, {json: true}, () => {
+				
+			})
+		})
+	}
 
 
 }
