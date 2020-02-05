@@ -1,33 +1,11 @@
 const database = require('../handlers/database');
 const request = require('request');
 const recent = require('./recent');
-
+const getMaps = require('../handlers/getMap');
 function compare(client, msg) {
-	var done = false;
-	var regex = new RegExp('https://osu.ppy.sh/beatmapsets/[0-9]+#osu/[0-9]+', 'g');
-	msg.channel.fetchMessages()
-		.then(messages => messages.forEach((message) => {
-			if (done) return;
-			
-			if (regex.test(message.content)) {
-				sendCompareEmbed(msg, client, message.content, msg.author.id);
-				done = true;
-				return;
-			}
-
-			if (message.embeds.length > 0) {
-				message.embeds.forEach((x) => {
-					if (x.author != null && regex.test(x.author.url)) {
-						sendCompareEmbed(msg, client, x.author.url, msg.author.id)
-						done = true;
-					}
-				});
-			}
-
-			
-
-
-		})).catch(console.error);
+	getMaps.getMaps(client, msg, function(msg, client , url, userid) {
+		sendCompareEmbed(msg, client, url, userid)
+	});
 
 }
 

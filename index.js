@@ -78,6 +78,8 @@ client.on('message', async msg => {
 		require('./commands/compare').compare(client, msg);
 	} else if (cmd === 'cat') {
 		require('./commands/cat').cat(msg);	
+	} else if (cmd == 'leaderboard' || cmd == 'lb') {
+		require('./commands/leaderboard').leaderboard(client,msg);
 	}
 });
 
