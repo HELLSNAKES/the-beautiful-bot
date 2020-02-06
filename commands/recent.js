@@ -7,9 +7,10 @@ const {
 	execSync
 } = require('child_process');
 const mods = require('../handlers/mods');
+const gatariData = require('./convert/gatariData');
 
 function recent(client, msg, args) {
-	var options = {};
+	var options = {type: 0};
 	for (var i = 0; i < args.length; i++) {
 		if (args[i] == '-p') {
 			options.previous = parseInt(args[i + 1]);
@@ -39,15 +40,17 @@ function recent(client, msg, args) {
 		database.read({
 			discordID: msg.author.id
 		}, (doc) => {
+			options.type = doc.type;
 			sendRecent(client, msg, doc.osuUsername, options);
 		});
 	}
 }
 
 function sendRecent(client, msg, user, options = {}) {
-
+	
 	options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
 	options.mode = (typeof options.mode !== 'undefined') ? options.mode : 0;
+	console.log(options)
 	if (0 > options.previous || options.previous > 49 || isNaN(options.previous)) {
 		error.log(msg, 4045);
 		return;
@@ -109,12 +112,23 @@ function sendRecent(client, msg, user, options = {}) {
 			});
 		});
 	}
-	} else if (type == 1) {
-
-			request(`https://api.gatari.pw/user/scores/recent?id=17270&l=${option.previous+1}&mode=${options.mode}&f=1`, {json: true}, (err, res, body) => {
-				console.log(body)
-			})
-
+	} else if (options.type == 1) {
+		request(`https://api.gatari.pw/users/get?u=${user}`, {
+			json: true
+		}, (err, res, bodyInfo) => {
+			
+			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=${options.previous+1}&mode=${options.mode}&f=1`, {json: true}, (err, res, body) => {
+				body = gatariData.recentData(body, bodyInfo, options.previous);
+				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout, stderr) => {
+					var ojsama = stdout.replace('\n', '').split('$');	
+					body.pp = ojsama[0];
+					body.calculated_difficulty = ojsama[1];
+					body.max_map_combo = ojsama[2];
+					console.log(body)
+					generateRecent(client, msg, body)
+			});
+			});
+		});
 	}
 
 
@@ -124,6 +138,10 @@ function generateRecent(client, msg, body) {
 	if (body.length == 0) {
 		error.log(msg, 4044);
 		return;
+	}
+	var userPictureUrl = `https://a.ppy.sh/${body.user_id}` 
+	if (body.type == 1) {
+		userPictureUrl = `https://a.gatari.pw/${body.user_id}`
 	}
 
 	let grade = client.emojis.find(emoji => emoji.name === 'grade_' + body.rank.toLowerCase());
@@ -164,7 +182,7 @@ function generateRecent(client, msg, body) {
 		'author': {
 			'name': `${body.title} [${body.version}] +${mods.toString(body.enabled_mods)}`,
 			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapset_id}#osu/${body.beatmap_id}`,
-			'icon_url': `https://a.ppy.sh/${body.user_id}`
+			'icon_url': userPictureUrl
 		},
 		'footer': {
 			'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
