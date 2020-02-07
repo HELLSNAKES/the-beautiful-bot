@@ -66,8 +66,6 @@ client.on('message', async msg => {
 		require('./commands/best').best(client, msg, args);
 	} else if (cmd == 'mp' || cmd == 'map') {
 		require('./commands/map').search(msg, args);
-	} else if (cmd == 'or' || cmd == 'osurename') {
-		require('./commands/set').rename(msg, args);
 	} else if (cmd == 'os' || cmd == 'osuset') {
 		require('./commands/set').set(msg, args);
 	} else if (cmd == 'hl' || cmd == 'help') {

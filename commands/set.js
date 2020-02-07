@@ -1,31 +1,37 @@
 const database = require('../handlers/database');
-const utility = require('../handlers/utility');
-function rename(msg, args) {
-	if (args.length != 0) {
-		database.update({
-			discordID: msg.author.id
-		}, {
-			osuUsername: args.join('_')
-		}, function () {
-			msg.channel.send('Your osu username linked with your account has been successfully updated!');
-		});
-	} else {
-		msg.channel.send('Osu username has not been provided.');
-		console.log(`FAILED TO RENAME : ${msg.author.id}`);
-	}
-}
-
 
 function set(msg, args) {
-	utility.checkUser(msg, {
+	var options = {type: 0};
+	for (var i = 0; i < args.length; i++) {
+		if (args[i] == '-t') {
+			options.type = parseInt(args[i + 1]);
+			args.splice(i, 2);
+		}
+	}
+	database.read({
 		discordID: msg.author.id,
-		osuUsername: args.join(' ')
-	}, function (data) {
-		database.write(data);
+	}, (doc) => {
+		if (doc.error) {
+			database.write({
+				discordID: msg.author.id,
+				osuUsername: args.join(' '),
+				type: options.type
+			});	
+			msg.channel.send('Your osu username linked with your account has been successfully updated!');
+		} else {
+			database.update({
+				discordID: msg.author.id
+			}, {
+				osuUsername: args.join('_'),
+				type: options.type
+			}, function () {
+				msg.channel.send('Your osu username linked with your account has been successfully updated!');
+			});
+		}
+		console.log(doc);
 	});
 }
 
 module.exports = {
-	rename: rename,
 	set: set
 };

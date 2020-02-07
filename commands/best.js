@@ -66,7 +66,7 @@ function sendBest(client, msg, user, body, type) {
 		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}`
 		userUrl = `https://osu.gatari.pw/u/${body[0].user_id}`
 	}
-	console.log(userPictureUrl)
+	
 	const embed = {
 		'title': ``,
 		'author': {
