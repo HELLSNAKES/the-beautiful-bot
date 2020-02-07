@@ -17,7 +17,7 @@ function set(msg, args) {
 				osuUsername: args.join(' '),
 				type: options.type
 			});	
-			msg.channel.send('Your osu username linked with your account has been successfully updated!');
+			msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
 		} else {
 			database.update({
 				discordID: msg.author.id
@@ -25,10 +25,9 @@ function set(msg, args) {
 				osuUsername: args.join('_'),
 				type: options.type
 			}, function () {
-				msg.channel.send('Your osu username linked with your account has been successfully updated!');
+				msg.channel.send(':white_check_mark: Your osu username has been successfully updated!');
 			});
 		}
-		console.log(doc);
 	});
 }
 

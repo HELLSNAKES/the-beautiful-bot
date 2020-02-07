@@ -22,7 +22,7 @@ function help(msg, prefix) {
 				The changelog command shows the latest specified number of commits and merges (5 if no number was given) on [the beautiful bot's repo](https://github.com/Moorad/the-beautiful-bot)`,
 			'color': 3066993,
 			'footer': {
-				'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
+				'icon_url': 'https://i.imgur.com/34evAhO.png',
 				'text': 'Always Remember, The beautiful bot loves you <3'
 			}
 		}

@@ -16,6 +16,7 @@
     "dotenv": "^8.2.0",
     "mongodb": "^3.4.1",
     "node-vibrant": "^3.1.5",
+    "nodemailer": "^6.4.2",
     "ojsama": "^1.2.5",
     "onecolor": "^3.1.0",
     "request": "^2.88.0",

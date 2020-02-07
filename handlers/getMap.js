@@ -1,6 +1,7 @@
 function getMaps(client, msg, callback) {
 	var done = false;
 	var regex = new RegExp('https://osu.ppy.sh/beatmapsets/[0-9]+#osu/[0-9]+', 'g');
+	var count = 0;
 	msg.channel.fetchMessages()
 		.then(messages => messages.forEach((message) => {
 			if (done) return;
@@ -16,13 +17,14 @@ function getMaps(client, msg, callback) {
 					if (x.author != null && regex.test(x.author.url)) {
 						callback(msg, client, x.author.url, msg.author.id)
 						done = true;
+						return;
 					}
 				});
 			}
-
-			
-
-
+			count++;
+			if (count == 49) {
+				msg.channel.send(':no_entry: I couldn\'t find any maps in the last 50 messages')
+			}
 		})).catch(console.error);
 
 }

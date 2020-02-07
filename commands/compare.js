@@ -13,6 +13,11 @@ function sendCompareEmbed(msg, client, url, userid) {
 	database.read({
 		discordID: userid
 	}, (doc) => {
+		console.log('working')
+		if (doc.type != 0) {
+			msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
+			return;	
+		}
 		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${doc.osuUsername}&b=${url.slice(url.indexOf('#osu/')+5)}`, (err, res, body) => {
 			body = JSON.parse(body);
 
@@ -22,6 +27,9 @@ function sendCompareEmbed(msg, client, url, userid) {
 				body = {
 					...body[0],
 					...beatmapData[0]
+				};
+				if (body.pp == null) {
+					body.pp = 0;
 				}
 
 				if (body.user_id == undefined) {

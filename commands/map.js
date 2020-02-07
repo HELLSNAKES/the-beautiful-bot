@@ -20,16 +20,15 @@ function search(msg, args) {
 		console.log('no map specified');
 		return;
 	}
-	console.log(`https://osu.ppy.sh/beatmapsetsdata.titleearch?sort=plays_desc&q=${name}`)
+
 	request({
-		url:`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`,
+		url:`https://osu.ppy.sh/beatmapsets/search?q=${name}`,
 		headers:{
 			cookie: process.env.cookie
 		},
 		json: true
 	}, (err, res, body) => {
-		console.log(body.beatmapsets[0])
-		if (body.length == 0) {
+		if (body.beatmapsets.length == 0) {
 			error.log(msg, 4042);
 			return;
 		}
@@ -53,9 +52,8 @@ function search(msg, args) {
 		msg.channel.send({
 			embed
 		});
-		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].beatmapset_id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
+		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
 		request(`https://osu.ppy.sh/api/get_beatmaps?b=${body.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`,{json: true}, (err,res,beatmapBody) => {
-			console.log(beatmapBody)
 			body.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = beatmapBody[0].max_combo;
 			generateBeatmap(msg, body.beatmapsets[0]);
 		});
@@ -121,7 +119,6 @@ async function generateBeatmap(msg, data) {
 		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
 		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
 		coloursExtracted.background = colours.toHex(coloursExtracted.background);
-		console.log(coloursExtracted.foreground, coloursExtracted.background);
 		// Beatmap Image
 		try {
 			const beatmapImage = await Canvas.loadImage(url);

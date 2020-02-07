@@ -59,27 +59,27 @@ function sendBest(client, msg, user, body, type) {
 	var playString = [];
 	var playpp = [];
 	var urls = [];
-	userPictureUrl = `https://a.ppy.sh/${body[0].user_id}`
-	userUrl = `https://osu.ppy.sh/users/${body[0].user_id}`
+	var userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`
+	var userUrl = `https://osu.ppy.sh/users/${body[0].user_id}`
 
 	if (type == 1) {
-		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}`
+		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`
 		userUrl = `https://osu.gatari.pw/u/${body[0].user_id}`
 	}
 	
 	const embed = {
-		'title': ``,
+		'title': '',
 		'author': {
 			'name': `Here are the top 5 plays for ${user}`,
 			'url': userUrl
 		},
 		'description': '',
-		'color': 12352831,
+		'color': 3066993,
 		'thumbnail': {
 			'url': userPictureUrl
 		},
 		'footer': {
-			'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
+			'icon_url': 'https://i.imgur.com/34evAhO.png',
 			'text': 'Always Remember, The beautiful bot loves you <3'
 		}
 	};

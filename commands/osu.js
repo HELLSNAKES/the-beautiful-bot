@@ -91,10 +91,11 @@ async function generateUser(msg, type, body) {
 	var background = await Canvas.loadImage(path.resolve(__dirname, `../assets/background-${Math.round(Math.random() * 7)}.png`));
 	ctx.drawImage(background, 0, 0, canvas.width, 300);
 	ctx.save();
-	if (type == 0) {
-		userPictureUrl = `https://a.ppy.sh/${body[0].user_id}`
-	} else if (type == 1) {
-		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}`
+
+	var userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`;
+
+	if (type == 1) {
+		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`;
 	}
 	var userPicture;
 	try {

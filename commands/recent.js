@@ -135,13 +135,14 @@ function sendRecent(client, msg, user, options = {}) {
 }
 
 function generateRecent(client, msg, body) {
+
 	if (body.length == 0) {
 		error.log(msg, 4044);
 		return;
 	}
-	var userPictureUrl = `https://a.ppy.sh/${body.user_id}` 
+	var userPictureUrl = `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}` 
 	if (body.type == 1) {
-		userPictureUrl = `https://a.gatari.pw/${body.user_id}`
+		userPictureUrl = `https://a.gatari.pw/${body.user_id}?${Date.now().toString()}`
 	}
 
 	let grade = client.emojis.find(emoji => emoji.name === 'grade_' + body.rank.toLowerCase());

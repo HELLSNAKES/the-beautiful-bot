@@ -1,5 +1,4 @@
 function userData(data, dataInfo) {
-	console.log(dataInfo)
 	return ({
 		user_id: data.stats.id,
 		username: dataInfo.users[0].username,
@@ -8,7 +7,7 @@ function userData(data, dataInfo) {
 		ranked_score: data.stats.ranked_score,
 		total_score: data.stats.total_score,
 		pp_rank: data.stats.rank,
-		level: parseFloat(data.stats.level + "." + data.stats.level_progress),
+		level: parseFloat(data.stats.level + '.' + data.stats.level_progress),
 		pp_raw: data.stats.pp,
 		accuracy: data.stats.avg_accuracy,
 		count_rank_ss: data.stats.x_count,
@@ -22,7 +21,6 @@ function userData(data, dataInfo) {
 }
 
 function bestData(data, dataInfo) {
-	console.log(data.scores[0].beatmap)
 	var objectArray = []
 	for (var i = 0; i < data.scores.length; i++) {
 		objectArray.push({

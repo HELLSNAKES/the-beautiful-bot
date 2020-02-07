@@ -14,7 +14,7 @@ http.createServer((req, res) => {
 
 // Ping the app evert 5 minutes to prevent the app from sleeping
 setInterval(function () {
-	http.get(process.env.server.replace('https','http'));
+	http.get(process.env.server.replace('https', 'http'));
 }, 300000);
 
 client.on('ready', () => {
@@ -42,8 +42,7 @@ client.on('message', async msg => {
 
 	if (msg.content === 'bot you alive?') { // bot are you alive
 		msg.reply('**YES!!!**');
-	}  
-	else if (msg.content === 'good bot') {
+	} else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
 		require('./commands/WIP').beatmapCardFromLink(msg);
@@ -58,7 +57,7 @@ client.on('message', async msg => {
 
 	if (cmd === 'ping') {
 		require('./commands/ping').ping(client, msg);
-	}else if (cmd == 'osu') {
+	} else if (cmd == 'osu') {
 		require('./commands/osu').osu(client, msg, args);
 	} else if (cmd == 'rs' || cmd == 'recent') {
 		require('./commands/recent').recent(client, msg, args);
@@ -75,9 +74,9 @@ client.on('message', async msg => {
 	} else if (cmd == 'c' || cmd == 'compare') {
 		require('./commands/compare').compare(client, msg);
 	} else if (cmd === 'cat') {
-		require('./commands/cat').cat(msg);	
+		require('./commands/cat').cat(msg);
 	} else if (cmd == 'leaderboard' || cmd == 'lb') {
-		require('./commands/leaderboard').leaderboard(client,msg);
+		require('./commands/leaderboard').leaderboard(client, msg, args);
 	}
 });
 
