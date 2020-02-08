@@ -8,6 +8,7 @@ const request = require('request');
 const Canvas = require('canvas');
 const Discord = require('discord.js');
 const gatariData = require('./convert/gatariData');
+const argument = require('../handlers/argument');
 Canvas.registerFont('assets/SegoeUI.ttf', {
 	family: 'segoeUI'
 });
@@ -17,16 +18,10 @@ Canvas.registerFont('assets/SegoeUIBold.ttf', {
 });
 
 
-function osu(client, msg, args) {
-	var options = {
-		type: 0 
-	};
-	for (var i = 0; i < args.length; i++) {
-		if (args[i] == '-t') {
-			options.type = parseInt(args[i + 1]);
-			args.splice(i, 2);
-		}
-	}
+function osu(msg, args) {
+	var options = argument.parse(msg, args);
+	if (options.error) return;
+
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
 		database.read({
@@ -61,16 +56,15 @@ function requestData(msg, id, type = 0) {
 			generateUser(msg, 0, body);
 		});
 	} else if (type == 1) {
-		console.log('You are not playing on the official osu! servers')
 		request(`https://api.gatari.pw/user/stats?u=${id}`, {
 			json: true
 		}, (err, res, body) => {
 			request(`https://api.gatari.pw/users/get?u=${id}`, {
 				json: true
 			}, (err, res, bodyInfo) => {
-				generateUser(msg, 1, [gatariData.userData(body,bodyInfo)])
-			})
-		})
+				generateUser(msg, 1, [gatariData.userData(body, bodyInfo)]);
+			});
+		});
 	}
 }
 

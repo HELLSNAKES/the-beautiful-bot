@@ -1,10 +1,14 @@
+/* eslint-disable no-useless-escape */
 const request = require('request');
 const error = require('../handlers/error');
 const Canvas = require('canvas');
 const colours = require('../handlers/colours');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const {
+	execSync
+} = require('child_process');
 const Discord = require('discord.js');
+const format = require('../handlers/format');
 
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
@@ -58,7 +62,6 @@ async function createBeatmapCard(msg, data) {
 		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
 		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
 		coloursExtracted.background = colours.toHex(coloursExtracted.background);
-		console.log(coloursExtracted.foreground, coloursExtracted.background);
 		// Beatmap Image
 		try {
 			const beatmapImage = await Canvas.loadImage(url);
@@ -95,7 +98,7 @@ async function createBeatmapCard(msg, data) {
 		else if (data.approved == 4) approved = 'loved';
 
 		ctx.fillStyle = coloursExtracted.background + 'DD';
-		rrect(ctx, 20, 20, 200, 50, 27);
+		format.rect(ctx, 20, 20, 200, 50, 27);
 		ctx.font = '25px rubik';
 		ctx.textAlign = 'center';
 		ctx.fillStyle = coloursExtracted.foreground;
@@ -121,7 +124,7 @@ async function createBeatmapCard(msg, data) {
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 		} else {
-			for (var i = 0; i < Math.floor(data.difficultyrating); i++) {
+			for (i = 0; i < Math.floor(data.difficultyrating); i++) {
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 
@@ -145,24 +148,24 @@ async function createBeatmapCard(msg, data) {
 
 		ctx.beginPath();
 		ctx.fillStyle = coloursExtracted.foreground + '31';
-		rrect(ctx, 100, 568 + 2, 300, 13, 7);
-		rrect(ctx, 100, 605 + 2, 300, 13, 7);
-		rrect(ctx, 100, 642 + 2, 300, 13, 7);
-		rrect(ctx, 100, 682 + 2, 300, 13, 7);
+		format.rect(ctx, 100, 568 + 2, 300, 13, 7);
+		format.rect(ctx, 100, 605 + 2, 300, 13, 7);
+		format.rect(ctx, 100, 642 + 2, 300, 13, 7);
+		format.rect(ctx, 100, 682 + 2, 300, 13, 7);
 		ctx.beginPath();
 		ctx.fillStyle = coloursExtracted.foreground;
-		rrect(ctx, 100, 568 + 2, 30 * (data.diff_size > 0 ? data.diff_size : 0.5), 13, 7);
-		rrect(ctx, 100, 605 + 2, 30 * (data.diff_approach > 0 ? data.diff_approach : 0.5), 13, 7);
-		rrect(ctx, 100, 642 + 2, 30 * (data.diff_drain > 0 ? data.diff_drain : 0.5), 13, 7);
-		rrect(ctx, 100, 682 + 2, 30 * (data.diff_overall > 0 ? data.diff_overall : 0.5), 13, 7);
+		format.rect(ctx, 100, 568 + 2, 30 * (data.diff_size > 0 ? data.diff_size : 0.5), 13, 7);
+		format.rect(ctx, 100, 605 + 2, 30 * (data.diff_approach > 0 ? data.diff_approach : 0.5), 13, 7);
+		format.rect(ctx, 100, 642 + 2, 30 * (data.diff_drain > 0 ? data.diff_drain : 0.5), 13, 7);
+		format.rect(ctx, 100, 682 + 2, 30 * (data.diff_overall > 0 ? data.diff_overall : 0.5), 13, 7);
 		try {
 			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 100%`))).toString().split('$')[0];
 			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 95%`))).toString().split('$')[0];
 			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap_id} | node handlers/pp.js 90%`))).toString().split('$')[0];
 		} catch (e) {
-			var Acc100 = '-';
-			var Acc95 = '-';
-			var Acc90 = '-';
+			Acc100 = '-';
+			Acc95 = '-';
+			Acc90 = '-';
 		}
 
 		ctx.textAlign = 'center';
@@ -212,13 +215,13 @@ async function createBeatmapCard(msg, data) {
 
 		ctx.fillText(data.version, 695, 440);
 		data.difficulties.sort();
-		for (var i = 0; i < data.difficulties.length; i++) {
+		for (i = 0; i < data.difficulties.length; i++) {
 			ctx.globalAlpha = 0.33;
 			if (data.difficulties[i] == data.difficultyrating) {
 				ctx.globalAlpha = 1;
 				ctx.beginPath();
 				ctx.fillStyle = coloursExtracted.foreground + '21';
-				rrect(ctx, 703 + ((i % 5) * 90) - 5, 457 + (Math.floor(i / 5) * 90) - 5, 87, 87, 10);
+				format.rect(ctx, 703 + ((i % 5) * 90) - 5, 457 + (Math.floor(i / 5) * 90) - 5, 87, 87, 10);
 				ctx.fill();
 			}
 			var icon;
@@ -243,30 +246,6 @@ async function createBeatmapCard(msg, data) {
 		msg.channel.send(attachment);
 		console.log(`GENERATED BEATMAP CARD : ${msg.author.id} :https://osu.ppy.sh/beatmapsets/${data.beatmapset_id}#osu/${data.beatmap_id}`);
 	});
-}
-
-
-function rrect(ctx, x, y, width, height, radius = 5) {
-	if (typeof radius === 'number') {
-		radius = {
-			tl: radius,
-			tr: radius,
-			br: radius,
-			bl: radius
-		};
-	}
-	ctx.beginPath();
-	ctx.moveTo(x + radius.tl, y);
-	ctx.lineTo(x + width - radius.tr, y);
-	ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-	ctx.lineTo(x + width, y + height - radius.br);
-	ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-	ctx.lineTo(x + radius.bl, y + height);
-	ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-	ctx.lineTo(x, y + radius.tl);
-	ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-	ctx.closePath();
-	ctx.fill();
 }
 
 module.exports = {

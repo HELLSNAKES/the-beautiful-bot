@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 const request = require('request');
 const error = require('../handlers/error');
 const Canvas = require('canvas');
@@ -5,7 +6,9 @@ const colours = require('../handlers/colours');
 const fs = require('fs');
 const path = require('path');
 const format = require('../handlers/format');
-const {execSync} = require('child_process');
+const {
+	execSync
+} = require('child_process');
 const Discord = require('discord.js');
 
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
@@ -17,13 +20,13 @@ function search(msg, args) {
 	if (args.length != 0) {
 		var name = args.join(' ');
 	} else {
-		console.log('no map specified');
+		console.log('SEARCH NONE');
 		return;
 	}
 
 	request({
-		url:`https://osu.ppy.sh/beatmapsets/search?q=${name}`,
-		headers:{
+		url: `https://osu.ppy.sh/beatmapsets/search?q=${name}`,
+		headers: {
 			cookie: process.env.cookie
 		},
 		json: true
@@ -34,7 +37,7 @@ function search(msg, args) {
 		}
 		var highestDiff = 0;
 		var highestDiffIndex = 0;
-		for (var i = 0;i < body.beatmapsets[0].beatmaps.length;i++) {
+		for (var i = 0; i < body.beatmapsets[0].beatmaps.length; i++) {
 			if (highestDiff < body.beatmapsets[0].beatmaps[i].difficulty_rating) {
 				highestDiff = body.beatmapsets[0].beatmaps[i].difficulty_rating;
 				highestDiffIndex = i;
@@ -53,56 +56,9 @@ function search(msg, args) {
 			embed
 		});
 		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
-		request(`https://osu.ppy.sh/api/get_beatmaps?b=${body.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`,{json: true}, (err,res,beatmapBody) => {
-			body.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = beatmapBody[0].max_combo;
-			generateBeatmap(msg, body.beatmapsets[0]);
-		});
-	});
-}
-
-function map(msg, args) {
-	if (args.length != 0) {
-		var name = args.join(' ');
-	} else {
-		console.log('no map specified');
-		return;
-	}
-	console.log(`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`)
-	request({
-		url:`https://osu.ppy.sh/beatmapsets/search?sort=plays_desc&q=${name}`,
-		headers:{
-			cookie: process.env.cookie
-		},
-		json: true
-	}, (err, res, body) => {
-		console.log(body.beatmapsets[0])
-		if (body.length == 0) {
-			error.log(msg, 4042);
-			return;
-		}
-		var highestDiff = 0;
-		var highestDiffIndex = 0;
-		for (var i = 0;i < body.beatmapsets[0].beatmaps.length;i++) {
-			if (highestDiff < body.beatmapsets[0].beatmaps[i].difficulty_rating) {
-				highestDiff = body.beatmapsets[0].beatmaps[i].difficulty_rating;
-				highestDiffIndex = i;
-			}
-		}
-		body.beatmapsets[0].beatmap = body.beatmapsets[0].beatmaps[highestDiffIndex];
-
-		const embed = {
-			'author': {
-				'name': `${ body.beatmapsets[0].artist} - ${body.beatmapsets[0].title} by ${ body.beatmapsets[0].creator} [Download]`,
-				'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`
-			},
-			'color': 2065919
-		};
-		msg.channel.send({
-			embed
-		});
-		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].beatmapset_id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
-		request(`https://osu.ppy.sh/api/get_beatmaps?b=${body.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`,{json: true}, (err,res,beatmapBody) => {
-			console.log(beatmapBody)
+		request(`https://osu.ppy.sh/api/get_beatmaps?b=${body.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`, {
+			json: true
+		}, (err, res, beatmapBody) => {
 			body.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = beatmapBody[0].max_combo;
 			generateBeatmap(msg, body.beatmapsets[0]);
 		});
@@ -180,7 +136,7 @@ async function generateBeatmap(msg, data) {
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 		} else {
-			for (var i = 0; i < Math.floor(data.beatmap.difficulty_rating); i++) {
+			for (i = 0; i < Math.floor(data.beatmap.difficulty_rating); i++) {
 				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
 			}
 
@@ -271,11 +227,11 @@ async function generateBeatmap(msg, data) {
 
 		ctx.fillText(data.beatmap.version, 695, 440);
 		data.difficulties = [];
-		for (var i = 0;i < data.beatmaps.length;i++) {
-			data.difficulties.push(data.beatmaps[i].difficulty_rating)
+		for (i = 0; i < data.beatmaps.length; i++) {
+			data.difficulties.push(data.beatmaps[i].difficulty_rating);
 		}
 		data.difficulties.sort();
-		for (var i = 0; i < data.difficulties.length; i++) {
+		for (i = 0; i < data.difficulties.length; i++) {
 			ctx.globalAlpha = 0.33;
 			if (data.difficulties[i] == data.beatmap.difficulty_rating) {
 				ctx.globalAlpha = 1;
@@ -285,7 +241,7 @@ async function generateBeatmap(msg, data) {
 				ctx.fill();
 			}
 			var icon;
-			var modes = ['', '_taiko', '_ctb', '_mania'];
+			// var modes = ['', '_taiko', '_ctb', '_mania'];
 			if (data.difficulties[i] < 2) {
 				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/easy.png'));
 			} else if (data.difficulties[i] < 2.7) {

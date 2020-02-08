@@ -1,13 +1,10 @@
 const database = require('../handlers/database');
+const argument = require('../handlers/argument');
 
 function set(msg, args) {
-	var options = {type: 0};
-	for (var i = 0; i < args.length; i++) {
-		if (args[i] == '-t') {
-			options.type = parseInt(args[i + 1]);
-			args.splice(i, 2);
-		}
-	}
+	var options = argument.parse(msg, args);
+	if (options.error) return;
+
 	database.read({
 		discordID: msg.author.id,
 	}, (doc) => {
@@ -16,7 +13,7 @@ function set(msg, args) {
 				discordID: msg.author.id,
 				osuUsername: args.join(' '),
 				type: options.type
-			});	
+			});
 			msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
 		} else {
 			database.update({

@@ -30,5 +30,5 @@ function log(msg, errCode) {
 }
 
 module.exports = {
-	log:log
+	log: log
 };

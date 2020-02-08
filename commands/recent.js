@@ -1,6 +1,7 @@
 const database = require('../handlers/database');
 const error = require('../handlers/error');
 const format = require('../handlers/format');
+const argument = require('../handlers/argument');
 const request = require('request');
 const {
 	exec,
@@ -10,19 +11,9 @@ const mods = require('../handlers/mods');
 const gatariData = require('./convert/gatariData');
 
 function recent(client, msg, args) {
-	var options = {type: 0};
-	for (var i = 0; i < args.length; i++) {
-		if (args[i] == '-p') {
-			options.previous = parseInt(args[i + 1]);
-			args.splice(i, 2);
-		} else if (args[i] == '-m') {
-			options.mode = parseInt(args[i + 1]);
-			args.splice(i, 2);
-		} else if (args[i] == '-t') {
-			options.type = parseInt(args[i + 1]);
-			args.splice(i, 2);
-		}
-	}
+	var options = argument.parse(msg, args);
+	if (options.error) return;
+
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
 		database.read({
@@ -47,40 +38,49 @@ function recent(client, msg, args) {
 }
 
 function sendRecent(client, msg, user, options = {}) {
-	
-	options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
-	options.mode = (typeof options.mode !== 'undefined') ? options.mode : 0;
-	console.log(options)
-	if (0 > options.previous || options.previous > 49 || isNaN(options.previous)) {
-		error.log(msg, 4045);
-		return;
-	}
-
-	if (0 > options.mode || options.mode > 4 || isNaN(options.mode)) {
-		error.log(msg, 4045);
-		return;
-	}
 
 	if (options.type == 0) {
-	if (options.mode == 0) {
-		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
-			json: true
-		}, (err, res, body) => {
-			if (body.length == 0) {
-				error.log(msg, 4044);
-				return;
-			}
-			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}`, {
+		if (options.mode == 0) {
+			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
 				json: true
-			}, (beatmapErr, beatmapRes, beatmapBody) => {
-				if (err) console.log(err);
-				body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
-				exec(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node handlers/pp.js +${mods.toString(body[options.previous].enabled_mods)} ${body[options.previous].accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`, (err, stdout, stderr) => {
+			}, (err, res, body) => {
+				if (body.length == 0) {
+					error.log(msg, 4044);
+					return;
+				}
+				request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}`, {
+					json: true
+				}, (beatmapErr, beatmapRes, beatmapBody) => {
 					if (err) console.log(err);
-					var ojsama = stdout.replace('\n', '').split('$');
-					body[options.previous].pp = ojsama[0];
-					body[options.previous].calculated_difficulty = ojsama[1];
-					body[options.previous].max_map_combo = ojsama[2];
+					body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
+					exec(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node handlers/pp.js +${mods.toString(body[options.previous].enabled_mods)} ${body[options.previous].accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`, (err, stdout) => {
+						if (err) console.log(err);
+						var ojsama = stdout.replace('\n', '').split('$');
+						body[options.previous].pp = ojsama[0];
+						body[options.previous].calculated_difficulty = ojsama[1];
+						body[options.previous].max_map_combo = ojsama[2];
+						body[options.previous] = {
+							...body[options.previous],
+							...beatmapBody[0]
+						};
+						generateRecent(client, msg, body[options.previous]);
+					});
+				});
+			});
+		} else {
+			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=${options.mode}`, {
+				json: true
+			}, (err, res, body) => {
+				if (body.length == 0) {
+					error.log(msg, 4044);
+					return;
+				}
+				request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}&m=${options.mode}&a=1`, {
+					json: true
+				}, (beatmapErr, beatmapRes, beatmapBody) => {
+					if (err) console.log(err);
+					body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
+					body[options.previous].pp = '##';
 					body[options.previous] = {
 						...body[options.previous],
 						...beatmapBody[0]
@@ -88,45 +88,27 @@ function sendRecent(client, msg, user, options = {}) {
 					generateRecent(client, msg, body[options.previous]);
 				});
 			});
-		});
-	} else {
-		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=${options.mode}`, {
-			json: true
-		}, (err, res, body) => {
-			if (body.length == 0) {
-				error.log(msg, 4044);
-				return;
-			}
-			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}&m=${options.mode}`, {
-				json: true
-			}, (beatmapErr, beatmapRes, beatmapBody) => {
-				if (err) console.log(err);
-				body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
-				body[options.previous].pp = '##';
-				body[options.previous] = {
-					...body[options.previous],
-					...beatmapBody[0]
-				};
-				console.log(body[options.previous]);
-				generateRecent(client, msg, body[options.previous]);
-			});
-		});
-	}
+		}
 	} else if (options.type == 1) {
+		if (options.mode != 0) {
+			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
+			return;
+		}
 		request(`https://api.gatari.pw/users/get?u=${user}`, {
 			json: true
 		}, (err, res, bodyInfo) => {
-			
-			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=${options.previous+1}&mode=${options.mode}&f=1`, {json: true}, (err, res, body) => {
+
+			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=${options.previous+1}&mode=${options.mode}&f=1`, {
+				json: true
+			}, (err, res, body) => {
 				body = gatariData.recentData(body, bodyInfo, options.previous);
-				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout, stderr) => {
-					var ojsama = stdout.replace('\n', '').split('$');	
+				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout) => {
+					var ojsama = stdout.replace('\n', '').split('$');
 					body.pp = ojsama[0];
 					body.calculated_difficulty = ojsama[1];
 					body.max_map_combo = ojsama[2];
-					console.log(body)
-					generateRecent(client, msg, body)
-			});
+					generateRecent(client, msg, body);
+				});
 			});
 		});
 	}
@@ -140,9 +122,9 @@ function generateRecent(client, msg, body) {
 		error.log(msg, 4044);
 		return;
 	}
-	var userPictureUrl = `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}` 
+	var userPictureUrl = `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}`;
 	if (body.type == 1) {
-		userPictureUrl = `https://a.gatari.pw/${body.user_id}?${Date.now().toString()}`
+		userPictureUrl = `https://a.gatari.pw/${body.user_id}?${Date.now().toString()}`;
 	}
 
 	let grade = client.emojis.find(emoji => emoji.name === 'grade_' + body.rank.toLowerCase());
@@ -174,7 +156,7 @@ function generateRecent(client, msg, body) {
 		ppFC = body.perfect == 0 ? '(' + (body.accuracy >= 80 ? body.accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}% +${mods.toString(body.enabled_mods)}`)).toString().split('$')[0] + 'pp)' : '';
 	}
 	const embed = {
-		'description': `${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**\n[Supporter](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id})`,
+		'description': `${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**\n[Supporter](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) - [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',
 		'color': colour,
 		'thumbnail': {

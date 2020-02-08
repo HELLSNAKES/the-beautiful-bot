@@ -5,16 +5,11 @@ const requestPromiseNative = require('request-promise-native');
 const mods = require('../handlers/mods');
 const format = require('../handlers/format');
 const gatariData = require('./convert/gatariData');
+const argument = require('../handlers/argument');
+
 function best(client, msg, args) {
-	var options = {
-		type: 0 
-	};
-	for (var i = 0; i < args.length; i++) {
-		if (args[i] == '-t') {
-			options.type = parseInt(args[i + 1]);
-			args.splice(i, 2);
-		}
-	}
+	var options = argument.parse(msg, args);
+	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
@@ -36,17 +31,21 @@ function best(client, msg, args) {
 
 function sendRequest(client, msg, user, type = 0) {
 	if (type == 0) {
-	request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=5`, {
-		json: true
-	}, (err, res, body) => {
-		sendBest(client, msg, user, body);
-	});
+		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=5`, {
+			json: true
+		}, (err, res, body) => {
+			sendBest(client, msg, user, body);
+		});
 	} else if (type == 1) {
-		request(`https://api.gatari.pw/users/get?u=${user}`, {json:true},(err, res, info) => {
-			request(`https://api.gatari.pw/user/scores/best?id=${info.users[0].id}&l=5`, {json:true}, (err, res, body) => {
-				sendBest(client, msg, user, gatariData.bestData(body, info), type)
-			})
-		})
+		request(`https://api.gatari.pw/users/get?u=${user}`, {
+			json: true
+		}, (err, res, info) => {
+			request(`https://api.gatari.pw/user/scores/best?id=${info.users[0].id}&l=5`, {
+				json: true
+			}, (err, res, body) => {
+				sendBest(client, msg, user, gatariData.bestData(body, info), type);
+			});
+		});
 	}
 }
 
@@ -59,14 +58,14 @@ function sendBest(client, msg, user, body, type) {
 	var playString = [];
 	var playpp = [];
 	var urls = [];
-	var userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`
-	var userUrl = `https://osu.ppy.sh/users/${body[0].user_id}`
+	var userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`;
+	var userUrl = `https://osu.ppy.sh/users/${body[0].user_id}`;
 
 	if (type == 1) {
-		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`
-		userUrl = `https://osu.gatari.pw/u/${body[0].user_id}`
+		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`;
+		userUrl = `https://osu.gatari.pw/u/${body[0].user_id}`;
 	}
-	
+
 	const embed = {
 		'title': '',
 		'author': {
@@ -95,7 +94,7 @@ function sendBest(client, msg, user, body, type) {
 			var pp = Math.floor(body[index].pp * 100) / 100;
 			var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
 
-			playString.push(`__**[${beatmapData[0].title} [${beatmapData[0].version} - ${Math.floor(beatmapData[0].difficultyrating * 100) /100}★] +${mods.toString(body[index].enabled_mods)}](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`})**__\n${grade} - **${pp}pp** - ${accuracy}%\nCombo: **x${format.number(body[index].maxcombo)}/x${format.number(beatmapData[0].max_combo)}**	Score: **${format.number(body[index].score)}**\n[${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}]\nAchieved: **${format.time(Date.parse(body[index].date))}**\n`);
+			playString.push(`__**[${beatmapData[0].title} [${beatmapData[0].version} - ${Math.floor(beatmapData[0].difficultyrating * 100) /100}★] +${mods.toString(body[index].enabled_mods)}](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`})**__\n${grade} - **${pp}pp** - ${accuracy}%\nCombo: **x${format.number(body[index].maxcombo)}/x${format.number(beatmapData[0].max_combo)}** Score: **${format.number(body[index].score)}**\n[${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}] 	Achieved: **${format.time(Date.parse(body[index].date))}**\n`);
 			playpp.push(pp);
 		}));
 	}

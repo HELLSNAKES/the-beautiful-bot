@@ -17,11 +17,11 @@ function userData(data, dataInfo) {
 		count_rank_a: data.stats.a_count,
 		country: dataInfo.users[0].country,
 		pp_country_rank: data.stats.country_rank
-	})
+	});
 }
 
 function bestData(data, dataInfo) {
-	var objectArray = []
+	var objectArray = [];
 	for (var i = 0; i < data.scores.length; i++) {
 		objectArray.push({
 			beatmap_id: data.scores[i].beatmap.beatmap_id,
@@ -40,7 +40,7 @@ function bestData(data, dataInfo) {
 			date: data.scores[i].time,
 			rank: data.scores[i].ranking,
 			pp: data.scores[i].pp
-		})
+		});
 	}
 	return (objectArray);
 }
@@ -61,20 +61,20 @@ function recentData(data, dataInfo, index) {
 		user_id: dataInfo.users[0].id,
 		date: data.scores[index].time,
 		rank: data.scores[index].ranking,
-		accuracy: Math.floor(data.scores[index].accuracy * 100)/100,
+		accuracy: Math.floor(data.scores[index].accuracy * 100) / 100,
 		approved: data.scores[index].beatmap.ranked > 0 && data.scores[index].beatmap.ranked_status_frozen == 0 ? data.scores[index].beatmap.ranked - 1 : 0,
-		title: data.scores[index].beatmap.song_name.slice(0,data.scores[index].beatmap.song_name.lastIndexOf('[')),
-		version:data.scores[index].beatmap.song_name.slice(data.scores[index].beatmap.song_name.lastIndexOf('[')+1,data.scores[index].beatmap.song_name.lastIndexOf(']')),
-		difficultyrating: Math.round(data.scores[index].beatmap.difficulty*100)/100,
+		title: data.scores[index].beatmap.song_name.slice(0, data.scores[index].beatmap.song_name.lastIndexOf('[')),
+		version: data.scores[index].beatmap.song_name.slice(data.scores[index].beatmap.song_name.lastIndexOf('[') + 1, data.scores[index].beatmap.song_name.lastIndexOf(']')),
+		difficultyrating: Math.round(data.scores[index].beatmap.difficulty * 100) / 100,
 		max_combo: data.scores[index].beatmap.fc,
 		beatmapset_id: data.scores[index].beatmap.beatmapset_id,
-		type:1,
-		mode:0
-	})
+		type: 1,
+		mode: 0
+	});
 }
 
 module.exports = {
 	userData: userData,
 	bestData: bestData,
 	recentData: recentData
-}
+};

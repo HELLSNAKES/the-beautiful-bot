@@ -6,7 +6,6 @@ const prefix = process.env.prefix || '$';
 
 http.createServer((req, res) => {
 	if (req.url == '/') {
-		console.log('Ping');
 		res.write('Pong');
 		res.end();
 	}
@@ -58,7 +57,7 @@ client.on('message', async msg => {
 	if (cmd === 'ping') {
 		require('./commands/ping').ping(client, msg);
 	} else if (cmd == 'osu') {
-		require('./commands/osu').osu(client, msg, args);
+		require('./commands/osu').osu(msg, args);
 	} else if (cmd == 'rs' || cmd == 'recent') {
 		require('./commands/recent').recent(client, msg, args);
 	} else if (cmd == 'bt' || cmd == 'best') {
@@ -68,7 +67,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'os' || cmd == 'osuset') {
 		require('./commands/set').set(msg, args);
 	} else if (cmd == 'hl' || cmd == 'help') {
-		require('./commands/help').help(msg, prefix);
+		require('./commands/help').help(msg, prefix, args);
 	} else if (cmd == 'cl' || cmd == 'changelog') {
 		require('./commands/changelog').changelog(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
@@ -77,6 +76,8 @@ client.on('message', async msg => {
 		require('./commands/cat').cat(msg);
 	} else if (cmd == 'leaderboard' || cmd == 'lb') {
 		require('./commands/leaderboard').leaderboard(client, msg, args);
+	} else if (cmd == 'pp') {
+		require('./commands/pp').pp(client, msg, args.join(' '));
 	}
 });
 
