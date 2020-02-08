@@ -1,31 +1,33 @@
 const database = require('../handlers/database');
-const utility = require('../handlers/utility');
-function rename(msg, args) {
-	if (args.length != 0) {
-		database.update({
-			discordID: msg.author.id
-		}, {
-			osuUsername: args.join('_')
-		}, function () {
-			msg.channel.send('Your osu username linked with your account has been successfully updated!');
-		});
-	} else {
-		msg.channel.send('Osu username has not been provided.');
-		console.log(`FAILED TO RENAME : ${msg.author.id}`);
-	}
-}
-
+const argument = require('../handlers/argument');
 
 function set(msg, args) {
-	utility.checkUser(msg, {
+	var options = argument.parse(msg, args);
+	if (options.error) return;
+
+	database.read({
 		discordID: msg.author.id,
-		osuUsername: args.join(' ')
-	}, function (data) {
-		database.write(data);
+	}, (doc) => {
+		if (doc.error) {
+			database.write({
+				discordID: msg.author.id,
+				osuUsername: args.join(' '),
+				type: options.type
+			});
+			msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
+		} else {
+			database.update({
+				discordID: msg.author.id
+			}, {
+				osuUsername: args.join('_'),
+				type: options.type
+			}, function () {
+				msg.channel.send(':white_check_mark: Your osu username has been successfully updated!');
+			});
+		}
 	});
 }
 
 module.exports = {
-	rename: rename,
 	set: set
 };

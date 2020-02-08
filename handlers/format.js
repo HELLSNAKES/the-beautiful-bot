@@ -55,6 +55,6 @@ function time(date) {
 
 module.exports = {
 	rect: rect,
-	number:number,
+	number: number,
 	time: time
 };
