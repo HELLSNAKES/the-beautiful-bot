@@ -1,7 +1,7 @@
 
 <img src='https://i.imgur.com/V0A9rjw.png'>
 
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/Moorad/the-beautiful-bot?style=flat-square) ![GitHub issues](https://img.shields.io/github/issues/Moorad/the-beautiful-bot?style=flat-square)![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Moorad/the-beautiful-bot?style=flat-square)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/Moorad/the-beautiful-bot?style=flat-square) ![GitHub issues](https://img.shields.io/github/issues/Moorad/the-beautiful-bot?style=flat-square) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Moorad/the-beautiful-bot?style=flat-square)
 ![Travis (.com)](https://img.shields.io/travis/com/Moorad/the-beautiful-bot?style=flat-square)
 
 ### Um, what is this
