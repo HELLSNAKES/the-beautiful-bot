@@ -2,7 +2,17 @@
 
 The beautiful bot's Changelog :)
 
-## [1.3.0] - 08-02-2020
+## 1.3.1 - 10-02-2020
+
+### Added
+- New activity message that will show the number of servers that the bot is in
+
+
+### Changed
+- The activity messages now change every 2.5 min rather than 5 min
+
+
+## 1.3.0 - 08-02-2020
 
 ### Added
 
