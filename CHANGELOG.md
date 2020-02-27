@@ -2,6 +2,13 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.2 24-02-2020
+
+### Added
+ - A new hyperlink to the TBB stats page when you use $rs
+ 
+
+
 ## 1.3.1 - 10-02-2020
 
 ### Added

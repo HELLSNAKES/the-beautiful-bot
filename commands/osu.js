@@ -8,6 +8,7 @@ const request = require('request');
 const Canvas = require('canvas');
 const Discord = require('discord.js');
 const gatariData = require('./convert/gatariData');
+const akatsukiData = require('./convert/akatsukiData');
 const argument = require('../handlers/argument');
 Canvas.registerFont('assets/SegoeUI.ttf', {
 	family: 'segoeUI'
@@ -34,7 +35,7 @@ function osu(msg, args) {
 			requestData(msg, doc.osuUsername);
 		});
 	} else if (args.length != 0) {
-		requestData(msg, args.join('_'), options.type);
+		requestData(msg, args.join('_'), options);
 	} else {
 		database.read({
 			discordID: msg.author.id
@@ -43,19 +44,20 @@ function osu(msg, args) {
 				error.log(msg, 4046);
 				return;
 			}
-			requestData(msg, doc.osuUsername, doc.type);
+			requestData(msg, doc.osuUsername, {type: doc.type});
 		});
 	}
 }
 
-function requestData(msg, id, type = 0) {
-	if (type == 0) {
+function requestData(msg, id, options) {
+	options.type = options.type ? options.type : 0; 
+	if (options.type == 0) {
 		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
 			json: true
 		}, async (err, res, body) => {
 			generateUser(msg, 0, body);
 		});
-	} else if (type == 1) {
+	} else if (options.type == 1) {
 		request(`https://api.gatari.pw/user/stats?u=${id}`, {
 			json: true
 		}, (err, res, body) => {
@@ -65,6 +67,12 @@ function requestData(msg, id, type = 0) {
 				generateUser(msg, 1, [gatariData.userData(body, bodyInfo)]);
 			});
 		});
+	} else if (options.type == 2) {
+		request(`https://akatsuki.pw/api/v1/users/full?name=${id}`, {
+			json: true
+		}, (err, res, body) => {
+			generateUser(msg, 2, [akatsukiData.userData(body)]);
+		})
 	}
 }
 
@@ -90,6 +98,8 @@ async function generateUser(msg, type, body) {
 
 	if (type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`;
+	} else if (type == 2) {
+		userPictureUrl = `https://a.akatsuki.pw/${body[0].user_id}?${Date.now().toString()}`
 	}
 	var userPicture;
 	try {
@@ -99,7 +109,12 @@ async function generateUser(msg, type, body) {
 	}
 	format.rect(ctx, 30, 30, 280, 280, 47);
 	ctx.clip();
-	ctx.drawImage(userPicture, 30, 30, 280, 280);
+	console.log(userPicture.height);
+
+	var scale = Math.max(280 / userPicture.width, 280 / userPicture.height);
+    var x = 170 - (userPicture.width / 2) * scale;
+    var y = 170 - (userPicture.height / 2) * scale;
+    ctx.drawImage(userPicture, x, y, userPicture.width * scale, userPicture.height * scale);
 	ctx.restore();
 
 	ctx.fillStyle = '#ffffff';
