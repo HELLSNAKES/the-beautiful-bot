@@ -11,6 +11,7 @@ const mods = require('../handlers/mods');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
 function recent(client, msg, args) {
+	msg.channel.startTyping();
 	var options = argument.parse(msg, args);
 	
 	if (options.error) return;
@@ -38,7 +39,7 @@ function recent(client, msg, args) {
 	}
 }
 
-function sendRecent(client, msg, user, options = {}) {
+function sendRecent(client, msg, user, options = {}) {	
 	if (options.type == 0) {
 		if (options.mode == 0) {
 			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
@@ -92,6 +93,7 @@ function sendRecent(client, msg, user, options = {}) {
 	} else if (options.type == 1) {
 		if (options.mode != 0) {
 			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
+			msg.channel.stopTyping();
 			return;
 		}
 		request(`https://api.gatari.pw/users/get?u=${user}`, {
@@ -114,6 +116,7 @@ function sendRecent(client, msg, user, options = {}) {
 	} else if (options.type == 2) {
 		if (options.mode != 0) {
 			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
+			msg.channel.stopTyping();
 			return;
 		}
 
@@ -177,14 +180,14 @@ function generateRecent(client, msg, body) {
 
 	var ppFC = '-';
 	if (body.mode == 0) {
-		ppFC = body.perfect == 0 ? '(' + (body.accuracy >= 80 ? body.accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}% +${mods.toString(body.enabled_mods)}`)).toString().split('$')[0] + 'pp)' : '';
+		ppFC = body.perfect == 0 ? '(FC: ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}% +${mods.toString(body.enabled_mods)}`)).toString().split('$')[0] + 'pp)' : '';
 	}
 	const embed = {
-		'description': `${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**\n[Supporter](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) - [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) - [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
+		'description': `| ${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| **(${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''})** - ${format.number(body.score)} - [${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]\n| ${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `Completed: **${completion}%**  - ` :''}Achieved: **${date}**\n| [Supporter](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) - [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) - [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',
 		'color': colour,
-		'thumbnail': {
-			'url': `https://b.ppy.sh/thumb/${body.beatmapset_id}.jpg`
+		'image': {
+			'url': `https://assets.ppy.sh/beatmaps/${body.beatmapset_id}/covers/cover.jpg`
 		},
 		'author': {
 			'name': `${body.title} [${body.version}] +${mods.toString(body.enabled_mods)}`,
@@ -199,6 +202,7 @@ function generateRecent(client, msg, body) {
 	msg.channel.send({
 		embed
 	});
+	msg.channel.stopTyping();
 	console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 
 }

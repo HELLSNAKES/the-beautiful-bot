@@ -40,7 +40,7 @@ client.on('message', async msg => {
 	msg.content = msg.content.toLowerCase();
 	if (msg.author.bot) return;
 	if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
-
+	
 	if (msg.content === 'bot you alive?') { // bot are you alive
 		msg.reply('**YES!!!**');
 	} else if (msg.content === 'good bot') {
