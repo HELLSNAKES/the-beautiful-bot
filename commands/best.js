@@ -101,7 +101,6 @@ function sendBest(client, msg, user, body, type) {
 	};
 
 	for (var i = 0; i < body.length; i++) {
-		console.log(i)
 		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`);
 		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`, {
 			json: true

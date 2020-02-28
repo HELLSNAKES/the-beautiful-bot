@@ -31,7 +31,8 @@ function search(msg, args) {
 		},
 		json: true
 	}, (err, res, body) => {
-		if (body.beatmapsets.length == 0) {
+		console.log(body);
+		if (body.length == 0) {
 			error.log(msg, 4042);
 			return;
 		}

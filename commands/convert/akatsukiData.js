@@ -78,4 +78,4 @@ module.exports = {
 	userData: userData,
 	recentData: recentData,
 	bestData: bestData
-}
+};

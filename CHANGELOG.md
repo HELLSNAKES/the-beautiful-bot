@@ -2,12 +2,15 @@
 
 The beautiful bot's Changelog :)
 
-## 1.3.2 24-02-2020
+## 1.3.5 24-02-2020
 
 ### Added
  - A new hyperlink to the TBB stats page when you use $rs
- 
+ - Akatsuki partial support
 
+## Changed
+ - Profile picture rendering in $osu has changed so that it supports non-square images
+ - help command
 
 ## 1.3.1 - 10-02-2020
 
