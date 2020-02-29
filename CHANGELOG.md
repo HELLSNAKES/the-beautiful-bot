@@ -6,7 +6,7 @@ The beautiful bot's Changelog :)
 
 ### Added
  - A new hyperlink to the TBB stats page when you use $rs
- - Akatsuki partial support
+ - Akatsuki partial support ($rs, $best)
 
 ## Changed
  - Profile picture rendering in $osu has changed so that it supports non-square images
