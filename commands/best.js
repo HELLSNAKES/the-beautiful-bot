@@ -6,6 +6,7 @@ const mods = require('../handlers/mods');
 const format = require('../handlers/format');
 const gatariData = require('./convert/gatariData');
 const argument = require('../handlers/argument');
+const akatsukiData = require('./convert/akatsukiData');
 
 function best(client, msg, args) {
 	var options = argument.parse(msg, args);
@@ -16,34 +17,46 @@ function best(client, msg, args) {
 		database.read({
 			discordID: discordID
 		}, (doc) => {
-			sendRequest(client, msg, doc.osuUsername, doc.type);
+			options.type = doc.type;
+			sendRequest(client, msg, doc.osuUsername, options);
 		});
 	} else if (args.length != 0) {
-		sendRequest(client, msg, args.join('_'), options.type);
+		sendRequest(client, msg, args.join('_'), options);
 	} else {
 		database.read({
 			discordID: msg.author.id
 		}, (doc) => {
-			sendRequest(client, msg, doc.osuUsername, doc.type);
+			options.type = doc.type;
+			sendRequest(client, msg, doc.osuUsername, options);
 		});
 	}
 }
 
-function sendRequest(client, msg, user, type = 0) {
-	if (type == 0) {
+function sendRequest(client, msg, user, options) {
+	if (options.type == 0) {
 		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=5`, {
 			json: true
 		}, (err, res, body) => {
 			sendBest(client, msg, user, body);
 		});
-	} else if (type == 1) {
+	} else if (options.type == 1) {
 		request(`https://api.gatari.pw/users/get?u=${user}`, {
 			json: true
 		}, (err, res, info) => {
 			request(`https://api.gatari.pw/user/scores/best?id=${info.users[0].id}&l=5`, {
 				json: true
 			}, (err, res, body) => {
-				sendBest(client, msg, user, gatariData.bestData(body, info), type);
+				sendBest(client, msg, user, gatariData.bestData(body, info), options.type);
+			});
+		});
+	} else if (options.type == 2) {
+		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
+			json: true
+		}, (err, res, info) => {
+			request(`https://akatsuki.pw/api/v1/users/scores/best?name=${user}&rx=${options.relax}&l=5`, {
+				json: true
+			}, (err, res, body) => {
+				sendBest(client, msg, user, akatsukiData.bestData(body, info), options.type);
 			});
 		});
 	}
@@ -64,6 +77,9 @@ function sendBest(client, msg, user, body, type) {
 	if (type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`;
 		userUrl = `https://osu.gatari.pw/u/${body[0].user_id}`;
+	} else if (type == 2) {
+		userPictureUrl = `https://a.akatsuki.pw/${body[0].user_id}?${Date.now().toString()}`;
+		userUrl = `https://akatsuki.pw/u/${body[0].user_id}`;
 	}
 
 	const embed = {

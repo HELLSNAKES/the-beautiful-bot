@@ -23,6 +23,6 @@ Alternatively these values can be passed as environment variables
 
 Note that the bot was not developed to be user friendly. A better setup process will be implemented in the future.
 
-5. You are good to go. You can run `node index.js` to run the bot.
+6. You are good to go. You can run `node index.js` to run the bot.
 
 If you find any bugs please contact me (or open an [issue on github](https://github.com/Moorad/the-beautiful-bot/issues))

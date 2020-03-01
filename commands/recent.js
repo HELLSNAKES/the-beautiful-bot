@@ -9,9 +9,11 @@ const {
 } = require('child_process');
 const mods = require('../handlers/mods');
 const gatariData = require('./convert/gatariData');
+const akatsukiData = require('./convert/akatsukiData');
 
 function recent(client, msg, args) {
 	var options = argument.parse(msg, args);
+
 	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
@@ -31,6 +33,10 @@ function recent(client, msg, args) {
 		database.read({
 			discordID: msg.author.id
 		}, (doc) => {
+			if (doc.error) {
+				error.log(msg, 4046);
+				return;
+			}
 			options.type = doc.type;
 			sendRecent(client, msg, doc.osuUsername, options);
 		});
@@ -38,7 +44,6 @@ function recent(client, msg, args) {
 }
 
 function sendRecent(client, msg, user, options = {}) {
-
 	if (options.type == 0) {
 		if (options.mode == 0) {
 			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
@@ -111,6 +116,28 @@ function sendRecent(client, msg, user, options = {}) {
 				});
 			});
 		});
+	} else if (options.type == 2) {
+		if (options.mode != 0) {
+			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
+			return;
+		}
+
+		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
+			json: true
+		}, (err, res, bodyInfo) => {
+			request(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax}`, {
+				json: true
+			}, (err, res, body) => {
+				body = akatsukiData.recentData(body, bodyInfo, options.previous);
+				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout) => {
+					var ojsama = stdout.replace('\n', '').split('$');
+					body.pp = ojsama[0];
+					body.calculated_difficulty = ojsama[1];
+					body.max_map_combo = ojsama[2];
+					generateRecent(client, msg, body);
+				});
+			});
+		});
 	}
 
 
@@ -125,6 +152,8 @@ function generateRecent(client, msg, body) {
 	var userPictureUrl = `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}`;
 	if (body.type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body.user_id}?${Date.now().toString()}`;
+	} else if (body.type == 2) {
+		userPictureUrl = `https://a.akatsuki.pw/${body.user_id}?${Date.now().toString()}`;
 	}
 
 	let grade = client.emojis.find(emoji => emoji.name === 'grade_' + body.rank.toLowerCase());
@@ -153,28 +182,25 @@ function generateRecent(client, msg, body) {
 
 	var ppFC = '-';
 	if (body.mode == 0) {
-		ppFC = body.perfect == 0 ? '(' + (body.accuracy >= 80 ? body.accuracy : 80) + '% ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}% +${mods.toString(body.enabled_mods)}`)).toString().split('$')[0] + 'pp)' : '';
+		ppFC = body.perfect == 0 ? '(FC: ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}% +${mods.toString(body.enabled_mods)}`)).toString().split('$')[0] + 'pp)' : '';
 	}
 	const embed = {
-		'description': `${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\nCombo: **${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''}**	Score: **${format.number(body.score)}**\n[${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `\nCompleted: **${completion}%**` :''}\nAchieved: **${date}**\n[Supporter](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) - [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id})`,
+		'description': `| ${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| **(${format.number(body.maxcombo)}x${body.max_combo ? '/'+format.number(body.max_combo)+'x' : ''})** - ${format.number(body.score)} - [${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]\n| ${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `Completed: **${completion}%**  - ` :''}Achieved: **${date}**\n| ${client.emojis.find(emoji => emoji.name === 'icon_0')} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1')} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2')} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',
 		'color': colour,
-		'thumbnail': {
-			'url': `https://b.ppy.sh/thumb/${body.beatmapset_id}.jpg`
+		'image': {
+			'url': `https://assets.ppy.sh/beatmaps/${body.beatmapset_id}/covers/cover.jpg`
 		},
 		'author': {
 			'name': `${body.title} [${body.version}] +${mods.toString(body.enabled_mods)}`,
 			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapset_id}#osu/${body.beatmap_id}`,
 			'icon_url': userPictureUrl
-		},
-		'footer': {
-			'icon_url': 'https://cdn.discordapp.com/avatars/647218819865116674/30bf8360b8a5adef5a894d157e22dc34.png?size=128',
-			'text': 'Always Remember, The beautiful bot loves you <3'
 		}
 	};
 	msg.channel.send({
 		embed
 	});
+
 	console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 
 }
