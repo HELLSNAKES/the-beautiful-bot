@@ -56,8 +56,7 @@ function sendRequest(client, msg, user, options) {
 			request(`https://akatsuki.pw/api/v1/users/scores/best?name=${user}&rx=${options.relax}&l=5`, {
 				json: true
 			}, (err, res, body) => {
-				// console.log(akatsukiData.bestData(body,info));
-				sendBest(client, msg, user, akatsukiData.bestData(body,info), options.type)
+				sendBest(client, msg, user, akatsukiData.bestData(body, info), options.type);
 			});
 		});
 	}
@@ -110,7 +109,7 @@ function sendBest(client, msg, user, body, type) {
 			var grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[index].rank.toLowerCase());
 			var pp = Math.floor(body[index].pp * 100) / 100;
 			var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
-			// console.log(body[i])
+
 			playString.push(`__**[${beatmapData[0].title} [${beatmapData[0].version} - ${Math.floor(beatmapData[0].difficultyrating * 100) /100}★] +${mods.toString(body[index].enabled_mods)}](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`})**__\n${grade} - **${pp}pp** - ${accuracy}%\nCombo: **x${format.number(body[index].maxcombo)}/x${format.number(beatmapData[0].max_combo)}** Score: **${format.number(body[index].score)}**\n[${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}] 	Achieved: **${format.time(Date.parse(body[index].date))}**\n`);
 			playpp.push(pp);
 		}));

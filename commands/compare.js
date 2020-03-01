@@ -2,23 +2,47 @@ const database = require('../handlers/database');
 const request = require('request');
 const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
+const argument = require('../handlers/argument');
+const error = require('../handlers/error');
 
-function compare(client, msg) {
-	getMaps.getMaps(client, msg, function (msg, client, url, userid) {
-		sendCompareEmbed(msg, client, url, userid);
+function compare(client, msg, args) {
+	getMaps.getMaps(client, msg, function (msg, client, url) {
+		var options = argument.parse(msg, args);
+
+		if (options.error) return;
+
+		if (/<@![0-9]{18}>/g.test(args[0])) {
+			var discordID = args[0].slice(3, 21);
+			database.read({
+				discordID: discordID
+			}, (doc) => {
+				if (doc.error) {
+					error.log(msg, 4046);
+					return;
+				}
+				sendCompareEmbed(client, msg, url, doc.osuUsername, options);
+			});
+		} else if (args.length != 0) {
+			sendCompareEmbed(client, msg, url, args.join('_'), options);
+		} else {
+			database.read({
+				discordID: msg.author.id
+			}, (doc) => {
+				if (doc.error) {
+					error.log(msg, 4046);
+					return;
+				}
+				options.type = doc.type;
+				sendCompareEmbed(client, msg, url, doc.osuUsername, options);
+			});
+		}
 	});
 
 }
 
-function sendCompareEmbed(msg, client, url, userid) {
-	database.read({
-		discordID: userid
-	}, (doc) => {
-		if (doc.type != 0) {
-			msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
-			return;
-		}
-		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${doc.osuUsername}&b=${url.slice(url.indexOf('#osu/')+5)}`, (err, res, body) => {
+function sendCompareEmbed(client, msg, url, user, options) {
+	if (options.type == 0) {
+		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${user}&b=${url.slice(url.indexOf('#osu/')+5)}`, (err, res, body) => {
 			body = JSON.parse(body);
 
 			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${url.slice(url.indexOf('#osu/')+5)}`, {
@@ -44,7 +68,9 @@ function sendCompareEmbed(msg, client, url, userid) {
 			});
 
 		});
-	});
+	} else {
+		msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
+	}
 }
 
 module.exports = {

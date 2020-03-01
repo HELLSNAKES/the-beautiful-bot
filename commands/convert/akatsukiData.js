@@ -3,7 +3,7 @@ function userData(data) {
 		user_id: data.id,
 		username: data.username,
 		playcount: data.std.playcount,
-		total_seconds_played: data.std.playtime,
+		total_seconds_played: data.std.total_playtime,
 		ranked_score: data.std.ranked_score,
 		total_score: data.std.total_score,
 		pp_rank: data.std.global_leaderboard_rank,

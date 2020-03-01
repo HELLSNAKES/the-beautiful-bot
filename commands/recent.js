@@ -10,9 +10,10 @@ const {
 const mods = require('../handlers/mods');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
+
 function recent(client, msg, args) {
 	var options = argument.parse(msg, args);
-	
+
 	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
@@ -32,13 +33,17 @@ function recent(client, msg, args) {
 		database.read({
 			discordID: msg.author.id
 		}, (doc) => {
+			if (doc.error) {
+				error.log(msg, 4046);
+				return;
+			}
 			options.type = doc.type;
 			sendRecent(client, msg, doc.osuUsername, options);
 		});
 	}
 }
 
-function sendRecent(client, msg, user, options = {}) {	
+function sendRecent(client, msg, user, options = {}) {
 	if (options.type == 0) {
 		if (options.mode == 0) {
 			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
@@ -120,19 +125,19 @@ function sendRecent(client, msg, user, options = {}) {
 		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
 			json: true
 		}, (err, res, bodyInfo) => {
-		request(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax}`, {
-			json: true
-		}, (err, res, body) => {
-			body = akatsukiData.recentData(body, bodyInfo, options.previous);
-			exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout) => {
-				var ojsama = stdout.replace('\n', '').split('$');
-				body.pp = ojsama[0];
-				body.calculated_difficulty = ojsama[1];
-				body.max_map_combo = ojsama[2];
-				generateRecent(client, msg, body);
+			request(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax}`, {
+				json: true
+			}, (err, res, body) => {
+				body = akatsukiData.recentData(body, bodyInfo, options.previous);
+				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout) => {
+					var ojsama = stdout.replace('\n', '').split('$');
+					body.pp = ojsama[0];
+					body.calculated_difficulty = ojsama[1];
+					body.max_map_combo = ojsama[2];
+					generateRecent(client, msg, body);
+				});
 			});
-		})
-	});
+		});
 	}
 
 
@@ -195,7 +200,7 @@ function generateRecent(client, msg, body) {
 	msg.channel.send({
 		embed
 	});
-	
+
 	console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 
 }

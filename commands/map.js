@@ -31,7 +31,6 @@ function search(msg, args) {
 		},
 		json: true
 	}, (err, res, body) => {
-		console.log(body);
 		if (body.length == 0) {
 			error.log(msg, 4042);
 			return;

@@ -44,13 +44,14 @@ function osu(msg, args) {
 				error.log(msg, 4046);
 				return;
 			}
-			requestData(msg, doc.osuUsername, {type: doc.type});
+			options.type = doc.type;
+			requestData(msg, doc.osuUsername, options);
 		});
 	}
 }
 
 function requestData(msg, id, options) {
-	options.type = options.type ? options.type : 0; 
+	options.type = options.type ? options.type : 0;
 	if (options.type == 0) {
 		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
 			json: true
@@ -68,11 +69,11 @@ function requestData(msg, id, options) {
 			});
 		});
 	} else if (options.type == 2) {
-		request(`https://akatsuki.pw/api/v1/users/full?name=${id}`, {
+		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 			json: true
 		}, (err, res, body) => {
 			generateUser(msg, 2, [akatsukiData.userData(body)]);
-		})
+		});
 	}
 }
 
@@ -99,7 +100,7 @@ async function generateUser(msg, type, body) {
 	if (type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`;
 	} else if (type == 2) {
-		userPictureUrl = `https://a.akatsuki.pw/${body[0].user_id}?${Date.now().toString()}`
+		userPictureUrl = `https://a.akatsuki.pw/${body[0].user_id}?${Date.now().toString()}`;
 	}
 	var userPicture;
 	try {
@@ -109,21 +110,24 @@ async function generateUser(msg, type, body) {
 	}
 	format.rect(ctx, 30, 30, 280, 280, 47);
 	ctx.clip();
-	console.log(userPicture.height);
 
 	var scale = Math.max(280 / userPicture.width, 280 / userPicture.height);
-    var x = 170 - (userPicture.width / 2) * scale;
-    var y = 170 - (userPicture.height / 2) * scale;
-    ctx.drawImage(userPicture, x, y, userPicture.width * scale, userPicture.height * scale);
+	var x = 170 - (userPicture.width / 2) * scale;
+	var y = 170 - (userPicture.height / 2) * scale;
+	ctx.drawImage(userPicture, x, y, userPicture.width * scale, userPicture.height * scale);
 	ctx.restore();
 
 	ctx.fillStyle = '#ffffff';
 	ctx.font = '51px segoeUIBold';
 	ctx.fillText(body[0].username, 330, 95);
 
+
+
 	ctx.font = '40px segoeUI';
 	let country = countryCodes[body[0].country];
-	ctx.fillText(country, 330, 140);
+	var flag = await Canvas.loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
+	ctx.drawImage(flag, 330, 107, 60, 40);
+	ctx.fillText(country, 400, 140);
 
 	var gradeA = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_a.png'));
 	var gradeS = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_s.png'));

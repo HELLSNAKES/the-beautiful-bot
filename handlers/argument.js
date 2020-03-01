@@ -13,23 +13,29 @@ function parse(msg, args) {
 			options.previous = parseInt(args[i + 1]);
 			options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
 			args.splice(i, 2);
+			i = -1;
 		} else if (args[i] == '-m') {
 			options.mode = parseInt(args[i + 1]);
 			options.mode = (typeof options.mode !== 'undefined') ? options.mode : 0;
 			args.splice(i, 2);
+			i = -1;
 		} else if (args[i] == '-t') {
 			options.type = parseInt(args[i + 1]);
 			options.type = (typeof options.type !== 'undefined') ? options.type : 0;
 			args.splice(i, 2);
+			i = -1;
 		} else if (args[i] == '-c') {
 			options.count = parseInt(args[i + 1]);
 			options.count = (typeof options.count !== 'undefined') ? options.count : 0;
 			args.splice(i, 2);
+			i = -1;
 		} else if (args[i] == '-rx') {
 			options.relax = 1;
 			args.splice(i, 1);
-			i = -1
+			i = -1;
+
 		}
+
 	}
 
 	if ((0 > options.previous || options.previous > 49 || isNaN(options.previous)) ||

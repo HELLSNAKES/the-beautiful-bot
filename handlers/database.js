@@ -26,7 +26,7 @@ function read(findObject, callback) {
 				return;
 			}
 			console.log(`READ : ${docs[0]._id}`);
-			callback(docs[0]);
+			callback(docs[0], docs);
 		});
 		client.close();
 	});

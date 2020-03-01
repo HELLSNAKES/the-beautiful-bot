@@ -2,21 +2,30 @@
 
 The beautiful bot's Changelog :)
 
-## 1.3.5 24-02-2020
+## 1.3.2 01-03-2020
 
 ### Added
  - A new hyperlink to the TBB stats page when you use $rs
- - Akatsuki partial support ($rs, $best)
+ - Akatsuki partial support ($rs, $best, $osu)
+ - Support for selecting a user in $c other than themselves e.g. $compare Vaxei or $ compare @Moorad
+ - Flags in $osu
 
 ## Changed
- - Profile picture rendering in $osu has changed so that it supports non-square images
- - help command
+ - Profile picture rendering in $osu supports non-square images
+ - Updated $help
+ - Redesigned $rs
+ - Added akatsuki ping latency to $ping
+ - Added number of servers and users to $ping
+ - slightly modified the game activity messages
+ 
+### Fixed
+ - Bot not reponding if a user typed `$rs` and the user is not found
+
 
 ## 1.3.1 - 10-02-2020
 
 ### Added
 - New activity message that will show the number of servers that the bot is in
-
 
 ### Changed
 - The activity messages now change every 2.5 min rather than 5 min
@@ -61,5 +70,4 @@ The beautiful bot's Changelog :)
 - The last star in beatmap cards was slightly oversized
 - Discord caching embed images
 - $changelog not showing up due to the character count exceeding the 2048 character limit
-
 - The command $osurename ($osuset now is able to add a user and change the account linked)

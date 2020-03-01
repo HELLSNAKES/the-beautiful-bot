@@ -18,7 +18,7 @@ setInterval(function () {
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-let messages = ['osu! | $help', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I\'m in a total of ${client.guilds.size} servers`];
+let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I\'m in a total of ${client.guilds.size} servers`];
 	let counter = 0;
 	client.user.setActivity(messages[counter], {
 		type: 'playing'
@@ -26,7 +26,7 @@ let messages = ['osu! | $help', 'https://github.com/moorad/the-beautiful-bot', '
 	counter = (counter + 1) % messages.length;
 	setInterval(() => {
 		messages[3] = `I\'m in a total of ${client.guilds.size} servers`;
-		client.user.setActivity(messages[counter], {
+		client.user.setActivity('$help | '+messages[counter], {
 				type: 'playing'
 			})
 			.then(console.log('CHANGED PLAYING'));
@@ -73,7 +73,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'cl' || cmd == 'changelog') {
 		require('./commands/changelog').changelog(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
-		require('./commands/compare').compare(client, msg);
+		require('./commands/compare').compare(client, msg, args);
 	} else if (cmd === 'cat') {
 		require('./commands/cat').cat(msg);
 	} else if (cmd == 'leaderboard' || cmd == 'lb') {
