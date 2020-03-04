@@ -2,6 +2,18 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.3 04-03-2020
+
+### Added 
+ - Replay download link if available when using $c
+ - Direct, bloodcat and TBB stats buttons change depending on the rank achieved
+
+### Changed
+ - Updated the design of $best
+
+### Fixed
+ - Showing undefined calculated diffiulty when using $compare	
+
 ## 1.3.2 01-03-2020
 
 ### Added

@@ -4,6 +4,10 @@ const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
 const argument = require('../handlers/argument');
 const error = require('../handlers/error');
+const {
+	exec
+} = require('child_process');
+const mods = require('../handlers/mods');
 
 function compare(client, msg, args) {
 	getMaps.getMaps(client, msg, function (msg, client, url) {
@@ -37,7 +41,6 @@ function compare(client, msg, args) {
 			});
 		}
 	});
-
 }
 
 function sendCompareEmbed(client, msg, url, user, options) {
@@ -48,25 +51,29 @@ function sendCompareEmbed(client, msg, url, user, options) {
 			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${url.slice(url.indexOf('#osu/')+5)}`, {
 				json: true
 			}, (err, res, beatmapData) => {
-				body = {
-					...body[0],
-					...beatmapData[0]
-				};
-				if (body.pp == null) {
-					body.pp = 0;
-				}
+				body[0].accuracy = Math.floor((50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss))) * 10000) / 100;
+				exec(`curl -s https://osu.ppy.sh/osu/${beatmapData[0].beatmap_id} | node handlers/pp.js +${mods.toString(body[0].enabled_mods)} ${body[0].accuracy}% ${body[0].maxcombo}x ${body[0].countmiss}m`, (err, stdout) => {
+					if (err) console.log(err);
+					var ojsama = stdout.replace('\n', '').split('$');
+					body[0].calculated_difficulty = ojsama[1];
+					body = {
+						...body[0],
+						...beatmapData[0]
+					};
 
-				if (body.user_id == undefined) {
-					msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
-					return;
-				}
-				body.accuracy = Math.floor((50 * parseInt(body.count50) + 100 * parseInt(body.count100) + 300 * parseInt(body.count300)) / (300 * (parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss))) * 10000) / 100;
-				recent.generateRecent(client, msg, body);
-				console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
+					if (body.pp == null) {
+						body.pp = 0;
+					}
 
+					if (body.user_id == undefined) {
+						msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
+						return;
+					}
 
+					recent.generateRecent(client, msg, body);
+					console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
+				});
 			});
-
 		});
 	} else {
 		msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
