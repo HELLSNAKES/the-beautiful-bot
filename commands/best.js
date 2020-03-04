@@ -63,6 +63,7 @@ function sendRequest(client, msg, user, options) {
 }
 
 function sendBest(client, msg, user, body, type) {
+	console.log(body)
 	if (body.length == 0) {
 		error.log(msg, 4041);
 		return;
@@ -85,17 +86,13 @@ function sendBest(client, msg, user, body, type) {
 	const embed = {
 		'title': '',
 		'author': {
-			'name': `Here are the top 5 plays for ${user}`,
+			'name': `${user}'s Top 5 best plays:`,
 			'url': userUrl
 		},
 		'description': '',
 		'color': 3066993,
 		'thumbnail': {
 			'url': userPictureUrl
-		},
-		'footer': {
-			'icon_url': 'https://i.imgur.com/34evAhO.png',
-			'text': 'Always Remember, The beautiful bot loves you <3'
 		}
 	};
 
@@ -110,7 +107,7 @@ function sendBest(client, msg, user, body, type) {
 			var pp = Math.floor(body[index].pp * 100) / 100;
 			var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
 
-			playString.push(`__**[${beatmapData[0].title} [${beatmapData[0].version} - ${Math.floor(beatmapData[0].difficultyrating * 100) /100}★] +${mods.toString(body[index].enabled_mods)}](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`})**__\n${grade} - **${pp}pp** - ${accuracy}%\nCombo: **x${format.number(body[index].maxcombo)}/x${format.number(beatmapData[0].max_combo)}** Score: **${format.number(body[index].score)}**\n[${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}] 	Achieved: **${format.time(Date.parse(body[index].date))}**\n`);
+			playString.push(`**[- ${beatmapData[0].title} [${beatmapData[0].version}]](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`}) +${mods.toString(body[index].enabled_mods)}**\n| ${grade} - **${pp}pp** - ${accuracy}% - [${Math.floor(beatmapData[0].difficultyrating * 100) /100}★]\n| (**${format.number(body[index].maxcombo)}x**/**${format.number(beatmapData[0].max_combo)}x**) - **${format.number(body[index].score)}** - [${body[index].count300}/${body[index].count100}/${body[index].count50}/${body[index].countmiss}]\n| Achieved: **${format.time(Date.parse(body[index].date))}**\n`);
 			playpp.push(pp);
 		}));
 	}

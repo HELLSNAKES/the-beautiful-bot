@@ -4,7 +4,9 @@ const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
 const argument = require('../handlers/argument');
 const error = require('../handlers/error');
-const { exec } = require('child_process');
+const {
+	exec
+} = require('child_process');
 const mods = require('../handlers/mods');
 
 function compare(client, msg, args) {
@@ -39,7 +41,6 @@ function compare(client, msg, args) {
 			});
 		}
 	});
-
 }
 
 function sendCompareEmbed(client, msg, url, user, options) {

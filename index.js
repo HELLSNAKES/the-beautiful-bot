@@ -37,7 +37,6 @@ let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL.
 
 
 client.on('message', async msg => {
-	msg.content = msg.content.toLowerCase();
 	if (msg.author.bot) return;
 	if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
 	
@@ -53,7 +52,7 @@ client.on('message', async msg => {
 
 	if (!msg.content.startsWith(prefix)) return;
 	var args = msg.content.slice(prefix.length).trim().split(' ');
-	var cmd = args.shift();
+	var cmd = args.shift().toLowerCase();
 
 
 	if (cmd === 'ping') {
