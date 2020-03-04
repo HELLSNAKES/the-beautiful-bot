@@ -2,6 +2,8 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.3 04-03-2020
+
 ## 1.3.2 01-03-2020
 
 ### Added
