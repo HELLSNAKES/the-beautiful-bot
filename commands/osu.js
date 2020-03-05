@@ -17,7 +17,7 @@ Canvas.registerFont('assets/SegoeUI.ttf', {
 Canvas.registerFont('assets/SegoeUIBold.ttf', {
 	family: 'segoeUIBold'
 });
-
+var time = Date.now();
 
 function osu(msg, args) {
 	var options = argument.parse(msg, args);
@@ -192,7 +192,7 @@ async function generateUser(msg, type, body) {
 
 	const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 	msg.channel.send(attachment);
-	console.log(`GENERATED USER CARD : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
+	console.log(`GENERATED USER CARD : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id} : ${Date.now() - time}ms`);
 }
 
 

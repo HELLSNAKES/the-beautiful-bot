@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "nodemon": "nodemon index.js",
-    "start": "node index.js"
+	"start": "node index.js",
+	"test": "node index.js test"
   },
   "author": "",
   "license": "ISC",
@@ -18,7 +19,8 @@
     "node-vibrant": "^3.1.5",
     "ojsama": "^1.2.5",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.8"
+    "request-promise-native": "^1.0.8",
+    "sharp": "^0.24.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",

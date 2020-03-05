@@ -48,7 +48,7 @@ client.on('message', async msg => {
 		require('./commands/WIP').beatmapCardFromLink(msg);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
 		require('./commands/osu').generateUser(msg, msg.content.replace('https://osu.ppy.sh/users/', ''));
-	}
+	} 
 
 	if (!msg.content.startsWith(prefix)) return;
 	var args = msg.content.slice(prefix.length).trim().split(' ');
@@ -79,6 +79,8 @@ client.on('message', async msg => {
 		require('./commands/leaderboard').leaderboard(client, msg, args);
 	} else if (cmd == 'pp') {
 		require('./commands/pp').pp(client, msg, args.join(' '));
+	} else if (cmd == 'sharp') {
+		require('./commands/sharp').send(msg);
 	}
 });
 
