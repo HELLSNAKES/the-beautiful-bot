@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1345" height="747" viewBox="0 0 1345 747">
+  <defs>
+    <pattern id="pattern" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" viewBox="0 0 1800 500">
+      <image width="1800" height="500" xlink:href="Group%2010-image.jpg"/>
+    </pattern>
+    <filter id="NoPath_-_Copy" x="0" y="0" width="1345" height="417" filterUnits="userSpaceOnUse">
+      <feOffset dy="6" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feFlood flood-opacity="0.322"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <pattern id="pattern-2" preserveAspectRatio="none" width="100%" height="100%" viewBox="0 0 256 256">
+      <image width="256" height="256" xlink:href="Group%2010-image3.jpg"/>
+    </pattern>
+    <image id="image" width="58.17" height="58.17" xlink:href="Group%2010-image2.png"/>
+  </defs>
+  <g id="Group_10" data-name="Group 10" transform="translate(-288 -155)">
+    <rect id="Rectangle_51" data-name="Rectangle 51" width="1285" height="723" rx="41" transform="translate(318 179)" fill="#33343b"/>
+    <g transform="matrix(1, 0, 0, 1, 288, 155)" filter="url(#NoPath_-_Copy)">
+      <rect id="NoPath_-_Copy-2" data-name="NoPath - Copy" width="1285" height="357" rx="45" transform="translate(30 24)" fill="url(#pattern)"/>
+    </g>
+    <path id="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(346.449 667.931)" fill="#fd7735"/>
+    <text id="Ashes_of_the_Dawn" data-name="Ashes of the Dawn" transform="translate(366.908 604.7)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="51" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">Ashes of the Dawn</tspan></text>
+    <text id="DragonForce_R3_Music_Box" data-name="DragonForce / R3 Music Box" transform="translate(367 651)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">DragonForce / R3 Music Box</tspan></text>
+    <g id="Rectangle_31" data-name="Rectangle 31" transform="translate(422.557 722.586)" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0)" stroke-width="1">
+      <rect width="338.41" height="14.543" rx="7.272" stroke="none"/>
+      <rect x="0.5" y="0.5" width="337.41" height="13.543" rx="6.772" fill="none"/>
+    </g>
+    <rect id="Rectangle_32" data-name="Rectangle 32" width="338.41" height="14.543" rx="7.272" transform="translate(422.557 764.241)" fill="rgba(255,255,255,0.1)"/>
+    <rect id="Rectangle_33" data-name="Rectangle 33" width="338.41" height="14.543" rx="7.272" transform="translate(422.557 806.235)" fill="rgba(255,255,255,0.1)"/>
+    <rect id="Rectangle_34" data-name="Rectangle 34" width="338.41" height="14.543" rx="7.272" transform="translate(422.626 843.229)" fill="rgba(255,255,255,0.1)"/>
+    <rect id="Rectangle_35" data-name="Rectangle 35" width="78.17" height="14.543" rx="7.272" transform="translate(422.557 722.586)" fill="#fd7735"/>
+    <rect id="Rectangle_36" data-name="Rectangle 36" width="271.2" height="14.543" rx="7.272" transform="translate(422.557 764.241)" fill="#fd7735"/>
+    <rect id="Rectangle_37" data-name="Rectangle 37" width="235.245" height="14.543" rx="7.272" transform="translate(422.557 806.235)" fill="#fd7735"/>
+    <rect id="Rectangle_38" data-name="Rectangle 38" width="271.727" height="14.543" rx="7.272" transform="translate(422.626 843.229)" fill="#fd7735"/>
+    <path id="star-solid-2" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(386.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-3" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(426.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-4" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(466.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-5" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(506.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-6" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(546.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-7" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(586.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-8" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(626.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-9" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(666.449 667.931)" fill="#fd7735"/>
+    <path id="star-solid-10" data-name="star-solid" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(706.449 667.931)" fill="#fd7735"/>
+    <text id="_5.8" data-name="5.8" transform="translate(782 697)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">5.8</tspan></text>
+    <text id="AR" transform="translate(365 781)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">AR</tspan></text>
+    <text id="HP" transform="translate(365 821)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">HP</tspan></text>
+    <text id="OD" transform="translate(363 861)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">OD</tspan></text>
+    <text id="CS" transform="translate(367 738)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">CS</tspan></text>
+    <text id="_4" data-name="4" transform="translate(782 741)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">4</tspan></text>
+    <text id="_9.3" data-name="9.3" transform="translate(782 783)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">9.3</tspan></text>
+    <text id="_5" data-name="5" transform="translate(782 824)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">5</tspan></text>
+    <text id="_8.6" data-name="8.6" transform="translate(782 860)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">8.6</tspan></text>
+    <g id="Rectangle_52" data-name="Rectangle 52" transform="translate(342 203)" fill="rgba(0,0,0,0.65)" stroke="#fd7735" stroke-width="3">
+      <rect width="202" height="55" rx="27.5" stroke="none"/>
+      <rect x="1.5" y="1.5" width="199" height="52" rx="26" fill="none"/>
+    </g>
+    <text id="Graveyard" transform="translate(443 239)" fill="#fff" font-size="25" font-family="Rubik-Regular, Rubik"><tspan x="-58.737" y="0">Graveyard</tspan></text>
+    <text id="The_Times_Has_Come_For_Me" data-name="The Times Has Come For Me" transform="translate(1061 711)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">The Times Has Come For Me</tspan></text>
+    <use id="_483759703512580128" data-name="483759703512580128" transform="translate(1061.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-2" data-name="483759703512580128" transform="translate(1125.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-3" data-name="483759703512580128" transform="translate(1189.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-4" data-name="483759703512580128" transform="translate(1253.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-5" data-name="483759703512580128" transform="translate(1317.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-6" data-name="483759703512580128" transform="translate(1381.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-7" data-name="483759703512580128" transform="translate(1445.4 724.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-8" data-name="483759703512580128" transform="translate(1509.4 724.768)" xlink:href="#image"/>
+    <text id="_0:43" data-name="0:43" transform="translate(963.015 635.626)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="30" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">0:43</tspan></text>
+    <text id="_180_bpm" data-name="180 bpm" transform="translate(1177 631)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">180 bpm</tspan></text>
+    <path id="clock-solid" d="M30.494,8A22.495,22.495,0,1,0,52.989,30.495,22.491,22.491,0,0,0,30.494,8Zm5.179,31.755-8-5.814a1.1,1.1,0,0,1-.444-.88V17.8a1.092,1.092,0,0,1,1.088-1.088h4.354A1.092,1.092,0,0,1,33.76,17.8v12.49l5.76,4.191A1.088,1.088,0,0,1,39.755,36L37.2,39.52a1.1,1.1,0,0,1-1.524.236Z" transform="translate(882.835 595.458)" fill="#fd7735"/>
+    <path id="drum-solid" d="M40.364,40.427l6.881-4.437a1.5,1.5,0,0,0,.415-2.076l-.83-1.246a1.5,1.5,0,0,0-2.076-.415L34.454,38.9a64.844,64.844,0,0,0-10.5-.907C20.545,37.99,0,38.416,0,48.484V63.478c0,2.833,2.573,5.4,6.738,7.286V61.229a2.246,2.246,0,1,1,4.492,0V72.358A47,47,0,0,0,21.71,73.924v-9.7a2.246,2.246,0,0,1,4.492,0v9.7a47,47,0,0,0,10.481-1.566V61.229a2.246,2.246,0,1,1,4.492,0v9.536c4.164-1.888,6.738-4.453,6.738-7.286V48.484C47.912,44.431,44.565,41.957,40.364,40.427ZM23.956,54.482c-10.75,0-19.464-2.685-19.464-6s8.714-6,19.464-6c1.6,0,3.156.066,4.649.179l-6.813,4.4a1.5,1.5,0,0,0-.415,2.076l.83,1.246a1.5,1.5,0,0,0,2.076.415l11.1-7.161c4.861,1.086,8.035,2.849,8.035,4.843C43.42,51.8,34.705,54.482,23.956,54.482Z" transform="translate(1103.835 569.043)" fill="#fd7735"/>
+    <path id="times-solid" d="M22.871,96.584l9.43-9.43a2.964,2.964,0,0,0,0-4.191l-2.1-2.1a2.964,2.964,0,0,0-4.191,0l-9.43,9.43-9.43-9.43a2.964,2.964,0,0,0-4.191,0l-2.1,2.1a2.964,2.964,0,0,0,0,4.191l9.43,9.43-9.43,9.429a2.964,2.964,0,0,0,0,4.191l2.1,2.1a2.964,2.964,0,0,0,4.191,0l9.43-9.43,9.43,9.43a2.964,2.964,0,0,0,4.191,0l2.1-2.1a2.964,2.964,0,0,0,0-4.191Z" transform="translate(1379.213 524.68)" fill="#fd7735"/>
+    <text id="_1020x" data-name="1020x" transform="translate(1445 631)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="32" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">1020x</tspan></text>
+    <use id="_483759703512580128-9" data-name="483759703512580128" transform="translate(1061.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-10" data-name="483759703512580128" transform="translate(1125.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-11" data-name="483759703512580128" transform="translate(1189.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-12" data-name="483759703512580128" transform="translate(1253.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-13" data-name="483759703512580128" transform="translate(1317.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-14" data-name="483759703512580128" transform="translate(1381.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-15" data-name="483759703512580128" transform="translate(1445.4 792.768)" xlink:href="#image"/>
+    <use id="_483759703512580128-16" data-name="483759703512580128" transform="translate(1509.4 792.768)" xlink:href="#image"/>
+    <rect id="NoPath_-_Copy_2_" data-name="NoPath - Copy (2)" width="108" height="108" rx="16" transform="translate(887 706)" fill="url(#pattern-2)"/>
+    <text id="by_Ekoro" data-name="by Ekoro" transform="translate(941 861)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="-63.844" y="0">by Ekoro</tspan></text>
+  </g>
+</svg>
