@@ -68,26 +68,49 @@ function search(msg, args) {
 
 
 function generateBeatmap(msg, data) {
-    var beatmapSVG = fs.readFileSync(path.resolve(__dirname, '../assets/beatmap.svg'),{encoding:'utf-8'});
-    var url = `https://assets.ppy.sh/beatmaps/${data.id}/covers/cover@2x.jpg`;
-    request(url).pipe(fs.createWriteStream('./assets/cover.jpg')).on('finish', () => {
-		var image = fs.readFileSync('./assets/cover.jpg');
-		console.log();
-    //     console.log(path.resolve(__dirname, '../assets/beatmap.svg'))
-        colours.getColours(url, async function (coloursExtracted) {	
-                coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
-                coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
-                coloursExtracted.background = colours.toHex(coloursExtracted.background);
-        beatmapSVG = beatmapSVG.replace('Beatmap Name', data.title.replace(/&/gi,'&amp;'))
-        beatmapSVG = beatmapSVG.replace(' <rect id="Rectangle_51" data-name="Rectangle 51" width="1285" height="723" rx="41" transform="translate(318 179)" fill="#33343b"/>',` <rect id="Rectangle_51" data-name="Rectangle 51" width="1285" height="723" rx="41" transform="translate(318 179)" fill="${coloursExtracted.background}"/>`)
-	   beatmapSVG = beatmapSVG.replace('image-url','data:image/jpeg;base64,'+Buffer.from(image).toString('base64'))
-		fs.writeFileSync(path.resolve(__dirname, '../assets/generatedBeatmap.svg'),beatmapSVG);
-        sharp(Buffer.from(beatmapSVG)).resize(720).png().toBuffer().then((data) => {
-            const attachment = new Discord.Attachment(data, 'user_stats.png');
-            msg.channel.send(attachment)
-        })
-    });
-    })
+	console.log(data)
+	var beatmapSVG = fs.readFileSync(path.resolve(__dirname, '../assets/beatmap.svg'), {
+		encoding: 'utf-8'
+	});
+	var url = `https://assets.ppy.sh/beatmaps/${data.id}/covers/cover@2x.jpg`;
+	console.log(data.user_id)
+	request(url).pipe(fs.createWriteStream('./assets/cover.jpg')).on('finish', () => {
+		request(`https://a.ppy.sh/${data.user_id}`).pipe(fs.createWriteStream('./assets/mapper.jpeg')).on('finish', () => {
+			var image = fs.readFileSync('./assets/cover.jpg');
+			var mapper = fs.readFileSync('./assets/mapper.jpeg');
+			console.log(image);
+			//     console.log(path.resolve(__dirname, '../assets/beatmap.svg'))
+			colours.getColours(url, async function (coloursExtracted) {
+				coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
+				coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
+				coloursExtracted.background = colours.toHex(coloursExtracted.background);
+				
+				beatmapSVG = beatmapSVG.replace('Beatmap Name', data.title.replace(/&/gi, '&amp;'));
+				beatmapSVG = beatmapSVG.replace('id="map-title" fill="#fd7735" stroke="#fd7735"',`iid="map-title" fill="${coloursExtracted.foreground}" stroke="${coloursExtracted.foreground}"`);
+				
+				beatmapSVG = beatmapSVG.replace('Artist Name', data.artist.replace(/&/gi, '&amp;'))
+				beatmapSVG = beatmapSVG.replace('id="artist-name" fill="#fd7735" stroke="#fd7735"', `id="artist-name" fill="${coloursExtracted.foreground}" stroke="${coloursExtracted.foreground}"`);
+
+				for (var i = 0;i < 10;i++) {
+					beatmapSVG = beatmapSVG.replace(`id="star-${i+1}" fill="#fd7735"`, `id="star-${i+1}" fill="${coloursExtracted.foreground}"`);
+				}
+
+				for (var i = 0; i < 4; i++) {
+					beatmapSVG = beatmapSVG.replace('id="bar-label" fill="#fd7735"',`id="bar-label" fill="${coloursExtracted.foreground}"`) 
+					beatmapSVG = beatmapSVG.replace(`id="bar-background-${i}" fill="rgba(255,255,255,0.1)"`,`id="bar-background-2" fill="${coloursExtracted.foreground}33"`)
+				}
+					
+				beatmapSVG = beatmapSVG.replace('id="background" fill="#33343b"', `id="background" fill="${coloursExtracted.background}"/>`)
+				beatmapSVG = beatmapSVG.replace('image-url', 'data:image/jpeg;base64,' + Buffer.from(image).toString('base64'))
+				beatmapSVG = beatmapSVG.replace('mapper-img', 'data:image/jpeg;base64,' + Buffer.from(mapper).toString('base64'))
+				fs.writeFileSync(path.resolve(__dirname, '../assets/generatedBeatmap.svg'), beatmapSVG);
+				sharp(Buffer.from(beatmapSVG)).resize(720).png().toBuffer().then((data) => {
+					const attachment = new Discord.Attachment(data, 'user_stats.png');
+					msg.channel.send(attachment)
+				})
+			})
+		});
+	})
 	// // init the canvas
 	// var canvas = Canvas.createCanvas(1380, 745);
 	// var ctx = canvas.getContext('2d');

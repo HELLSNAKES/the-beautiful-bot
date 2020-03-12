@@ -13,6 +13,7 @@ const format = require('../handlers/format');
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
 });
+const map = require('./map');
 
 function beatmapCardFromLink(msg) {
 	var beatmapsetid = msg.content.match(/osu.ppy.sh\S+/g)[0];
@@ -42,9 +43,9 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 		data.difficulties = difficulties;
 		data.url = 'https://osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid;
 		console.log(`BEATMAP DATA : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`);
-
+		data.id = data.beatmapset_id
 		if (msg) {
-			createBeatmapCard(msg, data);
+			map.generateBeatmap(msg,data)
 		} else {
 			return (data);
 		}
@@ -52,7 +53,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 	});
 }
 
-async function createBeatmapCard(msg, data) {
+async function createBeatmapCard_old(msg, data) {
 	// init the canvas
 	var canvas = Canvas.createCanvas(1380, 745);
 	var ctx = canvas.getContext('2d');
