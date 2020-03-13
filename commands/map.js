@@ -75,9 +75,9 @@ function generateBeatmap(msg, data) {
 	var url = `https://assets.ppy.sh/beatmaps/${data.id}/covers/cover@2x.jpg`;
 	console.log(data.user_id)
 	request(url).pipe(fs.createWriteStream('./assets/cover.jpg')).on('finish', () => {
-		request(`https://a.ppy.sh/${data.user_id}`).pipe(fs.createWriteStream('./assets/mapper.jpeg')).on('finish', () => {
+		request(`https://a.ppy.sh/${data.user_id}?1583637665.jpeg`).pipe(fs.createWriteStream('./assets/mapper.jpg')).on('finish', () => {
 			var image = fs.readFileSync('./assets/cover.jpg');
-			var mapper = fs.readFileSync('./assets/mapper.jpeg');
+			var mapper = fs.readFileSync('./assets/mapper.jpg');
 			console.log(image);
 			//     console.log(path.resolve(__dirname, '../assets/beatmap.svg'))
 			colours.getColours(url, async function (coloursExtracted) {
@@ -96,15 +96,17 @@ function generateBeatmap(msg, data) {
 				}
 
 				for (var i = 0; i < 4; i++) {
-					beatmapSVG = beatmapSVG.replace('id="bar-label" fill="#fd7735"',`id="bar-label" fill="${coloursExtracted.foreground}"`) 
-					beatmapSVG = beatmapSVG.replace(`id="bar-background-${i}" fill="rgba(255,255,255,0.1)"`,`id="bar-background-2" fill="${coloursExtracted.foreground}33"`)
+					beatmapSVG = beatmapSVG.replace(`id="bar-foreground-${i}" fill="#fd7735"`,`id="bar-foreground-${i}" fill="${coloursExtracted.foreground}"`) 
+					beatmapSVG = beatmapSVG.replace(`id="bar-background-${i}" fill="rgba(255,255,255,0.1)"`,`id="bar-background-${i}" fill="${coloursExtracted.foreground}33"`)
 				}
 					
 				beatmapSVG = beatmapSVG.replace('id="background" fill="#33343b"', `id="background" fill="${coloursExtracted.background}"/>`)
+				beatmapSVG = beatmapSVG.replace(`id="star-value" fill="#fd7735" stroke="#fd7735"><tspan x="0" y="0">5.8`, `fid="star-value" fill="${coloursExtracted.foreground}" stroke="${coloursExtracted.foreground}"><tspan x="0" y="0">${Math.floor(data.difficultyrating * 10) / 10}`)
+				beatmapSVG = beatmapSVG.replace(`id="creator-name" fill="#fd7735" stroke="#fd7735"><tspan x="-63.844" y="0">Creator`,`id="creator-name" fill="${coloursExtracted.foreground}" stroke="${coloursExtracted.foreground}"><tspan x="-63.844" y="0">${data.creator}`)
 				beatmapSVG = beatmapSVG.replace('image-url', 'data:image/jpeg;base64,' + Buffer.from(image).toString('base64'))
 				beatmapSVG = beatmapSVG.replace('mapper-img', 'data:image/jpeg;base64,' + Buffer.from(mapper).toString('base64'))
 				fs.writeFileSync(path.resolve(__dirname, '../assets/generatedBeatmap.svg'), beatmapSVG);
-				sharp(Buffer.from(beatmapSVG)).resize(720).png().toBuffer().then((data) => {
+				sharp(Buffer.from(beatmapSVG)).resize(1080).png().toBuffer().then((data) => {
 					const attachment = new Discord.Attachment(data, 'user_stats.png');
 					msg.channel.send(attachment)
 				})

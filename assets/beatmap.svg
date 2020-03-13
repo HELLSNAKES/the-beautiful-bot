@@ -1,10 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1345" height="747" viewBox="0 0 1345 747">
   <defs>
 	<style type="text/css">
-		@font-face {
-		font-family: Rubik-Medium;
-		src: url('./Rubik-Bold.tff');
-		}
+		<![CDATA[
+        @font-face {
+          font-family: Rubik;
+          src: url('Rubik-Bold.tff');
+        }
+      ]]>
 	</style>
     <pattern id="pattern" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" viewBox="0 0 1800 500">
       <image width="1800" height="500" xlink:href="image-url"/>
@@ -26,19 +28,19 @@
     <g transform="matrix(1, 0, 0, 1, 288, 155)" filter="url(#map-img)">
       <rect id="map-img-2" data-name="map-img" width="1285" height="357" rx="45" transform="translate(30 24)" fill="url(#pattern)"/>
     </g>
-    <text transform="translate(366.908 604.7)" id="map-title" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="51" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">Beatmap Name</tspan></text>
-    <text transform="translate(367 651)" id="artist-name" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">Artist Name</tspan></text>
+    <text transform="translate(366.908 604.7)" id="map-title" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="51" font-family="Rubik" font-weight="500"><tspan x="0" y="0">Beatmap Name</tspan></text>
+    <text transform="translate(367 651)" id="artist-name" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik" font-weight="500"><tspan x="0" y="0">Artist Name</tspan></text>
     <g transform="translate(422.557 722.586)" id="bar-background-0" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0)" stroke-width="1">
       <rect width="338.41" height="14.543" rx="7.272" stroke="none"/>
       <rect x="0.5" y="0.5" width="337.41" height="13.543" rx="6.772" fill="none"/>
     </g>
-    <rect data-name="bar-background" width="338.41" height="14.543" rx="7.272" transform="translate(422.557 764.241)" id="bar-background-2" fill="rgba(255,255,255,0.1)"/>
-    <rect data-name="bar-background" width="338.41" height="14.543" rx="7.272" transform="translate(422.557 806.235)" id="bar-background-3" fill="rgba(255,255,255,0.1)"/>
-    <rect data-name="bar-background" width="338.41" height="14.543" rx="7.272" transform="translate(422.626 843.229)" id="bar-background-4" fill="rgba(255,255,255,0.1)"/>
-    <rect width="78.17" height="14.543" rx="7.272" transform="translate(422.557 722.586)" id="bar-label" fill="#fd7735"/>
-    <rect width="271.2" height="14.543" rx="7.272" transform="translate(422.557 764.241)" id="bar-label" fill="#fd7735"/>
-    <rect width="235.245" height="14.543" rx="7.272" transform="translate(422.557 806.235)" id="bar-label" fill="#fd7735"/>
-    <rect width="271.727" height="14.543" rx="7.272" transform="translate(422.626 843.229)" id="bar-label" fill="#fd7735"/>
+    <rect data-name="bar-background" width="338.41" height="14.543" rx="7.272" transform="translate(422.557 764.241)" id="bar-background-1" fill="rgba(255,255,255,0.1)"/>
+    <rect data-name="bar-background" width="338.41" height="14.543" rx="7.272" transform="translate(422.557 806.235)" id="bar-background-2" fill="rgba(255,255,255,0.1)"/>
+    <rect data-name="bar-background" width="338.41" height="14.543" rx="7.272" transform="translate(422.626 843.229)" id="bar-background-3" fill="rgba(255,255,255,0.1)"/>
+    <rect width="78.17" height="14.543" rx="7.272" transform="translate(422.557 722.586)" id="bar-foreground-0" fill="#fd7735"/>
+    <rect width="271.2" height="14.543" rx="7.272" transform="translate(422.557 764.241)" id="bar-foreground-1" fill="#fd7735"/>
+    <rect width="235.245" height="14.543" rx="7.272" transform="translate(422.557 806.235)" id="bar-foreground-2" fill="#fd7735"/>
+    <rect width="271.727" height="14.543" rx="7.272" transform="translate(422.626 843.229)" id="bar-foreground-3" fill="#fd7735"/>
     <g id="star">
       <path id="star-1" fill="#fd7735" data-name="star" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(346.449 667.931)"/>
       <path id="star-2" fill="#fd7735" data-name="star" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(386.449 667.931)"/>
@@ -51,26 +53,26 @@
       <path id="star-9" fill="#fd7735" data-name="star" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(666.449 667.931)"/>
       <path id="star-10" fill="#fd7735" data-name="star" d="M35.614,1.115l-4.133,8.38-9.247,1.348a2.026,2.026,0,0,0-1.12,3.456l6.69,6.519-1.582,9.209a2.024,2.024,0,0,0,2.937,2.133l8.273-4.348L45.7,32.16a2.026,2.026,0,0,0,2.937-2.133l-1.582-9.209,6.69-6.519a2.026,2.026,0,0,0-1.12-3.456L43.38,9.495l-4.133-8.38A2.027,2.027,0,0,0,35.614,1.115Z" transform="translate(706.449 667.931)"/>
     </g>
-    <text id="star-value" transform="translate(782 697)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">5.8</tspan></text>
-    <text id="AR" transform="translate(365 781)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">AR</tspan></text>
-    <text id="HP" transform="translate(365 821)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">HP</tspan></text>
-    <text id="OD" transform="translate(363 861)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">OD</tspan></text>
-    <text id="CS" transform="translate(367 738)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">CS</tspan></text>
-    <text id="cs-value" transform="translate(782 741)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">4</tspan></text>
-    <text id="ar-value" transform="translate(782 783)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">9.3</tspan></text>
-    <text id="hp-value" transform="translate(782 824)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">5</tspan></text>
-    <text id="od-value" transform="translate(782 860)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">8.6</tspan></text>
+    <text transform="translate(782 697)" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500" id="star-value" fill="#fd7735" stroke="#fd7735"><tspan x="0" y="0">5.8</tspan></text>
+    <text transform="translate(365 781)" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500" id="AR-value" fill="#fd7735" stroke="#fd7735"><tspan x="0" y="0">AR</tspan></text>
+    <text id="HP" transform="translate(365 821)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">HP</tspan></text>
+    <text id="OD" transform="translate(363 861)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">OD</tspan></text>
+    <text id="CS" transform="translate(367 738)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">CS</tspan></text>
+    <text id="cs-value" transform="translate(782 741)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">4</tspan></text>
+    <text id="ar-value" transform="translate(782 783)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">9.3</tspan></text>
+    <text id="hp-value" transform="translate(782 824)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">5</tspan></text>
+    <text id="od-value" transform="translate(782 860)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="27" font-family="Rubik" font-weight="500"><tspan x="0" y="0">8.6</tspan></text>
     <g id="status-background" transform="translate(342 203)" fill="rgba(0,0,0,0.65)" stroke="#fd7735" stroke-width="3">
       <rect width="202" height="55" rx="27.5" stroke="none"/>
       <rect x="1.5" y="1.5" width="199" height="52" rx="26" fill="none"/>
     </g>
     <text id="status-title" transform="translate(443 239)" fill="#fff" font-size="25" font-family="Rubik-Regular, Rubik"><tspan x="-58.737" y="0">Graveyard</tspan></text>
-    <text id="difficulty-name" transform="translate(1061 711)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">The Times Has Come For Me</tspan></text>
-    <text id="length" transform="translate(963.015 635.626)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="30" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">0:43</tspan></text>
+    <text id="difficulty-name" transform="translate(1061 711)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik" font-weight="500"><tspan x="0" y="0">The Times Has Come For Me</tspan></text>
+    <text id="length" transform="translate(963.015 635.626)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="30" font-family="Rubik" font-weight="500"><tspan x="0" y="0">0:43</tspan></text>
     <path id="length-icon" d="M30.494,8A22.495,22.495,0,1,0,52.989,30.495,22.491,22.491,0,0,0,30.494,8Zm5.179,31.755-8-5.814a1.1,1.1,0,0,1-.444-.88V17.8a1.092,1.092,0,0,1,1.088-1.088h4.354A1.092,1.092,0,0,1,33.76,17.8v12.49l5.76,4.191A1.088,1.088,0,0,1,39.755,36L37.2,39.52a1.1,1.1,0,0,1-1.524.236Z" transform="translate(882.835 595.458)" fill="#fd7735"/>
-    <text id="bpm" transform="translate(1177 631)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">180 bpm</tspan></text>
+    <text id="bpm" transform="translate(1177 631)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik" font-weight="500"><tspan x="0" y="0">180 bpm</tspan></text>
     <path id="bpm-icon" d="M40.364,40.427l6.881-4.437a1.5,1.5,0,0,0,.415-2.076l-.83-1.246a1.5,1.5,0,0,0-2.076-.415L34.454,38.9a64.844,64.844,0,0,0-10.5-.907C20.545,37.99,0,38.416,0,48.484V63.478c0,2.833,2.573,5.4,6.738,7.286V61.229a2.246,2.246,0,1,1,4.492,0V72.358A47,47,0,0,0,21.71,73.924v-9.7a2.246,2.246,0,0,1,4.492,0v9.7a47,47,0,0,0,10.481-1.566V61.229a2.246,2.246,0,1,1,4.492,0v9.536c4.164-1.888,6.738-4.453,6.738-7.286V48.484C47.912,44.431,44.565,41.957,40.364,40.427ZM23.956,54.482c-10.75,0-19.464-2.685-19.464-6s8.714-6,19.464-6c1.6,0,3.156.066,4.649.179l-6.813,4.4a1.5,1.5,0,0,0-.415,2.076l.83,1.246a1.5,1.5,0,0,0,2.076.415l11.1-7.161c4.861,1.086,8.035,2.849,8.035,4.843C43.42,51.8,34.705,54.482,23.956,54.482Z" transform="translate(1103.835 569.043)" fill="#fd7735"/>
-    <text id="max-combo" transform="translate(1445 631)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="32" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="0" y="0">1020x</tspan></text>
+    <text id="max-combo" transform="translate(1445 631)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="32" font-family="Rubik" font-weight="500"><tspan x="0" y="0">1020x</tspan></text>
     <path id="max-combo-icon" d="M22.871,96.584l9.43-9.43a2.964,2.964,0,0,0,0-4.191l-2.1-2.1a2.964,2.964,0,0,0-4.191,0l-9.43,9.43-9.43-9.43a2.964,2.964,0,0,0-4.191,0l-2.1,2.1a2.964,2.964,0,0,0,0,4.191l9.43,9.43-9.43,9.429a2.964,2.964,0,0,0,0,4.191l2.1,2.1a2.964,2.964,0,0,0,4.191,0l9.43-9.43,9.43,9.43a2.964,2.964,0,0,0,4.191,0l2.1-2.1a2.964,2.964,0,0,0,0-4.191Z" transform="translate(1379.213 524.68)" fill="#fd7735"/>
     <g id="difficulty">
       <use id="difficulty-2" data-name="difficulty" transform="translate(1061.4 724.768)" xlink:href="#image"/>
@@ -91,6 +93,6 @@
       <use id="difficulty-17" data-name="difficulty" transform="translate(1509.4 792.768)" xlink:href="#image"/>
     </g>
     <rect id="creator-img" width="108" height="108" rx="16" transform="translate(887 706)" fill="url(#pattern-2)"/>
-    <text id="creator-name" transform="translate(941 861)" fill="#fd7735" stroke="#fd7735" stroke-width="1" font-size="31" font-family="Rubik-Medium, Rubik" font-weight="500"><tspan x="-63.844" y="0">by Ekoro</tspan></text>
+    <text transform="translate(941 861)" stroke-width="1" font-size="31" font-family="Rubik" font-weight="500" id="creator-name" fill="#fd7735" stroke="#fd7735"><tspan x="-63.844" y="0">Creator</tspan></text>
   </g>
 </svg>

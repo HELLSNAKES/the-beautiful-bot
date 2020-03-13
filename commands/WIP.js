@@ -40,10 +40,14 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 				data = i;
 			}
 		}
-		data.difficulties = difficulties;
+		data = {
+			...data,
+			difficulties: difficulties,
+			id: data.beatmapset_id,
+			user_id: data.creator_id
+		}
 		data.url = 'https://osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid;
 		console.log(`BEATMAP DATA : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`);
-		data.id = data.beatmapset_id
 		if (msg) {
 			map.generateBeatmap(msg,data)
 		} else {
