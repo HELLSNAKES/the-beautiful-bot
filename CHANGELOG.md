@@ -2,6 +2,22 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.4 19-03-2020
+
+### Added
+ - All modes including standard, mania, taiko and ctb will show in beatmap cards
+
+### Changed
+ - Redesigned the beatmap card
+ - Added minimum star size so that maps with a low difference between difficulty rating and floored difficulty rating dont look odd.
+ - The threshold for the allowed minimum contrast between colours has been reduced from 4.5 to 3.5.
+ 
+### Fixed
+ - Showing 9 maximum stars instead of 10
+ - max combo showing null when showing mania, taiko or ctb maps
+ - Showing difficulties in the wrong order in beatmap card
+ - Wrong difficulty selected when parsing beatmap urls
+
 ## 1.3.3 04-03-2020
 
 ### Added 

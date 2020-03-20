@@ -6,15 +6,15 @@ const colours = require('../handlers/colours');
 const fs = require('fs');
 const path = require('path');
 const format = require('../handlers/format');
-const {
-	execSync
-} = require('child_process');
 const Discord = require('discord.js');
 
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
-	family: 'rubik'
+	family: 'rubik-bold'
 });
 
+Canvas.registerFont('assets/Rubik-Medium.ttf', {
+	family: 'rubik'
+});
 
 function search(msg, args) {
 	if (args.length != 0) {
@@ -66,201 +66,178 @@ function search(msg, args) {
 }
 
 
-async function generateBeatmap(msg, data) {
+function generateBeatmap(msg, data) {
+
 	// init the canvas
-	var canvas = Canvas.createCanvas(1380, 745);
+	var canvas = Canvas.createCanvas(1080, 620);
 	var ctx = canvas.getContext('2d');
 	let url = 'https://assets.ppy.sh/beatmaps/' + data.id + '/covers/cover@2x.jpg';
-	colours.getColours(url, async function (coloursExtracted) {
-		coloursExtracted = colours.toReadable(colours.toRGB(coloursExtracted.foreground), colours.toRGB(coloursExtracted.background));
-		coloursExtracted.foreground = colours.toHex(coloursExtracted.foreground);
-		coloursExtracted.background = colours.toHex(coloursExtracted.background);
+	colours.getColours(url, async function (colour) {
+		colour = colours.toReadable(colours.toRGB(colour.foreground), colours.toRGB(colour.background));
+		colour.foreground = colours.toHex(colour.foreground);
+		colour.background = colours.toHex(colour.background);
+		ctx.fillStyle = colour.background;
+		format.rect(ctx,0,0,canvas.width, canvas.height, 37)
+
 		// Beatmap Image
 		try {
-			const beatmapImage = await Canvas.loadImage(url);
-			ctx.drawImage(beatmapImage, 0, 0, canvas.width, 382);
-		} catch (err) { //change background to gradient if image is not found
-			ctx.beginPath();
-			var gradient = ctx.createLinearGradient(0, 0, 0, 346);
-			gradient.addColorStop(0, '#2B2B2C');
-			gradient.addColorStop(1, '#1D1F21');
-			ctx.fillStyle = gradient;
-			ctx.rect(0, 0, canvas.width, 382);
-			ctx.fill();
+			var beatmapImage = await Canvas.loadImage(url);
+		} catch (err) { 
+			var beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png');
 		}
-		// Background
+
+		ctx.shadowColor = 'rgba(0,0,0,0.8)';
+		ctx.shadowBlur = 20;
+		ctx.save();
+		format.rect(ctx, 0, 0, canvas.width, 300, 37);
+		ctx.clip();
+		ctx.drawImage(beatmapImage, 0, 0, canvas.width, 300);
+		ctx.restore();
+		ctx.shadowBlur = 0;
+
 		ctx.beginPath();
-		ctx.fillStyle = coloursExtracted.background;
-		ctx.rect(0, 382, canvas.width, canvas.height);
-		ctx.fill();
-
-		var grd = ctx.createLinearGradient(0, 64, 0, 382);
-		grd.addColorStop(0, coloursExtracted.background + '00');
-		grd.addColorStop(1, coloursExtracted.background);
-		ctx.fillStyle = grd;
-		ctx.fillRect(0, 0, canvas.width, 382);
-		ctx.fill();
-
-		// var approved;
-		// if (data.approved == -2) approved = 'graveyard';
-		// else if (data.approved == -1) approved = 'WIP';
-		// else if (data.approved == 0) approved = 'pending';
-		// else if (data.approved == 1) approved = 'ranked';
-		// else if (data.approved == 2) approved = 'approved';
-		// else if (data.approved == 3) approved = 'qualified';
-		// else if (data.approved == 4) approved = 'loved';
-
-		ctx.fillStyle = coloursExtracted.background + 'DD';
-		format.rect(ctx, 20, 20, 200, 50, 27);
-		ctx.font = '25px rubik';
+		ctx.fillStyle = '#3333338C';
+		format.rect(ctx, 24, 20, 186, 46, 26);
+		ctx.fillStyle = colour.foreground;
+		format.rect(ctx, 24, 20, 46, 46, 26);
+		ctx.font = '20px rubik';
 		ctx.textAlign = 'center';
-		ctx.fillStyle = coloursExtracted.foreground;
-		ctx.fillText(data.status.toUpperCase(), 120, 54);
+		ctx.fillStyle = '#ffffff';
+		ctx.fillText(data.status.slice(0,1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
+		ctx.textAlign = 'center';
+		var statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/'+data.status+'.png'));
+		ctx.drawImage(statusImage, 37, 33, 20, 20)
+
+		// title
+		ctx.fillStyle = colour.foreground;
+		ctx.font = '42px rubik-bold';
 		ctx.textAlign = 'left';
-
-		//title and artist name
-		ctx.fillStyle = coloursExtracted.foreground;
-		ctx.font = '54px rubik';
-		data.title = data.title.length <= 23 ? data.title : data.title.slice(0, 20) + '...';
-		ctx.fillText(data.title, 34, 380 + 64);
-		ctx.font = '25px rubik';
-		ctx.fillText(data.artist, 37, 451 + 29);
-
+		ctx.fillText(data.title, 41, 367)
+		ctx.font = '26px rubik-bold';
+		ctx.fillText(data.artist, 41, 406)
+		
 		// star rating
 		var svgFile = fs.readFileSync('assets/star.svg', 'utf8');
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
-		fs.writeFileSync('assets/star.svg', svgFile);
-		const star = await Canvas.loadImage('assets/star.svg');
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
+		const star = await Canvas.loadImage(Buffer.from(svgFile));
 		if (data.beatmap.difficulty_rating > 10) {
-			for (var i = 0; i < 9; i++) {
-				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
+			for (var i = 0; i < 10; i++) {
+				ctx.drawImage(star, 40 + 33 * i, 420, 28, 27);
 			}
 		} else {
 			for (i = 0; i < Math.floor(data.beatmap.difficulty_rating); i++) {
-				ctx.drawImage(star, 30 + 40 * i, 505, 33, 32);
+				ctx.drawImage(star, 40 + 33 * i, 420, 28, 27);
 			}
-
-			var lastStarSize = 32 * (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating));
-			ctx.drawImage(star, 40 * Math.floor(data.beatmap.difficulty_rating + 1) + ((33 - lastStarSize) / 2) - 10, 505 + ((32 - lastStarSize) / 2), lastStarSize, lastStarSize);
+			var lastStarSize = (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating))
+			var minSize = 0.5
+			var multiplier = ((1 - minSize) + (minSize * lastStarSize))
+			ctx.drawImage(star, 40 + 33 * (i) + ((28 - (28 * multiplier))/2), 420 + ((27 - (27 * multiplier))/2), 28 * multiplier, 27 * multiplier)
 		}
+
 		//CS / AR /HP / OD
 
-		ctx.fillStyle = coloursExtracted.foreground;
-		ctx.font = '32px rubik';
-		ctx.fillText('CS', 37, 548 + 38);
-		ctx.fillText('AR', 37, 584 + 38);
-		ctx.fillText('HP', 37, 622 + 38);
-		ctx.fillText('OD', 37, 660 + 38);
-		ctx.font = '25px rubik';
-		ctx.fillText(data.beatmap.cs, 420, 548 + 38);
-		ctx.fillText(data.beatmap.ar, 420, 584 + 38);
-		ctx.fillText(data.beatmap.drain, 420, 622 + 38);
-		ctx.fillText(data.beatmap.accuracy, 420, 660 + 38);
-		ctx.fillText(Math.floor(data.beatmap.difficulty_rating * 10) / 10, 420, 495 + 38);
+		ctx.fillStyle = colour.foreground;
+		ctx.font = '22px rubik-bold';
+		ctx.fillText('CS', 41, 459 + 22);
+		ctx.fillText('AR', 41, 495 + 22);
+		ctx.fillText('HP', 41, 531 + 22);
+		ctx.fillText('OD', 41, 567 + 22);
+		ctx.fillText(Math.floor(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
+		ctx.fillText(data.beatmap.cs, 390, 459 + 22);
+		ctx.fillText(data.beatmap.ar, 390, 495 + 22);
+		ctx.fillText(data.beatmap.drain, 390, 531 + 22);
+		ctx.fillText(data.beatmap.accuracy, 390, 567 + 22);
 
 		ctx.beginPath();
-		ctx.fillStyle = coloursExtracted.foreground + '31';
-		format.rect(ctx, 100, 568 + 2, 300, 13, 7);
-		format.rect(ctx, 100, 605 + 2, 300, 13, 7);
-		format.rect(ctx, 100, 642 + 2, 300, 13, 7);
-		format.rect(ctx, 100, 682 + 2, 300, 13, 7);
+		ctx.fillStyle = colour.foreground + '31';
+		format.rect(ctx, 88, 466, 284, 13, 7);
+		format.rect(ctx, 88, 504, 284, 13, 7);
+		format.rect(ctx, 88, 539, 284, 13, 7);
+		format.rect(ctx, 88, 570, 284, 13, 7);
 		ctx.beginPath();
-		ctx.fillStyle = coloursExtracted.foreground;
-		format.rect(ctx, 100, 568 + 2, 30 * (data.beatmap.cs > 0 ? data.beatmap.cs : 0.5), 13, 7);
-		format.rect(ctx, 100, 605 + 2, 30 * (data.beatmap.ar > 0 ? data.beatmap.ar : 0.5), 13, 7);
-		format.rect(ctx, 100, 642 + 2, 30 * (data.beatmap.drain > 0 ? data.beatmap.drain : 0.5), 13, 7);
-		format.rect(ctx, 100, 682 + 2, 30 * (data.beatmap.accuracy > 0 ? data.beatmap.accuracy : 0.5), 13, 7);
-		try {
-			var Acc100 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 100%`))).toString().split('$')[0];
-			var Acc95 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 95%`))).toString().split('$')[0];
-			var Acc90 = Math.floor(parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${data.beatmap.id} | node handlers/pp.js 90%`))).toString().split('$')[0];
-		} catch (e) {
-			Acc100 = '-';
-			Acc95 = '-';
-			Acc90 = '-';
-		}
+		ctx.fillStyle = colour.foreground;
+		format.rect(ctx, 88, 466, 28.4 * (data.beatmap.cs > 0 ? data.beatmap.cs : 0.5), 13, 7);
+		format.rect(ctx, 88, 504, 28.4 * (data.beatmap.ar > 0 ? data.beatmap.ar : 0.5), 13, 7);
+		format.rect(ctx, 88, 539, 28.4 * (data.beatmap.drain > 0 ? data.beatmap.drain : 0.5), 13, 7);
+		format.rect(ctx, 88, 570, 28.4 * (data.beatmap.accuracy > 0 ? data.beatmap.accuracy : 0.5), 13, 7);
 
+		const mapperPfp = await Canvas.loadImage(`https://a.ppy.sh/${data.user_id}`);
+		ctx.save();
+		format.rect(ctx, 478, 456, 91, 91, 16);
+		ctx.clip();
+		ctx.drawImage(mapperPfp, 478, 456, 91, 91);
+		ctx.restore();
+		
+		ctx.font = '21px rubik-bold';
 		ctx.textAlign = 'center';
-		ctx.font = '42px rubik';
-		ctx.fillText(`${Acc100}pp`, 1195 + 65, 460 + 10);
-		ctx.font = '20px rubik';
-		ctx.fillText('100% FC', 1195 + 65, 500 + 10);
-
-		ctx.font = '42px rubik';
-		ctx.fillText(`${Acc95}pp`, 1195 + 65, 550 + 10);
-		ctx.font = '20px rubik';
-		ctx.fillText('95% FC', 1195 + 65, 590 + 10);
-
-		ctx.font = '42px rubik';
-		ctx.fillText(`${Acc90}pp`, 1195 + 65, 640 + 10);
-		ctx.font = '20px rubik';
-		ctx.fillText('90% FC', 1195 + 65, 680 + 10);
+		ctx.fillText(data.creator, 523, 581)
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/clock.svg'), 'utf8');
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
-		fs.writeFileSync(path.resolve(__dirname, '../assets/clock.svg'), svgFile);
-		let clock = await Canvas.loadImage(path.resolve(__dirname, '../assets/clock.svg'));
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
+		let clock = await Canvas.loadImage(Buffer.from(svgFile));
 
-		ctx.drawImage(clock, 512, 510, 32, 32);
+		ctx.drawImage(clock, 481, 375, 38, 38);
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/drum.svg'), 'utf8');
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
-		fs.writeFileSync(path.resolve(__dirname, '../assets/drum.svg'), svgFile);
-		let drum = await Canvas.loadImage(path.resolve(__dirname, '../assets/drum.svg'));
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
+		let drum = await Canvas.loadImage(Buffer.from(svgFile));
 
-		ctx.drawImage(drum, 504, 591, 36, 32);
+		ctx.drawImage(drum, 660, 375, 40, 35);
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/times.svg'), 'utf8');
-		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${coloursExtracted.foreground}"`);
-		fs.writeFileSync(path.resolve(__dirname, '../assets/times.svg'), svgFile);
-		let times = await Canvas.loadImage(path.resolve(__dirname, '../assets/times.svg'));
+		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
+		let times = await Canvas.loadImage(Buffer.from(svgFile));
 
-		ctx.drawImage(times, 512, 670, 26, 26);
+		ctx.drawImage(times, 892, 380, 28, 28);
+
+		var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
+		ctx.textAlign = 'left';
+		ctx.font = '27px rubik-bold';
+		ctx.fillText(time, 532, 374 + 30);
+		ctx.fillText(data.bpm + ' bpm', 712, 374 + 30);
+		ctx.fillText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 937, 374 + 30);
 
 		ctx.textAlign = 'left';
-		ctx.font = '25px rubik';
-		var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
-
-		ctx.fillText(time, 560, 534);
-		ctx.fillText(data.bpm + ' bpm', 560, 618);
-		ctx.fillText(data.beatmap.max_combo + 'x', 560, 691);
-
-		ctx.fillText(data.beatmap.version, 695, 440);
-		data.difficulties = [];
-		for (i = 0; i < data.beatmaps.length; i++) {
-			data.difficulties.push(data.beatmaps[i].difficulty_rating);
+		ctx.font = '26px rubik-bold';
+		ctx.fillText(data.beatmap.version, 629, 416 + 26);
+		var compare = (a, b) => {
+			if (parseFloat(a.difficulty_rating) > parseFloat(b.difficulty_rating)) {
+				return 1
+			} else {
+				return -1
+			}
 		}
-		data.difficulties.sort();
-		for (i = 0; i < data.difficulties.length; i++) {
-			ctx.globalAlpha = 0.33;
-			if (data.difficulties[i] == data.beatmap.difficulty_rating) {
+		data.beatmaps.sort(compare);
+
+		for (i = 0; i < data.beatmaps.length; i++) {
+			ctx.globalAlpha = 0.3;
+			if (data.beatmaps[i].difficulty_rating == data.beatmap.difficulty_rating) {
 				ctx.globalAlpha = 1;
 				ctx.beginPath();
-				ctx.fillStyle = coloursExtracted.foreground + '21';
-				format.rect(ctx, 703 + ((i % 5) * 90) - 5, 457 + (Math.floor(i / 5) * 90) - 5, 87, 87, 10);
+				ctx.fillStyle = colour.foreground + '21';
+				format.rect(ctx, 630 + ((i % 8) * 50) - 5, 457 + (Math.floor(i / 8) * 50) - 5, 50, 50, 11);
 				ctx.fill();
 			}
 			var icon;
-			// var modes = ['', '_taiko', '_ctb', '_mania'];
-			if (data.difficulties[i] < 2) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/easy.png'));
-			} else if (data.difficulties[i] < 2.7) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/normal.png'));
-			} else if (data.difficulties[i] < 4) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/hard.png'));
-			} else if (data.difficulties[i] < 5.3) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/insane.png'));
-			} else if (data.difficulties[i] < 6.5) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/expert.png'));
+			if (data.beatmaps[i].difficulty_rating < 2) {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/easy_${data.beatmaps[i].mode}.png`));
+			} else if (data.beatmaps[i].difficulty_rating < 2.7) {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/normal_${data.beatmaps[i].mode}.png`));
+			} else if (data.beatmaps[i].difficulty_rating < 4) {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/hard_${data.beatmaps[i].mode}.png`));
+			} else if (data.beatmaps[i].difficulty_rating < 5.3) {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/insane_${data.beatmaps[i].mode}.png`));
+			} else if (data.beatmaps[i].difficulty_rating < 6.5) {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/expert_${data.beatmaps[i].mode}.png`));
 			} else {
-				icon = await Canvas.loadImage(path.resolve(__dirname, '../assets/extra.png'));
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/extra_${data.beatmaps[i].mode}.png`));
 			}
-			ctx.drawImage(icon, 703 + ((i % 5) * 90), 457 + (Math.floor(i / 5) * 90), 76, 76);
+			ctx.drawImage(icon, 630 + ((i % 8) * 50), 457 + (Math.floor(i / 8) * 50), 40, 40);
 		}
 
 		const attachment = new Discord.Attachment(canvas.toBuffer(), 'beatmap_stats.png');
 		msg.channel.send(attachment);
-		console.log(`GENERATED BEATMAP CARD : ${msg.author.id} :https://osu.ppy.sh/beatmapsets/${data.id}#osu/${data.beatmap.id}`);
+		console.log(`GENERATED BEATMAP CARD : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${data.id}#osu/${data.beatmap.id}`);
 	});
 }
 

@@ -45,10 +45,10 @@ client.on('message', async msg => {
 	} else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
-		require('./commands/WIP').beatmapCardFromLink(msg);
+		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
 		require('./commands/osu').generateUser(msg, msg.content.replace('https://osu.ppy.sh/users/', ''));
-	}
+	} 
 
 	if (!msg.content.startsWith(prefix)) return;
 	var args = msg.content.slice(prefix.length).trim().split(' ');
