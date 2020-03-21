@@ -47,7 +47,7 @@ client.on('message', async msg => {
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
 		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
-		require('./commands/osu').generateUser(msg, msg.content.replace('https://osu.ppy.sh/users/', ''));
+		require('./commands/osu').requestData(msg, msg.content.replace('https://osu.ppy.sh/users/', ''));
 	} 
 
 	if (!msg.content.startsWith(prefix)) return;

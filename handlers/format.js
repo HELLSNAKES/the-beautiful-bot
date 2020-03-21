@@ -53,8 +53,19 @@ function time(date) {
 	return Math.floor(seconds) + ' seconds';
 }
 
+function numberSuffix(value, formatString) {
+	if (value >= 1000000000) {
+		return ((formatString ? number(Math.floor(value.toString() / 10**8)/10) : Math.floor(value.toString() / 10**8)/10) + 'b');
+	} else if (value >= 1000000) {
+		return ((formatString ? number(Math.floor(value.toString() / 10**5)/10) : Math.floor(value.toString() / 10**5)/10) + 'm');
+	} else {
+		return (formatString ? number(value) : value);
+	}
+}
+
 module.exports = {
 	rect: rect,
 	number: number,
-	time: time
+	time: time,
+	numberSuffix: numberSuffix
 };

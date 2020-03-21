@@ -2,6 +2,17 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.4.1 20-03-2020
+
+### Changed
+ - Redesigned the user card
+ - Removed a lot of unnecessary image and font files
+ 
+### Fixed
+ - level bar in user card looks weird when progress level is very very low (smaller than 2%)
+ - unable to ping people when using $osu
+ - user links are not parsed correctly resulting in an error
+
 ## 1.3.4 19-03-2020
 
 ### Added

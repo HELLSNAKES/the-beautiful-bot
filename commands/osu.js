@@ -10,13 +10,14 @@ const Discord = require('discord.js');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
 const argument = require('../handlers/argument');
-Canvas.registerFont('assets/SegoeUI.ttf', {
-	family: 'segoeUI'
+Canvas.registerFont('assets/Rubik-Bold.ttf', {
+	family: 'rubik-bold'
 });
 
-Canvas.registerFont('assets/SegoeUIBold.ttf', {
-	family: 'segoeUIBold'
+Canvas.registerFont('assets/Rubik-Medium.ttf', {
+	family: 'rubik'
 });
+
 var time = Date.now();
 
 function osu(msg, args) {
@@ -32,7 +33,7 @@ function osu(msg, args) {
 				error.log(msg, 4046);
 				return;
 			}
-			requestData(msg, doc.osuUsername);
+			requestData(msg, doc.osuUsername, options);
 		});
 	} else if (args.length != 0) {
 		requestData(msg, args.join('_'), options);
@@ -50,7 +51,7 @@ function osu(msg, args) {
 	}
 }
 
-function requestData(msg, id, options) {
+function requestData(msg, id, options = {}) {
 	options.type = options.type ? options.type : 0;
 	if (options.type == 0) {
 		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
@@ -78,21 +79,27 @@ function requestData(msg, id, options) {
 }
 
 async function generateUser(msg, type, body) {
-	if (body.length == 0) {
+	if (body == undefined || body.length == 0) {
 		error.log(msg, 4041);
 		return;
 	}
-
-	var canvas = Canvas.createCanvas(1080, 538);
+	var canvas = Canvas.createCanvas(1200, 624);
 	var ctx = canvas.getContext('2d');
 
 	ctx.beginPath();
-	ctx.fillStyle = '#121212';
-	ctx.rect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = '#303F76';
+	format.rect(ctx, 0, 0, canvas.width, canvas.height, 45);
 	ctx.fill();
-	// background
-	var background = await Canvas.loadImage(path.resolve(__dirname, `../assets/background-${Math.round(Math.random() * 7)}.png`));
-	ctx.drawImage(background, 0, 0, canvas.width, 300);
+
+	let backgroundImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/background.png'));
+	ctx.shadowColor = 'rgba(0,0,0,0.5)';
+	ctx.shadowBlur = 40;
+	ctx.save();
+	format.rect(ctx, 0, 0, canvas.width, 432, 45);
+	ctx.clip();
+	ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height + 71);
+	ctx.restore();
+	ctx.shadowBlur = 0;
 	ctx.save();
 
 	var userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`;
@@ -108,26 +115,26 @@ async function generateUser(msg, type, body) {
 	} catch (err) {
 		userPicture = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png');
 	}
-	format.rect(ctx, 30, 30, 280, 280, 47);
+	format.rect(ctx, 44, 55, 277, 277, 47);
 	ctx.clip();
 
 	var scale = Math.max(280 / userPicture.width, 280 / userPicture.height);
-	var x = 170 - (userPicture.width / 2) * scale;
-	var y = 170 - (userPicture.height / 2) * scale;
+	var x = 170 + 14 - (userPicture.width / 2) * scale;
+	var y = 170 + 25 - (userPicture.height / 2) * scale;
 	ctx.drawImage(userPicture, x, y, userPicture.width * scale, userPicture.height * scale);
 	ctx.restore();
 
 	ctx.fillStyle = '#ffffff';
-	ctx.font = '51px segoeUIBold';
-	ctx.fillText(body[0].username, 330, 95);
+	ctx.font = '63px rubik-bold';
+	ctx.fillText(body[0].username, 347, 56 + 63);
 
 
 
-	ctx.font = '40px segoeUI';
+	ctx.font = '40px rubik';
 	let country = countryCodes[body[0].country];
 	var flag = await Canvas.loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
-	ctx.drawImage(flag, 330, 107, 60, 40);
-	ctx.fillText(country, 400, 140);
+	ctx.drawImage(flag, 350, 130, 60, 40);
+	ctx.fillText(country, 420, 127 + 40);
 
 	var gradeA = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_a.png'));
 	var gradeS = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_s.png'));
@@ -135,60 +142,62 @@ async function generateUser(msg, type, body) {
 	var gradeSH = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_sh.png'));
 	var gradeSSH = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_ssh.png'));
 
-	ctx.drawImage(gradeSSH, 370, 180, 95, 48);
-	ctx.drawImage(gradeSS, 500, 180, 95, 48);
-	ctx.drawImage(gradeSH, 630, 180, 95, 48);
-	ctx.drawImage(gradeS, 760, 180, 95, 48);
-	ctx.drawImage(gradeA, 890, 180, 95, 48);
+	ctx.drawImage(gradeA, 766, 112 + 25, 98, 50);
+	ctx.drawImage(gradeS, 922, 112 + 25, 98, 50);
+	ctx.drawImage(gradeSH, 1080, 112 + 25, 98, 50);
+	ctx.drawImage(gradeSS, 847, 221 + 25, 98, 50);
+	ctx.drawImage(gradeSSH, 1002, 221 + 25, 98, 50);
 
-	ctx.font = '25px segoeUIBold';
+	ctx.font = '28px rubik';
 	ctx.textAlign = 'center';
-	ctx.fillText(format.number(body[0].count_rank_ssh), 417, 260, 95, 48);
-	ctx.fillText(format.number(body[0].count_rank_ss), 549, 260, 95, 48);
-	ctx.fillText(format.number(body[0].count_rank_sh), 679, 260, 95, 48);
-	ctx.fillText(format.number(body[0].count_rank_s), 809, 260, 95, 48);
-	ctx.fillText(format.number(body[0].count_rank_a), 939, 260, 95, 48);
-	ctx.textAlign = 'left';
-	ctx.font = '37px segoeUIBold';
-	ctx.fillText('Global Rank', 50, 350);
-	ctx.font = '62px segoeUI';
-	ctx.fillText('#' + format.number(body[0].pp_rank), 50, 420);
+	ctx.fillText(format.number(body[0].count_rank_a), 792 + 22, 171 + 25 + 28);
+	ctx.fillText(format.number(body[0].count_rank_s), 955 + 16, 171 + 25 + 28);
+	ctx.fillText(format.number(body[0].count_rank_sh), 1108 + 22, 171 + 25 + 28);
+	ctx.fillText(format.number(body[0].count_rank_ss), 888 + 9, 279 + 25 + 28);
+	ctx.fillText(format.number(body[0].count_rank_ssh), 1038 + 13, 279 + 25 + 28);
 
-	ctx.font = '20px segoeUIBold';
-	ctx.fillText('Country Rank', 50, 450);
-	ctx.font = '42px segoeUI';
-	ctx.fillText('#' + format.number(body[0].pp_country_rank), 50, 500);
+	ctx.textAlign = 'left';
+	ctx.font = '75px rubik';
+	ctx.fillText('#' + format.number(body[0].pp_rank), 347, 170 + 75);
+
+	ctx.font = '57px rubik';
+	ctx.fillText('#' + format.number(body[0].pp_country_rank), 347, 259 + 57);
 
 	var hexagon = await Canvas.loadImage(path.resolve(__dirname, '../assets/hexagon.png'));
-	ctx.drawImage(hexagon, 340, 271, 70, 76);
+	ctx.drawImage(hexagon, 342, 332, 72, 77);
 
 	ctx.textAlign = 'center';
-	ctx.font = '33px segoeUI';
-	ctx.fillText(Math.floor(body[0].level), 375, 320);
+	ctx.font = '33px rubik';
+	ctx.fillText(Math.floor(body[0].level), 378, 332 + 50);
 
-	format.rect(ctx, 440, 305, 462, 11, 7);
+	format.rect(ctx, 441, 364, 504, 12, 7);
 	ctx.fillStyle = '#FFCC22';
-	format.rect(ctx, 440, 305, 462 * (body[0].level - Math.floor(body[0].level)), 11, 7);
+	format.rect(ctx, 441, 364, 504 * (body[0].level - Math.floor(body[0].level) > 0.02 ? body[0].level - Math.floor(body[0].level) : 0.02), 12, 7);
 	ctx.textAlign = 'left';
 	ctx.fillStyle = '#ffffff';
-	ctx.font = '21px segoeUI';
-	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 920, 317);
+	ctx.font = '21px rubik';
+	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359+ 21);
 
-	ctx.fillStyle = '#ffffff11';
-	format.rect(ctx, 350, 380, 150, 115, 30);
-	format.rect(ctx, 565, 380, 180, 115, 30);
-	format.rect(ctx, 790, 380, 240, 115, 30);
+	ctx.fillStyle = '#ffffff21';
+	format.rect(ctx, 44, 472, 191, 53, 30);
+	format.rect(ctx, 278, 472, 232, 53, 30);
+	format.rect(ctx, 547, 472, 306, 53, 30);
+	format.rect(ctx, 897, 472, 250, 53, 30);
+
 
 	ctx.fillStyle = '#ffffff';
 	ctx.textAlign = 'center';
-	ctx.font = '30px segoeUIBold';
-	ctx.fillText('pp', 425, 418);
-	ctx.fillText('Accuracy', 655, 418);
-	ctx.fillText('Playtime', 908, 418);
-	ctx.font = '35px segoeUI';
-	ctx.fillText(format.number(Math.floor(body[0].pp_raw)), 425, 468);
-	ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 655, 468);
-	ctx.fillText(format.number(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 908, 468);
+	ctx.font = '30px rubik-bold';
+	ctx.fillText('pp', 118 + 20, 476 + 30);
+	ctx.fillText('Accuracy', 314 + 80, 478 + 30);
+	ctx.fillText('Hours Played', 592 + 110, 476 + 30);
+	ctx.fillText('Score', 973 + 50, 478 + 30);
+
+	ctx.font = '40px rubik';
+	ctx.fillText(format.number(Math.floor(body[0].pp_raw)), 82 + 60, 534 + 40);
+	ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 324 + 75, 537 + 40);
+	ctx.fillText(format.number(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 651 + 50, 536 + 40);
+	ctx.fillText(format.numberSuffix(body[0].total_score), 930 + 100, 536 + 40);
 
 	const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 	msg.channel.send(attachment);
@@ -198,5 +207,6 @@ async function generateUser(msg, type, body) {
 
 module.exports = {
 	osu: osu,
+	requestData: requestData,
 	generateUser: generateUser
 };
