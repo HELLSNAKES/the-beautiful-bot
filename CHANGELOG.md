@@ -2,7 +2,12 @@
 
 The beautiful bot's Changelog :)
 
-## 1.3.4.1 20-03-2020
+## 1.3.4.2 22-03-2020
+
+## Changed
+ - Improved the mod parser and now it will be able to detect: 4K-9K, V2 and Mirror on ranked plays. It will detect the following mods if they get submitted somehow (e.g. private server): 1K-3K, Coop, Autoplay, Autopilot, Random and Cinema
+
+## 1.3.4.1 21-03-2020
 
 ### Changed
  - Redesigned the user card
