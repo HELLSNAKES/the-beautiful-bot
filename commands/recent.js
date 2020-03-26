@@ -45,62 +45,26 @@ function recent(client, msg, args) {
 }
 
 function sendRecent(client, msg, user, options = {}) {
+	console.log(options)
 	if (options.type == 0) {
-		if (options.mode == 0) {
-			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}`, {
+		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=${options.mode}`, {
+			json: true
+		}, (err, res, body) => {
+			if (body.length == 0) {
+				error.log(msg, 4044);
+				return;
+			}
+			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}&m=${options.mode}&a=1`, {
 				json: true
-			}, (err, res, body) => {
-				if (body.length == 0) {
-					error.log(msg, 4044);
-					return;
-				}
-				request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}`, {
-					json: true
-				}, (beatmapErr, beatmapRes, beatmapBody) => {
-					if (err) console.log(err);
-					body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
-					pp.calculatepp(body[options.previous].beatmap_id, {
-						mods: mods.toString(body[options.previous].enabled_mods, false),
-						accuracy: body[options.previous].accuracy,
-						combo: body[options.previous].maxcombo,
-						misses: body[options.previous].countmiss,
-						count100: body[options.previous].count100,
-						count50: body[options.previous].count50
-					}, (json) => {
-						if (err) console.log(err);
-						body[options.previous].pp = json.pp;
-						body[options.previous].calculated_difficulty = json.stars;
-						body[options.previous].max_map_combo = json.combo.split('/')[1].replace('x', '');
-						body[options.previous] = {
-							...body[options.previous],
-							...beatmapBody[0]
-						};
-						generateRecent(client, msg, body[options.previous]);
-					});
-				});
+			}, (beatmapErr, beatmapRes, beatmapBody) => {
+				if (err) console.log(err);
+				body[options.previous] = {
+					...body[options.previous],
+					...beatmapBody[0]
+				};
+				processData(client, msg, body[options.previous], options.mode);
 			});
-		} else {
-			request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=${options.mode}`, {
-				json: true
-			}, (err, res, body) => {
-				if (body.length == 0) {
-					error.log(msg, 4044);
-					return;
-				}
-				request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}&m=${options.mode}&a=1`, {
-					json: true
-				}, (beatmapErr, beatmapRes, beatmapBody) => {
-					if (err) console.log(err);
-					body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
-					body[options.previous].pp = '##';
-					body[options.previous] = {
-						...body[options.previous],
-						...beatmapBody[0]
-					};
-					generateRecent(client, msg, body[options.previous]);
-				});
-			});
-		}
+		});
 	} else if (options.type == 1) {
 		if (options.mode != 0) {
 			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
@@ -126,6 +90,7 @@ function sendRecent(client, msg, user, options = {}) {
 					body.calculated_difficulty = json.stars;
 					body.max_map_combo = json.combo.split('/')[1].replace('x', '');
 					generateRecent(client, msg, body);
+					
 				});
 			});
 		});
@@ -158,8 +123,29 @@ function sendRecent(client, msg, user, options = {}) {
 			});
 		});
 	}
+}
 
-
+function processData(client, msg, object, mode) {
+	console.log(object);
+	object.accuracy = Math.floor((50 * parseInt(object.count50) + 100 * parseInt(object.count100) + 300 * parseInt(object.count300)) / (300 * (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss))) * 10000) / 100;
+	object.mode = mode
+	if (mode == 0 || mode == 1) {
+		outputObject = pp.calculatepp(object.beatmap_id, {
+			mods: mods.toString(object.enabled_mods, false),
+			accuracy: object.accuracy,
+			combo: object.maxcombo,
+			misses: object.countmiss,
+			count100: object.count100,
+			count50: object.count50,
+			mode: mode,
+			sync: true
+		})
+		object.pp = object.pp || outputObject.pp
+		object.calculated_difficulty = outputObject.stars;
+		object.max_combo = outputObject.combo.split('/')[1].replace('x', '');
+		console.log(object)
+	}
+	generateRecent(client, msg, object);
 }
 
 function generateRecent(client, msg, body) {
@@ -199,12 +185,13 @@ function generateRecent(client, msg, body) {
 		body.calculated_difficulty = Math.floor(body.difficultyrating * 100) / 100;
 	}
 	var ppFC = '-';
-	if (body.mode == 0) {
+	if (body.mode == 0 || body.mode == 1) {
 		ppFC = pp.calculatepp(body.beatmap_id, {
 			mods: mods.toString(body.enabled_mods, false),
 			accuracy: (body.accuracy >= 80 ? body.accuracy : 80),
 			count100: body.count100,
 			count50: body.count50,
+			mode: body.mode,
 			sync: true
 		});
 		ppFC = body.perfect == 1 ? '' : '(FC: ' + parseInt(ppFC.pp) + 'pp)';

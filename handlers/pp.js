@@ -52,7 +52,7 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 		jsonOutput.hitWindow = formattedOut[2].replace('300 hitwindow: ', '')
 
 		// Extract Calculated Difficulty
-		jsonOutput.stars = parseFloat(formattedOut[4].slice(0, formattedOut[4].indexOf(' stars')))
+		jsonOutput.stars = Math.round(parseFloat(formattedOut[4].slice(0, formattedOut[4].indexOf(' stars')))*100)/100
 
 		// Extract Mods, Combo and accuracy
 		jsonOutput.mods = (formattedOut[5].includes('+') ? formattedOut[5].slice(formattedOut[5].indexOf('+') + 1, formattedOut[5].indexOf(' ')) : '')
@@ -65,7 +65,7 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 		callback(jsonOutput)
 		return jsonOutput;
 	}
-	var cmd = `curl -s https://osu.ppy.sh/osu/${beatmapId} | "./handlers/pp/oppai" - ${(options.string ? options.string : `${(options.mods ? '+'+options.mods : '')} ${(options.accuracy ? options.accuracy+'%' : '')} ${(options.combo ? options.combo+'x' : '')} ${(options.misses ? options.misses+'m' : '')} ${(options.count100 ? options.count100+'x100' : '')} ${(options.count50 ? options.count50+'x50' : '')}`)}`
+	var cmd = `curl -s https://osu.ppy.sh/osu/${beatmapId} | "./handlers/pp/oppai" - ${(options.string ? options.string : `${(options.mods ? '+'+options.mods : '')} ${(options.accuracy ? options.accuracy+'%' : '')} ${(options.combo ? options.combo+'x' : '')} ${(options.misses ? options.misses+'m' : '')} ${(options.count100 ? options.count100+'x100' : '')} ${(options.count50 ? options.count50+'x50' : '')} ${(options.mode ? '-m'+options.mode : '')} `)}`
 	if (options.sync) {
 		var output = execSync(cmd);
 		console.log(output)
