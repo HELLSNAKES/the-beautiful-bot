@@ -1,18 +1,15 @@
 const getMap = require('../handlers/getMap');
-const {
-	exec
-} = require('child_process');
+const pp = require('../handlers/pp');
 
-function pp(client, msg, args) {
+function show(client, msg, args) {
 	getMap.getMaps(client, msg, (msgFunc, clientFunc, url, userid) => {
-		exec(`curl -s https://osu.ppy.sh/osu/${url.slice(url.indexOf('#osu/')+5)} | node handlers/pp.js ${args}`, (err, stdout) => {
-			var ojsama = stdout.replace('\n', '').split('$');
-			msg.channel.send(`:yellow_circle: That is worth **${ojsama[0]}pp**`);
+		pp.calculatepp(url.slice(url.indexOf('#osu/')+5), {string: args}, (json) => {
+			msg.channel.send(`:yellow_circle: That is worth **${json.pp}pp**\n\`${(json.mods == '' ? 'No Mod' : json.mods)}\` \`${Math.round(parseFloat(json.accuracy)*10)/10}%\` \`${json.combo}\``);
 		});
 		console.log(`PP : ${userid} : ${url}`);
 	});
 }
 
 module.exports = {
-	pp: pp
+	show: show
 };

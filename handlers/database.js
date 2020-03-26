@@ -4,67 +4,99 @@ require('dotenv').config({
 });
 const MongoClient = require('mongodb').MongoClient;
 
-const url = `mongodb://${process.env.dbUsername}:${process.env.dbPassword}@ds121295.mlab.com:21295/thebeautifulbot`;
 const dbName = 'thebeautifulbot';
 
-function read(findObject, callback) {
-	MongoClient.connect(url, {
+function read(collectionName, findObject, callback = () => {}) {
+	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}, function (err, client) {
-
+		if (err) {
+			callback({}, err);
+			console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+			return;
+		}
 		const db = client.db(dbName);
 
-		const collection = db.collection('users');
+		const collection = db.collection(collectionName);
 
 		collection.find(findObject).toArray(function (err, docs) {
+			if (err) {
+				callback({}, error);
+				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+				return;
+			}
+
 			if (docs.length == 0) {
 				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				callback({
-					error: 'Failed to read database'
-				});
+				callback({}, null);
 				return;
 			}
 			console.log(`READ : ${docs[0]._id}`);
-			callback(docs[0], docs);
+			callback(docs, null);
+			client.close();
 		});
-		client.close();
+
 	});
 }
 
-function write(writeObject) {
-	MongoClient.connect(url, {
+function write(collectionName, writeObject, callback) {
+	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}, function (err, client) {
+
+		if (err) {
+			console.log(`FAILED TO WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
+			callback({}, err);
+			return;
+		}
+
 		const db = client.db(dbName);
 
-		const collection = db.collection('users');
+		const collection = db.collection(collectionName);
 
 		collection.insertOne(writeObject, function (err, result) {
-			console.log('WRITE');
+			if (err) {
+				console.log(`FAILED TO WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
+				callback({}, err);
+				return;
+			}
+			console.log(`WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
+			callback({}, null);
+			client.close();
 		});
-		client.close();
+
 	});
 }
 
-function update(findObject, setObject, callback) {
-	MongoClient.connect(url, {
+function update(collectionName, findObject, setObject, callback) {
+	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}, function (err, client) {
-
+		if (err) {
+			console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+			callback({}, err);
+			return;
+		}
 		const db = client.db(dbName);
 
-		const collection = db.collection('users');
+		const collection = db.collection(collectionName);
 
 		collection.updateOne(findObject, {
 			$set: setObject
 		}, function (err, result) {
-			console.log(`UPDATE : ${Object.values(findObject)}`);
+			if (err) {
+				console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+				callback({}, err);
+				return;
+			}
+			console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+			callback({}, null);
+			client.close();
 		});
-		callback();
-		client.close();
+
 	});
 }
 

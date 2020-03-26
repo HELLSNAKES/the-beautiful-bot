@@ -14,20 +14,20 @@ function best(client, msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read({
+		database.read('users',{
 			discordID: discordID
-		}, (doc) => {
-			options.type = doc.type;
-			sendRequest(client, msg, doc.osuUsername, options);
+		}, (docs, err) => {
+			options.type = docs[0].type;
+			sendRequest(client, msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
 		sendRequest(client, msg, args.join('_'), options);
 	} else {
-		database.read({
+		database.read('users',{
 			discordID: msg.author.id
-		}, (doc) => {
-			options.type = doc.type;
-			sendRequest(client, msg, doc.osuUsername, options);
+		}, (docs) => {
+			options.type = docs[0].type;
+			sendRequest(client, msg, docs[0].osuUsername, options);
 		});
 	}
 }

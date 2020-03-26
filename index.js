@@ -78,7 +78,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'leaderboard' || cmd == 'lb') {
 		require('./commands/leaderboard').leaderboard(client, msg, args);
 	} else if (cmd == 'pp') {
-		require('./commands/pp').pp(client, msg, args.join(' '));
+		require('./commands/pp').show(client, msg, args.join(' '));
 	}
 });
 

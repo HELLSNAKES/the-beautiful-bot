@@ -4,9 +4,7 @@ const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
 const argument = require('../handlers/argument');
 const error = require('../handlers/error');
-const {
-	exec
-} = require('child_process');
+const pp = require('../handlers/pp');
 const mods = require('../handlers/mods');
 
 function compare(client, msg, args) {
@@ -17,27 +15,27 @@ function compare(client, msg, args) {
 
 		if (/<@![0-9]{18}>/g.test(args[0])) {
 			var discordID = args[0].slice(3, 21);
-			database.read({
+			database.read('users',{
 				discordID: discordID
-			}, (doc) => {
-				if (doc.error) {
+			}, (docs) => {
+				if (err) {
 					error.log(msg, 4046);
 					return;
 				}
-				sendCompareEmbed(client, msg, url, doc.osuUsername, options);
+				sendCompareEmbed(client, msg, url, docs[0].osuUsername, options);
 			});
 		} else if (args.length != 0) {
 			sendCompareEmbed(client, msg, url, args.join('_'), options);
 		} else {
-			database.read({
+			database.read('users',{
 				discordID: msg.author.id
-			}, (doc) => {
-				if (doc.error) {
+			}, (docs,err) => {
+				if (err) {
 					error.log(msg, 4046);
 					return;
 				}
-				options.type = doc.type;
-				sendCompareEmbed(client, msg, url, doc.osuUsername, options);
+				options.type = docs[0].type;
+				sendCompareEmbed(client, msg, url, docs[0].osuUsername, options);
 			});
 		}
 	});
@@ -52,10 +50,18 @@ function sendCompareEmbed(client, msg, url, user, options) {
 				json: true
 			}, (err, res, beatmapData) => {
 				body[0].accuracy = Math.floor((50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss))) * 10000) / 100;
-				exec(`curl -s https://osu.ppy.sh/osu/${beatmapData[0].beatmap_id} | node handlers/pp.js +${mods.toString(body[0].enabled_mods)} ${body[0].accuracy}% ${body[0].maxcombo}x ${body[0].countmiss}m`, (err, stdout) => {
-					if (err) console.log(err);
-					var ojsama = stdout.replace('\n', '').split('$');
-					body[0].calculated_difficulty = ojsama[1];
+				//
+				pp.calculatepp(beatmapData[0].beatmap_id,{
+					mods: mods.toString(body[0].enabled_mods),
+					accuracy: body[0].accuracy,
+					combo: body[0].maxcombo,
+					misses: body[0].countmiss,
+					count100: body[0].count100,
+					count50: body[0].count50
+				}, (json) => {
+		
+					if (err) console.log(err);	
+					body[0].calculated_difficulty = json.stars
 					body = {
 						...body[0],
 						...beatmapData[0]

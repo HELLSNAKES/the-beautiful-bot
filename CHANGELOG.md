@@ -2,6 +2,11 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.5 25-03-2020
+
+### Changed
+ - Changed the pp handler to a better, faster and more up to date version C implementation
+
 ## 1.3.4.2 22-03-2020
 
 ## Changed

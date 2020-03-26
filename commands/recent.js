@@ -10,6 +10,7 @@ const {
 const mods = require('../handlers/mods');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
+const pp = require('../handlers/pp');
 
 function recent(client, msg, args) {
 	var options = argument.parse(msg, args);
@@ -18,27 +19,27 @@ function recent(client, msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read({
+		database.read('users', {
 			discordID: discordID
-		}, (doc) => {
-			if (doc.error) {
+		}, (docs, err) => {
+			if (err) {
 				error.log(msg, 4046);
 				return;
 			}
-			sendRecent(client, msg, doc.osuUsername, options);
+			sendRecent(client, msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
 		sendRecent(client, msg, args.join('_'), options);
 	} else {
-		database.read({
+		database.read('users', {
 			discordID: msg.author.id
-		}, (doc) => {
-			if (doc.error) {
+		}, (docs, err) => {
+			if (err) {
 				error.log(msg, 4046);
 				return;
 			}
-			options.type = doc.type;
-			sendRecent(client, msg, doc.osuUsername, options);
+			options.type = docs[0].type;
+			sendRecent(client, msg, docs[0].osuUsername, options);
 		});
 	}
 }
@@ -58,12 +59,18 @@ function sendRecent(client, msg, user, options = {}) {
 				}, (beatmapErr, beatmapRes, beatmapBody) => {
 					if (err) console.log(err);
 					body[options.previous].accuracy = Math.floor((50 * parseInt(body[options.previous].count50) + 100 * parseInt(body[options.previous].count100) + 300 * parseInt(body[options.previous].count300)) / (300 * (parseInt(body[options.previous].count50) + parseInt(body[options.previous].count100) + parseInt(body[options.previous].count300) + parseInt(body[options.previous].countmiss))) * 10000) / 100;
-					exec(`curl -s https://osu.ppy.sh/osu/${body[options.previous].beatmap_id} | node handlers/pp.js +${mods.toString(body[options.previous].enabled_mods)} ${body[options.previous].accuracy}% ${body[options.previous].maxcombo}x ${body[options.previous].countmiss}m`, (err, stdout) => {
+					pp.calculatepp(body[options.previous].beatmap_id, {
+						mods: mods.toString(body[options.previous].enabled_mods, false),
+						accuracy: body[options.previous].accuracy,
+						combo: body[options.previous].maxcombo,
+						misses: body[options.previous].countmiss,
+						count100: body[options.previous].count100,
+						count50: body[options.previous].count50
+					}, (json) => {
 						if (err) console.log(err);
-						var ojsama = stdout.replace('\n', '').split('$');
-						body[options.previous].pp = ojsama[0];
-						body[options.previous].calculated_difficulty = ojsama[1];
-						body[options.previous].max_map_combo = ojsama[2];
+						body[options.previous].pp = json.pp;
+						body[options.previous].calculated_difficulty = json.stars;
+						body[options.previous].max_map_combo = json.combo.split('/')[1].replace('x', '');
 						body[options.previous] = {
 							...body[options.previous],
 							...beatmapBody[0]
@@ -107,11 +114,17 @@ function sendRecent(client, msg, user, options = {}) {
 				json: true
 			}, (err, res, body) => {
 				body = gatariData.recentData(body, bodyInfo, options.previous);
-				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout) => {
-					var ojsama = stdout.replace('\n', '').split('$');
-					body.pp = ojsama[0];
-					body.calculated_difficulty = ojsama[1];
-					body.max_map_combo = ojsama[2];
+				pp.calculatepp(body.beatmap_id, {
+					mods: mods.toString(body.enabled_mods, false),
+					accuracy: body.accuracy,
+					combo: body.maxcombo,
+					misses: body.countmiss,
+					count100: body.count100,
+					count50: body.count50
+				}, (json) => {
+					body.pp = json.pp;
+					body.calculated_difficulty = json.stars;
+					body.max_map_combo = json.combo.split('/')[1].replace('x', '');
 					generateRecent(client, msg, body);
 				});
 			});
@@ -129,11 +142,17 @@ function sendRecent(client, msg, user, options = {}) {
 				json: true
 			}, (err, res, body) => {
 				body = akatsukiData.recentData(body, bodyInfo, options.previous);
-				exec(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js +${mods.toString(body.enabled_mods)} ${body.accuracy}% ${body.maxcombo}x ${body.countmiss}m`, (err, stdout) => {
-					var ojsama = stdout.replace('\n', '').split('$');
-					body.pp = ojsama[0];
-					body.calculated_difficulty = ojsama[1];
-					body.max_map_combo = ojsama[2];
+				pp.calculatepp(body.beatmap_id, {
+					mods: mods.toString(body.enabled_mods, false),
+					accuracy: body.accuracy,
+					combo: body.maxcombo,
+					misses: body.countmiss,
+					count100: body.count100,
+					count50: body.count50
+				}, (json) => {
+					body.pp = json.pp;
+					body.calculated_difficulty = json.stars;
+					body.max_map_combo = json.combo.split('/')[1].replace('x', '');
 					generateRecent(client, msg, body);
 				});
 			});
@@ -181,9 +200,17 @@ function generateRecent(client, msg, body) {
 	}
 	var ppFC = '-';
 	if (body.mode == 0) {
-		ppFC = body.perfect == 0 ? '(FC: ' + parseInt(execSync(`curl -s https://osu.ppy.sh/osu/${body.beatmap_id} | node handlers/pp.js ${(body.accuracy >= 80 ? body.accuracy : 80)}% +${mods.toString(body.enabled_mods)}`)).toString().split('$')[0] + 'pp)' : '';
+		ppFC = pp.calculatepp(body.beatmap_id, {
+			mods: mods.toString(body.enabled_mods, false),
+			accuracy: (body.accuracy >= 80 ? body.accuracy : 80),
+			count100: body.count100,
+			count50: body.count50,
+			sync: true
+		});
+		ppFC = body.perfect == 1 ? '' : '(FC: ' + parseInt(ppFC.pp) + 'pp)';
+		console.log(ppFC)
 	}
-	
+
 	const embed = {
 		'description': `| ${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| (**${format.number(body.maxcombo)}x${body.max_combo ? '**/**'+format.number(body.max_combo)+'x' : ''}**) - ${format.number(body.score)} - [${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]\n| ${body.rank.toLowerCase() == 'f' && body.max_map_combo ? `Completed: **${completion}%**  - ` :''}Achieved: **${date}**${(body.replay_available == 1 ? `\n| [${client.emojis.find(emoji => emoji.name === 'icon_3_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} Replay is Available](https://osu.ppy.sh/scores/osu/${body.score_id}/download)` : '')}\n| ${client.emojis.find(emoji => emoji.name === 'icon_0_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',

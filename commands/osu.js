@@ -26,27 +26,27 @@ function osu(msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read({
+		database.read('users',{
 			discordID: discordID
-		}, (doc) => {
-			if (doc.error) {
+		}, (docs) => {
+			if (err) {
 				error.log(msg, 4046);
 				return;
 			}
-			requestData(msg, doc.osuUsername, options);
+			requestData(msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
 		requestData(msg, args.join('_'), options);
 	} else {
-		database.read({
+		database.read('users',{
 			discordID: msg.author.id
-		}, function (doc) {
-			if (doc.error) {
+		}, function (docs) {
+			if (docs[0].error) {
 				error.log(msg, 4046);
 				return;
 			}
-			options.type = doc.type;
-			requestData(msg, doc.osuUsername, options);
+			options.type = docs[0].type;
+			requestData(msg, docs[0].osuUsername, options);
 		});
 	}
 }
