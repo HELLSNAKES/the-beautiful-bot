@@ -78,20 +78,8 @@ function sendRecent(client, msg, user, options = {}) {
 				json: true
 			}, (err, res, body) => {
 				body = gatariData.recentData(body, bodyInfo, options.previous);
-				pp.calculatepp(body.beatmap_id, {
-					mods: mods.toString(body.enabled_mods, false),
-					accuracy: body.accuracy,
-					combo: body.maxcombo,
-					misses: body.countmiss,
-					count100: body.count100,
-					count50: body.count50
-				}, (json) => {
-					body.pp = json.pp;
-					body.calculated_difficulty = json.stars;
-					body.max_map_combo = json.combo.split('/')[1].replace('x', '');
-					generateRecent(client, msg, body);
-					
-				});
+				processData(client, msg, body, 0);
+
 			});
 		});
 	} else if (options.type == 2) {
@@ -144,10 +132,12 @@ function processData(client, msg, object, mode) {
 		object.calculated_difficulty = outputObject.stars;
 		object.max_combo = outputObject.combo.split('/')[1].replace('x', '');
 	} else if (mode == 2) {
-		object.accuracy = Math.floor((Math.max(0, Math.min(1,(parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300)) / (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countkatu)))))*10000)/100
+		object.accuracy = Math.floor((Math.max(0, Math.min(1, (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300)) / (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countkatu))))) * 10000) / 100
 		object.diff_approach *= 1.5
 		outputObject = pp.calculateCatchpp(object);
 		object.pp = outputObject.pp;
+		object.accuracy = Math.floor(Math.max(0,Math.min(1,(parseInt(object.count50)*50 + parseInt(object.count100)*100 + parseInt(object.countkatu)*200 + (parseInt(object.countgeki) + parseInt(object.count300))*300)/((parseInt(object.count50)+parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countgeki)+ parseInt(object.countkatu))*300))*10000))/100
+
 	}
 	generateRecent(client, msg, object);
 }
@@ -203,6 +193,10 @@ function generateRecent(client, msg, body) {
 		console.log(ppFC)
 	}
 
+	if (body.mode == 0) body.mode = 'osu!'
+	if (body.mode == 1) body.mode = 'Taiko'
+	if (body.mode == 2) body.mode = 'Catch'
+	if (body.mode == 3) body.mode = 'Mania'
 	const embed = {
 		'description': `| ${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.floor(body.difficultyrating))} **[${Math.floor(body.difficultyrating * 100)/100}★]${body.calculated_difficulty != Math.floor(body.difficultyrating * 100)/100 && body.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| (**${format.number(body.maxcombo)}x${body.max_combo ? '**/**'+format.number(body.max_combo)+'x' : ''}**) - ${format.number(body.score)} - [${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]\n| ${body.rank.toLowerCase() == 'f' && body.max_combo ? `Completed: **${completion}%**  - ` :''}Achieved: **${date}**${(body.replay_available == 1 ? `\n| [${client.emojis.find(emoji => emoji.name === 'icon_3_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} Replay is Available](https://osu.ppy.sh/scores/osu/${body.score_id}/download)` : '')}\n| ${client.emojis.find(emoji => emoji.name === 'icon_0_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2_'+(body.rank).toLowerCase().replace('xh','x').replace('d','f'))} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',
@@ -211,7 +205,7 @@ function generateRecent(client, msg, body) {
 			'url': `https://assets.ppy.sh/beatmaps/${body.beatmapset_id}/covers/cover.jpg`
 		},
 		'author': {
-			'name': `[Taiko] ${body.title} [${body.version}] +${selectedMods}`,
+			'name': `(${body.mode}) ${body.title} [${body.version}] +${selectedMods}`,
 			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapset_id}#osu/${body.beatmap_id}`,
 			'icon_url': userPictureUrl
 		}
