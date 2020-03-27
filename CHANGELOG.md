@@ -4,6 +4,11 @@ The beautiful bot's Changelog :)
 
 ## 1.3.5 25-03-2020
 
+### Added
+ - Full taiko support with pp calculation, FC pp calculation, Mods support, Mod difficulty rating and maximum combo of a map and completion percentage
+ + Added Taiko maps support to $c
+ + Partial Catch support with pp calculation, FC pp calculation, Mods support, Mod difficulty rating, maximum combo of map and completion percentage
+
 ### Changed
  - Changed the pp handler to a better, faster and more up to date version C implementation
 

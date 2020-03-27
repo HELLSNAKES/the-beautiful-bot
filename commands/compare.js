@@ -49,38 +49,20 @@ function sendCompareEmbed(client, msg, url, user, options) {
 			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${url.slice(url.indexOf('#osu/')+5)}`, {
 				json: true
 			}, (err, res, beatmapData) => {
-				body[0].accuracy = Math.floor((50 * parseInt(body[0].count50) + 100 * parseInt(body[0].count100) + 300 * parseInt(body[0].count300)) / (300 * (parseInt(body[0].count50) + parseInt(body[0].count100) + parseInt(body[0].count300) + parseInt(body[0].countmiss))) * 10000) / 100;
-				//
-				pp.calculatepp(beatmapData[0].beatmap_id,{
-					mods: mods.toString(body[0].enabled_mods),
-					accuracy: body[0].accuracy,
-					combo: body[0].maxcombo,
-					misses: body[0].countmiss,
-					count100: body[0].count100,
-					count50: body[0].count50
-				}, (json) => {
-		
-					if (err) console.log(err);	
-					body[0].calculated_difficulty = json.stars
+					if (err) console.log(err);
 					body = {
 						...body[0],
 						...beatmapData[0]
 					};
 
-					if (body.pp == null) {
-						body.pp = 0;
-					}
-
 					if (body.user_id == undefined) {
 						msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
 						return;
 					}
-
-					recent.generateRecent(client, msg, body);
+					recent.processData(client, msg, body)
 					console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 				});
 			});
-		});
 	} else {
 		msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
 	}
