@@ -13,17 +13,15 @@
   "dependencies": {
     "canvas": "^2.6.1",
     "color-thief": "^2.2.5",
-    "ctb-pp-calc": "^1.2.1-0",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
     "mongodb": "^3.5.5",
     "node-vibrant": "^3.1.5",
-    "ojsama": "^1.2.5",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
-    "nodemon": "^1.19.4"
+    "nodemon": "^2.0.2"
   }
 }
