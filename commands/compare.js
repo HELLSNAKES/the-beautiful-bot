@@ -4,8 +4,6 @@ const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
 const argument = require('../handlers/argument');
 const error = require('../handlers/error');
-const pp = require('../handlers/pp');
-const mods = require('../handlers/mods');
 
 function compare(client, msg, args) {
 	getMaps.getMaps(client, msg, function (msg, client, url) {	
@@ -18,11 +16,12 @@ function compare(client, msg, args) {
 			var discordID = args[0].slice(3, 21);
 			database.read('users',{
 				discordID: discordID
-			}, (docs) => {
+			}, (docs,err) => {
 				if (err) {
 					error.log(msg, 4046);
 					return;
 				}
+				options.type = docs[0].type;
 				sendCompareEmbed(client, msg, url, docs[0].osuUsername, options);
 			});
 		} else if (args.length != 0) {

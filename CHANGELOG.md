@@ -9,6 +9,7 @@ The beautiful bot's Changelog :)
  - Maximum combo out of achieved combo in taiko
  - Completion percentage for taiko and catch
  - $modeset which will set your default mode to taiko, catch, mania or standard.
+ - Added a lot more information in $pp including beatmap values such as AR and CS and BPM that will change with the mods applied.
 
 ### Changed
  - Changed the pp handler to a better, faster and more up to date version C implementation
@@ -24,7 +25,9 @@ The beautiful bot's Changelog :)
  - Bot crashing when the data that is passed in $pp couldn't be parsed.
  - Bot crashing when url cant be parsed
  - Bot not working when you try to ping someone using $rs and they don't have an account linked
- - Bot crashing when using $best or someone pinging a user without linking your account
+ - Bot crashing when using $best and $c or someone pinging a user without linking your account
+ - Bot crashing when pinging non-standard accounts in $osu
+ - Bot not respecting mode and user type across commands
 
 ## 1.3.4.2 22-03-2020
 
