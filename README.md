@@ -15,8 +15,7 @@ This is a bot that I developed because why not :)
 ```
 discordAPI = [Your Bots Discord Token]
 osuAPI = [your osu! api key]
-dbPassword = [your MongoDB Database's Password]
-dbUsername = [your MongoDB Database's Username]
+dbURI = [your MongoDB Database's URI]
 prefix = [prefix] (Only if you want to have a different prefix)
 ```
 Alternatively these values can be passed as environment variables
