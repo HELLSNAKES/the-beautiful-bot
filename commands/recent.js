@@ -3,10 +3,6 @@ const error = require('../handlers/error');
 const format = require('../handlers/format');
 const argument = require('../handlers/argument');
 const request = require('request');
-const {
-	exec,
-	execSync
-} = require('child_process');
 const mods = require('../handlers/mods');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
@@ -45,16 +41,21 @@ function recent(client, msg, args) {
 }
 
 function sendRecent(client, msg, user, options = {}) {
-	console.log(options)
 	if (options.type == 0) {
 		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=${options.mode}`, {
 			json: true
 		}, (err, res, body) => {
-			if (body.length == 0) {
+			if (body.length == 0 || body.length < options.previous+1) {
 				error.log(msg, 4044);
 				return;
 			}
-			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}&m=${options.mode}&a=1`, {
+			var modsString = mods.toString(body[options.previous].enabled_mods);
+			var enabled_mods = 0;
+			if (modsString.includes('DT') || modsString.includes('NC')) enabled_mods += 64;
+			if (modsString.includes('HT')) enabled_mods += 256;
+			if (modsString.includes('HR')) enabled_mods += 16;
+			if (modsString.includes('EZ')) enabled_mods += 2;
+			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[options.previous].beatmap_id}&m=${options.mode}&a=1&mods=${enabled_mods}`, {
 				json: true
 			}, (beatmapErr, beatmapRes, beatmapBody) => {
 				if (err) console.log(err);
@@ -127,7 +128,7 @@ function processData(client, msg, object, mode) {
 			count50: object.count50,
 			mode: mode,
 			sync: true
-		})
+		});
 		object.pp = object.pp || outputObject.pp
 		object.calculated_difficulty = outputObject.stars;
 		object.max_combo = outputObject.combo.split('/')[1].replace('x', '');
@@ -143,7 +144,7 @@ function processData(client, msg, object, mode) {
 }
 
 function generateRecent(client, msg, body) {
-
+	console.log(body.difficultyrating)
 	if (body.length == 0) {
 		error.log(msg, 4044);
 		return;

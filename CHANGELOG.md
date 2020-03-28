@@ -5,12 +5,19 @@ The beautiful bot's Changelog :)
 ## 1.3.5 25-03-2020
 
 ### Added
- - Full taiko support with pp calculation, FC pp calculation, Mods support, Mod difficulty rating and maximum combo of a map and completion percentage
  + Added Taiko maps support to $c
- + Partial Catch support with pp calculation, FC pp calculation, Mods support, Mod difficulty rating, maximum combo of map and completion percentage
+ - Preformance points calculation for taiko and catch
+ - Maximum combo out of achieved combo in taiko
+ - Completion percentage for taiko and catch
 
 ### Changed
  - Changed the pp handler to a better, faster and more up to date version C implementation
+
+### Fixed
+ - Bot crashing when a previous play is requested that is older than what is returned by the osu! API
+ - Show the actual pp for a FC in taiko rather than showing osu!standard's pp for a FC in taiko
+ - Incorrect accuracy for mania and catch
+ - Calculated difficulty with mods showing undefined in taiko and catch
 
 ## 1.3.4.2 22-03-2020
 
