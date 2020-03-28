@@ -28,11 +28,12 @@ function osu(msg, args) {
 		var discordID = args[0].slice(3, 21);
 		database.read('users',{
 			discordID: discordID
-		}, (docs) => {
-			if (err) {
+		}, (docs, err) => {
+			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
 			}
+			options.type = docs[0].type;
 			requestData(msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
@@ -40,8 +41,8 @@ function osu(msg, args) {
 	} else {
 		database.read('users',{
 			discordID: msg.author.id
-		}, function (docs) {
-			if (docs[0].error) {
+		}, function (docs, err) {
+			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
 			}

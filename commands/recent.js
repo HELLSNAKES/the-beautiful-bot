@@ -23,7 +23,8 @@ function recent(client, msg, args) {
 				error.log(msg, 4046);
 				return;
 			}
-			options.mode = args.inlcudes('-m') ? options.mode : docs[0].mode;
+			options.mode = argsString.includes('-m') ? options.mode : docs[0].mode;
+			options.type = docs[0].type;
 			sendRecent(client, msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
@@ -118,7 +119,6 @@ function sendRecent(client, msg, user, options = {}) {
 }
 
 function processData(client, msg, object, mode) {
-	console.log(object);
 	object.accuracy = Math.floor((50 * parseInt(object.count50) + 100 * parseInt(object.count100) + 300 * parseInt(object.count300)) / (300 * (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss))) * 10000) / 100;
 	object.mode = mode
 	if (mode == 0 || mode == 1) {
@@ -148,7 +148,6 @@ function processData(client, msg, object, mode) {
 }
 
 function generateRecent(client, msg, body) {
-	console.log(body.difficultyrating)
 	if (body.length == 0) {
 		error.log(msg, 4044);
 		return;
@@ -178,7 +177,6 @@ function generateRecent(client, msg, body) {
 	var completion = 0;
 	if (body.rank.toLowerCase() == 'f') {
 		completion = Math.floor((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.max_combo) * 10000) / 100;
-		console.log(completion)
 	}
 
 	if (!selectedMods.includes('DT') && !selectedMods.includes('HR') && !selectedMods.includes('EZ') && !selectedMods.includes('HT') && !selectedMods.includes('NC')) {
@@ -195,7 +193,6 @@ function generateRecent(client, msg, body) {
 			sync: true
 		});
 		ppFC = body.perfect == 1 ? '' : '(FC: ' + parseInt(ppFC.pp) + 'pp)';
-		console.log(ppFC)
 	}
 
 	if (body.mode == 0) body.mode = 'osu!';

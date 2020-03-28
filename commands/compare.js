@@ -8,7 +8,8 @@ const pp = require('../handlers/pp');
 const mods = require('../handlers/mods');
 
 function compare(client, msg, args) {
-	getMaps.getMaps(client, msg, function (msg, client, url) {
+	getMaps.getMaps(client, msg, function (msg, client, url) {	
+
 		var options = argument.parse(msg, args);
 
 		if (options.error) return;

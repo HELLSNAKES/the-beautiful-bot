@@ -21,7 +21,10 @@ The beautiful bot's Changelog :)
  - Incorrect accuracy for mania and catch
  - Calculated difficulty with mods showing undefined in taiko and catch
  - pp not rounded when using $c
-
+ - Bot crashing when the data that is passed in $pp couldn't be parsed.
+ - Bot crashing when url cant be parsed
+ - Bot not working when you try to ping someone using $rs and they don't have an account linked
+ - Bot crashing when using $best or someone pinging a user without linking your account
 
 ## 1.3.4.2 22-03-2020
 

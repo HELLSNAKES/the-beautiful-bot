@@ -17,6 +17,10 @@ function best(client, msg, args) {
 		database.read('users',{
 			discordID: discordID
 		}, (docs, err) => {
+			if (err) {
+				error.log(msg, 4046)
+				return;
+			}
 			options.type = docs[0].type;
 			sendRequest(client, msg, docs[0].osuUsername, options);
 		});
@@ -25,7 +29,11 @@ function best(client, msg, args) {
 	} else {
 		database.read('users',{
 			discordID: msg.author.id
-		}, (docs) => {
+		}, (docs, err) => {
+			if (err) {	
+				error.log(msg, 4046)
+				return;
+			}
 			options.type = docs[0].type;
 			sendRequest(client, msg, docs[0].osuUsername, options);
 		});

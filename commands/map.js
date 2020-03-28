@@ -67,7 +67,11 @@ function search(msg, args) {
 
 
 function generateBeatmap(msg, data) {
-
+	
+	if (data.beatmap.id == undefined) {
+		error.log(msg, 4042)
+		return;
+	}
 	// init the canvas
 	var canvas = Canvas.createCanvas(1080, 620);
 	var ctx = canvas.getContext('2d');

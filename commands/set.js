@@ -13,10 +13,11 @@ function set(msg, args) {
 			database.write('users', {
 				discordID: msg.author.id,
 				osuUsername: args.join(' '),
-				type: options.type
-			}, (error) => {
-				if (err) {
-					console.log(error)
+				type: options.type,
+				mode: options.mode
+			}, (docs,error) => {
+				if (error) {
+					console.log('>'+error)
 				} else {
 					msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
 				}
@@ -45,7 +46,6 @@ function mode(msg, args) {
 	database.read('users', {
 		discordID: msg.author.id
 	}, (docs, err) => {
-		console.log(docs)
 		if (err) console.log(err);
 		if (docs.length == 0) {
 			errorHandler.log(msg, 4046);

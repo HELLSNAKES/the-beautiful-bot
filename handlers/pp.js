@@ -76,7 +76,6 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 	var cmd = `curl -s https://osu.ppy.sh/osu/${beatmapId} | "./handlers/pp/oppai" - ${(options.string ? options.string : `${(options.mods ? '+'+options.mods : '')} ${(options.accuracy ? options.accuracy+'%' : '')} ${(options.combo ? options.combo+'x' : '')} ${(options.misses ? options.misses+'m' : '')} ${(options.count100 ? options.count100+'x100' : '')} ${(options.count50 ? options.count50+'x50' : '')} ${(options.mode ? '-m'+options.mode : '')} `)}`
 	if (options.sync) {
 		var output = execSync(cmd);
-		console.log(output)
 		return processCallback(output.toString(), null);
 	} else {
 		exec(cmd, (err, stdout) => {
@@ -88,7 +87,6 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 
 function calculateCatchpp(data) {
 	var value = Math.pow(5 * Math.max(1, (data.diff_aim) / 0.0049) - 4, 2) / 100000;
-	console.log(value)
 	var totalHits = parseInt(data.count300) + parseInt(data.count100) + parseInt(data.countmiss);
 
 	var lengthBonus = 0.95 + 0.4 * Math.min(1, totalHits / 3000) + (totalHits > 3000 ? Math.log10(totalHits / 3000) * 0.5 : 0)
