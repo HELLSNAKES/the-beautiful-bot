@@ -137,8 +137,8 @@ function processData(client, msg, object, mode) {
 		object.diff_approach *= 1.5
 		outputObject = pp.calculateCatchpp(object);
 		object.pp = outputObject.pp;
+	} else if (mode == 3) {
 		object.accuracy = Math.floor(Math.max(0,Math.min(1,(parseInt(object.count50)*50 + parseInt(object.count100)*100 + parseInt(object.countkatu)*200 + (parseInt(object.countgeki) + parseInt(object.count300))*300)/((parseInt(object.count50)+parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countgeki)+ parseInt(object.countkatu))*300))*10000))/100
-
 	}
 	generateRecent(client, msg, object);
 }
@@ -156,7 +156,7 @@ function generateRecent(client, msg, body) {
 		userPictureUrl = `https://a.akatsuki.pw/${body.user_id}?${Date.now().toString()}`;
 	}
 
-	let grade = client.emojis.find(emoji => emoji.name === 'grade_' + body.rank.toLowerCase());
+	let grade = client.emojis.find(emoji => emoji.name === 'rank_' + body.rank.toLowerCase());
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
 	let date = format.time(Date.parse(body.date));
 
