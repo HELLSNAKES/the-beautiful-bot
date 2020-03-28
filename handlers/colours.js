@@ -94,7 +94,7 @@ function getContrastRatio(foreground, background) {
 	var L1 = 0.2126 * R1 + 0.7152 * G1 + 0.0722 * B1;
 	var L2 = 0.2126 * R2 + 0.7152 * G2 + 0.0722 * B2;
 	
-	var threshold = 4.5;
+	var threshold = 4;
 
 	if (L1 > L2) {
 		if ((L1 + 0.05) / (L2 + 0.05) < threshold) {
