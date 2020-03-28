@@ -6,7 +6,7 @@ const argument = require('../handlers/argument');
 const error = require('../handlers/error');
 
 function compare(client, msg, args) {
-	getMaps.getMaps(client, msg, function (msg, client, url) {	
+	getMaps.getMaps(client, msg, function (msg, client, url) {
 
 		var options = argument.parse(msg, args);
 
@@ -14,9 +14,9 @@ function compare(client, msg, args) {
 
 		if (/<@![0-9]{18}>/g.test(args[0])) {
 			var discordID = args[0].slice(3, 21);
-			database.read('users',{
+			database.read('users', {
 				discordID: discordID
-			}, (docs,err) => {
+			}, (docs, err) => {
 				if (err) {
 					error.log(msg, 4046);
 					return;
@@ -27,9 +27,9 @@ function compare(client, msg, args) {
 		} else if (args.length != 0) {
 			sendCompareEmbed(client, msg, url, args.join('_'), options);
 		} else {
-			database.read('users',{
+			database.read('users', {
 				discordID: msg.author.id
-			}, (docs,err) => {
+			}, (docs, err) => {
 				if (err) {
 					error.log(msg, 4046);
 					return;
@@ -49,21 +49,21 @@ function sendCompareEmbed(client, msg, url, user, options) {
 			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${url.slice(url.indexOf('#osu/')+5)}`, {
 				json: true
 			}, (err, res, beatmapData) => {
-					if (err) console.log(err);
-					
-					body = {
-						...body[0],
-						...beatmapData[0]
-					};
-					body.pp = Math.floor(body.pp * 100)/100
-					if (body.user_id == undefined) {
-						msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
-						return;
-					}
-					recent.processData(client, msg, body, body.mode)
-					console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
-				});
+				if (err) console.log(err);
+
+				body = {
+					...body[0],
+					...beatmapData[0]
+				};
+				body.pp = Math.floor(body.pp * 100) / 100;
+				if (body.user_id == undefined) {
+					msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
+					return;
+				}
+				recent.processData(client, msg, body, body.mode);
+				console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 			});
+		});
 	} else {
 		msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
 	}

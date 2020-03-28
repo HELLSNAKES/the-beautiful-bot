@@ -15,9 +15,9 @@ function set(msg, args) {
 				osuUsername: args.join(' '),
 				type: options.type,
 				mode: options.mode
-			}, (docs,error) => {
+			}, (docs, error) => {
 				if (error) {
-					console.log('>'+error)
+					console.log(error);
 				} else {
 					msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
 				}
@@ -37,7 +37,7 @@ function set(msg, args) {
 }
 
 function mode(msg, args) {
-	args = args[0]
+	args = args[0];
 	if (args != '0' && args != '1' && args != '2' && args != '3') {
 		errorHandler.log(msg, 4045);
 		return;
@@ -58,15 +58,15 @@ function mode(msg, args) {
 		database.update('users', {
 			discordID: msg.author.id
 		}, {
-				mode: args
-		}, (res,err) => {
+			mode: args
+		}, (res, err) => {
 			if (err) {
 				console.log(err);
 				return;
 			}
 			msg.channel.send(':white_check_mark: Your default mode has been successfully updated!');
-		})
-	})
+		});
+	});
 }
 
 module.exports = {

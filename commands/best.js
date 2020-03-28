@@ -14,11 +14,11 @@ function best(client, msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read('users',{
+		database.read('users', {
 			discordID: discordID
 		}, (docs, err) => {
 			if (err) {
-				error.log(msg, 4046)
+				error.log(msg, 4046);
 				return;
 			}
 			options.type = docs[0].type;
@@ -27,11 +27,11 @@ function best(client, msg, args) {
 	} else if (args.length != 0) {
 		sendRequest(client, msg, args.join('_'), options);
 	} else {
-		database.read('users',{
+		database.read('users', {
 			discordID: msg.author.id
 		}, (docs, err) => {
-			if (err) {	
-				error.log(msg, 4046)
+			if (err) {
+				error.log(msg, 4046);
 				return;
 			}
 			options.type = docs[0].type;

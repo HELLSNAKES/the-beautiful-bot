@@ -18,15 +18,15 @@ setInterval(function () {
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I\'m in a total of ${client.guilds.size} servers`];
+	let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I'm in a total of ${client.guilds.size} servers`];
 	let counter = 0;
 	client.user.setActivity(messages[counter], {
 		type: 'playing'
 	}).then(console.log('CHANGED PLAYING'));
 	counter = (counter + 1) % messages.length;
 	setInterval(() => {
-		messages[3] = `I\'m in a total of ${client.guilds.size} servers`;
-		client.user.setActivity('$help | '+messages[counter], {
+		messages[3] = `I'm in a total of ${client.guilds.size} servers`;
+		client.user.setActivity('$help | ' + messages[counter], {
 				type: 'playing'
 			})
 			.then(console.log('CHANGED PLAYING'));
@@ -39,7 +39,7 @@ let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL.
 client.on('message', async msg => {
 	if (msg.author.bot) return;
 	if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
-	
+
 	if (msg.content === 'bot you alive?') { // bot are you alive
 		msg.reply('**YES!!!**');
 	} else if (msg.content === 'good bot') {
@@ -48,7 +48,7 @@ client.on('message', async msg => {
 		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (msg.content.includes('osu.ppy.sh/users')) {
 		require('./commands/osu').requestData(msg, msg.content.replace('https://osu.ppy.sh/users/', ''));
-	} 
+	}
 
 	if (!msg.content.startsWith(prefix)) return;
 	var args = msg.content.slice(prefix.length).trim().split(' ');

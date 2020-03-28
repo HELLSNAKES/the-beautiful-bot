@@ -55,9 +55,9 @@ function time(date) {
 
 function numberSuffix(value, formatString) {
 	if (value >= 1000000000) {
-		return ((formatString ? number(Math.floor(value.toString() / 10**8)/10) : Math.floor(value.toString() / 10**8)/10) + 'b');
+		return ((formatString ? number(Math.floor(value.toString() / 10 ** 8) / 10) : Math.floor(value.toString() / 10 ** 8) / 10) + 'b');
 	} else if (value >= 1000000) {
-		return ((formatString ? number(Math.floor(value.toString() / 10**5)/10) : Math.floor(value.toString() / 10**5)/10) + 'm');
+		return ((formatString ? number(Math.floor(value.toString() / 10 ** 5) / 10) : Math.floor(value.toString() / 10 ** 5) / 10) + 'm');
 	} else {
 		return (formatString ? number(value) : value);
 	}

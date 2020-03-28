@@ -26,7 +26,7 @@ function osu(msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read('users',{
+		database.read('users', {
 			discordID: discordID
 		}, (docs, err) => {
 			if (err || Object.entries(docs).length == 0) {
@@ -39,7 +39,7 @@ function osu(msg, args) {
 	} else if (args.length != 0) {
 		requestData(msg, args.join('_'), options);
 	} else {
-		database.read('users',{
+		database.read('users', {
 			discordID: msg.author.id
 		}, function (docs, err) {
 			if (err || Object.entries(docs).length == 0) {
@@ -177,7 +177,7 @@ async function generateUser(msg, type, body) {
 	ctx.textAlign = 'left';
 	ctx.fillStyle = '#ffffff';
 	ctx.font = '21px rubik';
-	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359+ 21);
+	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359 + 21);
 
 	ctx.fillStyle = '#ffffff21';
 	format.rect(ctx, 44, 472, 191, 53, 30);

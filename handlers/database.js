@@ -23,15 +23,14 @@ function read(collectionName, findObject, callback = () => {}) {
 		collection.find(findObject).toArray(function (err, docs) {
 			if (err) {
 				callback({}, err);
-				
+
 				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 				return;
 			}
 
 			if (docs.length == 0) {
 				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				console.log(collectionName);
-				callback({},'user not found');
+				callback({}, 'user not found');
 				return;
 			}
 			console.log(`READ : ${docs[0]._id}`);

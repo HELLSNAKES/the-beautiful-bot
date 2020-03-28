@@ -9,7 +9,7 @@ const akatsukiData = require('./convert/akatsukiData');
 const pp = require('../handlers/pp');
 
 function recent(client, msg, args) {
-	var argsString = args.join(' ')
+	var argsString = args.join(' ');
 	var options = argument.parse(msg, args);
 
 	if (options.error) return;
@@ -49,7 +49,7 @@ function sendRecent(client, msg, user, options = {}) {
 		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous+1}&m=${options.mode}`, {
 			json: true
 		}, (err, res, body) => {
-			if (body.length == 0 || body.length < options.previous+1) {
+			if (body.length == 0 || body.length < options.previous + 1) {
 				error.log(msg, 4044);
 				return;
 			}
@@ -120,9 +120,9 @@ function sendRecent(client, msg, user, options = {}) {
 
 function processData(client, msg, object, mode) {
 	object.accuracy = Math.floor((50 * parseInt(object.count50) + 100 * parseInt(object.count100) + 300 * parseInt(object.count300)) / (300 * (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss))) * 10000) / 100;
-	object.mode = mode
+	object.mode = mode;
 	if (mode == 0 || mode == 1) {
-		outputObject = pp.calculatepp(object.beatmap_id, {
+		var outputObject = pp.calculatepp(object.beatmap_id, {
 			mods: mods.toString(object.enabled_mods, false),
 			accuracy: object.accuracy,
 			combo: object.maxcombo,
@@ -132,17 +132,17 @@ function processData(client, msg, object, mode) {
 			mode: mode,
 			sync: true
 		});
-		object.pp = object.pp || outputObject.pp
+		object.pp = object.pp || outputObject.pp;
 		object.calculated_difficulty = outputObject.stars;
 		object.max_combo = outputObject.combo.split('/')[1].replace('x', '');
 	} else if (mode == 2) {
-		object.accuracy = Math.floor((Math.max(0, Math.min(1, (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300)) / (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countkatu))))) * 10000) / 100
-		object.diff_approach *= 1.5
+		object.accuracy = Math.floor((Math.max(0, Math.min(1, (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300)) / (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countkatu))))) * 10000) / 100;
+		object.diff_approach *= 1.5;
 		outputObject = pp.calculateCatchpp(object);
 		object.pp = outputObject.pp;
 	} else if (mode == 3) {
-		object.accuracy = Math.floor(Math.max(0,Math.min(1,(parseInt(object.count50)*50 + parseInt(object.count100)*100 + parseInt(object.countkatu)*200 + (parseInt(object.countgeki) + parseInt(object.count300))*300)/((parseInt(object.count50)+parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countgeki)+ parseInt(object.countkatu))*300))*10000))/100;
-		object.pp = '-'
+		object.accuracy = Math.floor(Math.max(0, Math.min(1, (parseInt(object.count50) * 50 + parseInt(object.count100) * 100 + parseInt(object.countkatu) * 200 + (parseInt(object.countgeki) + parseInt(object.count300)) * 300) / ((parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countgeki) + parseInt(object.countkatu)) * 300)) * 10000)) / 100;
+		object.pp = '-';
 	}
 	generateRecent(client, msg, object);
 }
