@@ -9,7 +9,10 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 	
 	var processCallback = (stdout, err) => {
 
-			if (err) console.log(err)
+			if (err) {
+				callback({}, 'The data could not be parse correctly')
+				return 'The data could not be parse correctly';
+			};
 
 			var jsonOutput = {
 				error: null

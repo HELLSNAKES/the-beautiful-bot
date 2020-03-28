@@ -102,7 +102,7 @@ function sendBest(client, msg, user, body, type) {
 		}, (err, res, beatmapData) => {
 			let index = urls.indexOf(res.request.href);
 
-			var grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[index].rank.toLowerCase());
+			var grade = client.emojis.find(emoji => emoji.name === 'rank_' + body[index].rank.toLowerCase());
 			var pp = Math.floor(body[index].pp * 100) / 100;
 			var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
 

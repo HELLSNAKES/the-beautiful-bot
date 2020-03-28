@@ -4,7 +4,11 @@ const request = require('request');
 
 function show(client, msg, args) {
 	getMap.getMaps(client, msg, (msgFunc, clientFunc, url, userid) => {
-		pp.calculatepp(url.slice(url.indexOf('#osu/')+5), {string: args}, (json) => {
+		pp.calculatepp(url.slice(url.indexOf('#osu/')+5), {string: args}, (json,err) => {
+			if (err) {
+				msg.channel.send(':no_entry: '+err)
+				return;
+			}
 			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${json.beatmapId}`, {
 				json: true
 			}, (err, res, body) => {

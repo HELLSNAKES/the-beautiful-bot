@@ -5,7 +5,6 @@ The beautiful bot's Changelog :)
 ## 1.3.5 25-03-2020
 
 ### Added
- + Added Taiko maps support to $c
  - Preformance points calculation for taiko and catch
  - Maximum combo out of achieved combo in taiko
  - Completion percentage for taiko and catch
@@ -13,7 +12,7 @@ The beautiful bot's Changelog :)
 
 ### Changed
  - Changed the pp handler to a better, faster and more up to date version C implementation
-- The threshold for the allowed minimum contrast between colours has been reduced from 4.5 to 4.0.
+ - The threshold for the allowed minimum contrast between colours has been reduced from 4.5 to 4.0.
  
 ### Fixed
  - Bot crashing when a previous play is requested that is older than what is returned by the osu! API
