@@ -17,3 +17,7 @@ function toString(number, returnNoMod = true) {
 module.exports = {
 	toString: toString
 };
+
+function getScoreMultiplier(number) {
+
+}

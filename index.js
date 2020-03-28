@@ -79,6 +79,8 @@ client.on('message', async msg => {
 		require('./commands/leaderboard').leaderboard(client, msg, args);
 	} else if (cmd == 'pp') {
 		require('./commands/pp').show(client, msg, args.join(' '));
+	} else if (cmd == 'modeset') {
+		require('./commands/set').mode(msg, args);
 	}
 });
 

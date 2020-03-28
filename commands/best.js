@@ -63,7 +63,6 @@ function sendRequest(client, msg, user, options) {
 }
 
 function sendBest(client, msg, user, body, type) {
-	console.log(body)
 	if (body.length == 0) {
 		error.log(msg, 4041);
 		return;

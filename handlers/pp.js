@@ -141,7 +141,6 @@ function calculateCatchpp(data) {
 }
 
 function calculateManiapp(data) {
-
 }
 
 module.exports = {

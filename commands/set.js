@@ -1,15 +1,16 @@
 const database = require('../handlers/database');
 const argument = require('../handlers/argument');
+const errorHandler = require('../handlers/error');
 
 function set(msg, args) {
 	var options = argument.parse(msg, args);
 	if (options.error) return;
 
-	database.read('users',{
+	database.read('users', {
 		discordID: msg.author.id,
-	}, (docs,err) => {
+	}, (docs, err) => {
 		if (err) {
-			database.write('users',{
+			database.write('users', {
 				discordID: msg.author.id,
 				osuUsername: args.join(' '),
 				type: options.type
@@ -20,9 +21,9 @@ function set(msg, args) {
 					msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
 				}
 			});
-			
+
 		} else {
-			database.update('users',{
+			database.update('users', {
 				discordID: msg.author.id
 			}, {
 				osuUsername: args.join('_'),
@@ -35,9 +36,40 @@ function set(msg, args) {
 }
 
 function mode(msg, args) {
-	
+	args = args[0]
+	if (args != '0' && args != '1' && args != '2' && args != '3') {
+		errorHandler.log(msg, 4045);
+		return;
+	}
+	args = parseInt(args[0]);
+	database.read('users', {
+		discordID: msg.author.id
+	}, (docs, err) => {
+		console.log(docs)
+		if (err) console.log(err);
+		if (docs.length == 0) {
+			errorHandler.log(msg, 4046);
+		}
+		if (docs[0].type != 0) {
+			msg.channel.send(':no_entry: Sorry but only offical osu servers users can use $modeset');
+			return;
+		}
+
+		database.update('users', {
+			discordID: msg.author.id
+		}, {
+				mode: args
+		}, (res,err) => {
+			if (err) {
+				console.log(err);
+				return;
+			}
+			msg.channel.send(':white_check_mark: Your default mode has been successfully updated!');
+		})
+	})
 }
 
 module.exports = {
-	set: set
+	set: set,
+	mode: mode
 };

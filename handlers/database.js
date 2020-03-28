@@ -92,7 +92,7 @@ function update(collectionName, findObject, setObject, callback) {
 				callback({}, err);
 				return;
 			}
-			console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+			console.log(`UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 			callback({}, null);
 			client.close();
 		});
