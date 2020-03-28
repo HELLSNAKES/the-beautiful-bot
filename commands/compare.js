@@ -50,16 +50,17 @@ function sendCompareEmbed(client, msg, url, user, options) {
 				json: true
 			}, (err, res, beatmapData) => {
 					if (err) console.log(err);
+					
 					body = {
 						...body[0],
 						...beatmapData[0]
 					};
-
+					body.pp = Math.floor(body.pp * 100)/100
 					if (body.user_id == undefined) {
 						msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
 						return;
 					}
-					recent.processData(client, msg, body)
+					recent.processData(client, msg, body, body.mode)
 					console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 				});
 			});
