@@ -2,7 +2,7 @@
 
 The beautiful bot's Changelog :)
 
-## 1.3.5 25-03-2020
+## 1.3.5 28-03-2020
 
 ### Added
  - Preformance points calculation for taiko and catch
