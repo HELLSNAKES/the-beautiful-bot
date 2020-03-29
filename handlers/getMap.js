@@ -22,7 +22,7 @@ function getMaps(client, msg, callback) {
 				});
 			}
 			count++;
-			if (count == 49) {
+			if (count == 50) {
 				msg.channel.send(':no_entry: I couldn\'t find any maps in the last 50 messages');
 			}
 		})).catch(console.error);

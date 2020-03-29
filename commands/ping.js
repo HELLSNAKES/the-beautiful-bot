@@ -26,7 +26,7 @@ async function ping(client, msg) {
 					request('https://akatsuki.pw/api/v1/surprise_me', () => {
 						times[4][1] = new Date(Date.now());
 						database.read('users', {}, (docs) => {
-							message.edit(`Discord API Latency is ${Math.round(client.ping)}ms\nosu! API latency is ${times[0][1] - times[0][0]}ms\nTBB API Latency is ${times[1][1] - times[1][0]}ms\nOppai Latency is ${times[2][1] - times[2][0]}ms\nGatari Latency is ${times[3][1] - times[3][0]}ms\nAkatsuki Latency is ${times[4][1] - times[4][0]}ms\n\nNumber of servers: ${client.guilds.size}\nNumber of users: ${docs.length}`);
+							message.edit(`Discord API Latency is ${Math.round(client.ping)}ms\nosu! API latency is ${times[0][1] - times[0][0]}ms\nTBB API Latency is ${times[1][1] - times[1][0]}ms\nOjsama Latency is ${times[2][1] - times[2][0]}ms\nGatari Latency is ${times[3][1] - times[3][0]}ms\nAkatsuki Latency is ${times[4][1] - times[4][0]}ms\n\nNumber of servers: ${client.guilds.size}\nNumber of users: ${docs.length}`);
 						});
 
 					});

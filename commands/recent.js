@@ -104,9 +104,7 @@ function sendRecent(client, msg, user, options = {}) {
 					mods: mods.toString(body.enabled_mods, false),
 					accuracy: body.accuracy,
 					combo: body.maxcombo,
-					misses: body.countmiss,
-					count100: body.count100,
-					count50: body.count50
+					misses: body.countmiss
 				}, (json) => {
 					body.pp = json.pp;
 					body.calculated_difficulty = json.stars;
@@ -119,32 +117,46 @@ function sendRecent(client, msg, user, options = {}) {
 }
 
 function processData(client, msg, object, mode) {
-	object.accuracy = Math.floor((50 * parseInt(object.count50) + 100 * parseInt(object.count100) + 300 * parseInt(object.count300)) / (300 * (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss))) * 10000) / 100;
+
 	object.mode = mode;
-	if (mode == 0 || mode == 1) {
+	var n300 = parseInt(object.count300);
+	var ngeki = parseInt(object.countgeki);
+	var nkatu = parseInt(object.countkatu);
+	var n100 = parseInt(object.count100);
+	var n50 = parseInt(object.count50);
+	var nmiss = parseInt(object.countmiss);
+
+	if (mode == 0) {
+		object.accuracy = Math.floor((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 10000) / 100;
 		var outputObject = pp.calculatepp(object.beatmap_id, {
 			mods: mods.toString(object.enabled_mods, false),
 			accuracy: object.accuracy,
 			combo: object.maxcombo,
 			misses: object.countmiss,
-			count100: object.count100,
-			count50: object.count50,
-			mode: mode,
-			sync: true
+			mode: mode
+		}, (json) => {
+			object.pp = object.pp || json.pp;
+			object.calculated_difficulty = json.stars;
+			object.totalHits = json.totalHits;
+			object.ppFC = json.ppFC;
+			generateRecent(client, msg, object);
 		});
-		object.pp = object.pp || outputObject.pp;
-		object.calculated_difficulty = outputObject.stars;
-		object.max_combo = outputObject.combo.split('/')[1].replace('x', '');
+	} else if (mode == 1) {
+		object.accuracy = Math.floor(Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 10000) / 100;
+		object.pp = '-';
+		generateRecent(client, msg, object);
 	} else if (mode == 2) {
-		object.accuracy = Math.floor((Math.max(0, Math.min(1, (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300)) / (parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countkatu))))) * 10000) / 100;
+		object.accuracy = Math.floor((Math.max(0, Math.min(1, (n50 + n100 + n300) / (n50 + n100 + n300 + nmiss + nkatu)))) * 10000) / 100;
 		object.diff_approach *= 1.5;
 		outputObject = pp.calculateCatchpp(object);
 		object.pp = outputObject.pp;
+		generateRecent(client, msg, object);
 	} else if (mode == 3) {
-		object.accuracy = Math.floor(Math.max(0, Math.min(1, (parseInt(object.count50) * 50 + parseInt(object.count100) * 100 + parseInt(object.countkatu) * 200 + (parseInt(object.countgeki) + parseInt(object.count300)) * 300) / ((parseInt(object.count50) + parseInt(object.count100) + parseInt(object.count300) + parseInt(object.countmiss) + parseInt(object.countgeki) + parseInt(object.countkatu)) * 300)) * 10000)) / 100;
+		object.accuracy = Math.floor(Math.max(0, Math.min(1, (n50 * 50 + n100 * 100 + nkatu * 200 + (ngeki + n300) * 300) / ((n50 + n100 + n300 + nmiss + ngeki + nkatu) * 300)) * 10000)) / 100;
 		object.pp = '-';
+		generateRecent(client, msg, object);
 	}
-	generateRecent(client, msg, object);
+
 }
 
 function generateRecent(client, msg, body) {
@@ -174,6 +186,8 @@ function generateRecent(client, msg, body) {
 	else if (body.rank.toLowerCase() == 'x') colour = 16580705;
 	else if (body.rank.toLowerCase() == 'xh') colour = 16580705;
 
+	// if (!isNaN(body.pp)) body.pp = Math.floor(body.pp * 100)/100;
+
 	var completion = 0;
 	if (body.rank.toLowerCase() == 'f') {
 		completion = Math.floor((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.max_combo) * 10000) / 100;
@@ -183,16 +197,8 @@ function generateRecent(client, msg, body) {
 		body.calculated_difficulty = Math.floor(body.difficultyrating * 100) / 100;
 	}
 	var ppFC = '';
-	if (body.mode == 0 || body.mode == 1) {
-		ppFC = pp.calculatepp(body.beatmap_id, {
-			mods: mods.toString(body.enabled_mods, false),
-			accuracy: (body.accuracy >= 80 ? body.accuracy : 80),
-			count100: body.count100,
-			count50: body.count50,
-			mode: body.mode,
-			sync: true
-		});
-		ppFC = body.perfect == 1 ? '' : '(FC: ' + parseInt(ppFC.pp) + 'pp)';
+	if (body.ppFC) {
+		ppFC = body.perfect == 1 ? '' : '(FC: ' + parseInt(body.ppFC) + 'pp)';
 	}
 
 	if (body.mode == 0) body.mode = 'osu!';

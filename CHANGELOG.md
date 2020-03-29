@@ -2,7 +2,7 @@
 
 The beautiful bot's Changelog :)
 
-## 1.3.5 28-03-2020
+## 1.3.5 29-03-2020
 
 ### Added
  - Preformance points calculation for taiko and catch
@@ -10,9 +10,9 @@ The beautiful bot's Changelog :)
  - Completion percentage for taiko and catch
  - $modeset which will set your default mode to taiko, catch, mania or standard.
  - Added a lot more information in $pp including beatmap values such as AR and CS and BPM that will change with the mods applied.
-
+ - Test file for the future and for Travis CI tests to pass correctly
 ### Changed
- - Changed the pp handler to a better, faster and more up to date version C implementation
+ - ~~Changed the pp handler to a better, faster and more up to date version C implementation~~ (This had cross platform inconsistencies) Used native ojsama rather than command line implementation.
  - The threshold for the allowed minimum contrast between colours has been reduced from 4.5 to 4.0.
  
 ### Fixed

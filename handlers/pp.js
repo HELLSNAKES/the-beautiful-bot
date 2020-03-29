@@ -1,89 +1,67 @@
 /* eslint-disable no-useless-escape */
-const {
-	exec,
-	execSync
-} = require('child_process');
 const mods = require('./mods');
+const ojsama = require('ojsama');
+const request = require('request');
 
 function calculatepp(beatmapId, options, callback = () => {}) {
 
+	var parser = new ojsama.parser();
 
-	var processCallback = (stdout, err) => {
+	request({
+		url: `https://osu.ppy.sh/osu/${beatmapId}`,
+		encoding: null
+	}, (res, err, body) => {
+		parser.feed(body.toString());
 
-		if (err) {
-			callback({}, 'The data could not be parse correctly');
-			return 'The data could not be parse correctly';
-		}
+		var params = {
+			map: parser.map
+		};
+		if (options.mods) params.mods = options.mods;
+		if (options.accuracy) params.acc_percent = options.accuracy;
+		if (options.combo) params.combo = options.combo;
+		if (options.misses) params.nmiss = options.misses;
+		if (options.mode) params.mode = options.mode;
+		options.combo = (options.combo ? options.combo : parser.map.max_combo());
+		options.accuracy = (options.accuracy ? options.accuracy : 100);
+		options.mods = (options.mods ? options.mods : 0);
+
+		var output = ojsama.ppv2(params);
+
+		params.nmiss = 0;
+		params.combo = parser.map.max_combo();
+		var FC = ojsama.ppv2(params);
+
+		var stats = new ojsama.std_beatmap_stats(parser.map);
+		stats = stats.with_mods(options.mods);
+		var stars = new ojsama.diff().calc({
+			map: parser.map,
+			mods: options.mods
+		});
 
 		var jsonOutput = {
-			error: null
+			error: null,
+			beatmapId: beatmapId,
+			title: parser.map.title,
+			artist: parser.map.artist,
+			difficultyName: parser.map.version,
+			creator: parser.map.creator,
+			AR: Math.floor(stats.ar * 100) / 100,
+			OD: Math.floor(stats.od * 100) / 100,
+			CS: Math.floor(stats.cs * 100) / 100,
+			HP: Math.floor(stats.hp * 100) / 100,
+			stars: Math.floor(stars.total * 100) / 100,
+			mods: mods.toString(options.mods),
+			combo: options.combo,
+			maxCombo: parser.map.max_combo(),
+			accuracy: options.accuracy,
+			totalHits: parser.map.objects.length,
+			pp: Math.floor(output.total * 100) / 100,
+			ppFC: FC.total,
 		};
 
-		if (stdout == 'requested a feature that isn\'t implemented\r\n') {
-			jsonOutput.error = 'Unsupported mode';
-			callback(jsonOutput);
-			return jsonOutput;
-		}
-		// remove \r and split each line
-		var stdOutSplit = stdout.replace(/\r/g, '').split('\n');
-		var formattedOut = [];
-		//
-		for (var i = 0; i < stdOutSplit.length; i++) {
-			if (stdOutSplit[i] != '' && !stdOutSplit[i].trim().startsWith('speed strain:') && !stdOutSplit[i].trim().startsWith('aim strain:')) {
-				formattedOut.push(stdOutSplit[i].trim());
-			}
-		}
-
-		// Extract title, name, difficulty name and mapper
-		jsonOutput.beatmapId = beatmapId;
-		jsonOutput.artist = formattedOut[0].split(' - ')[0];
-		jsonOutput.title = formattedOut[0].split(' - ')[1];
-		jsonOutput.title = jsonOutput.title.slice(0, jsonOutput.title.indexOf('[') - 1);
-		jsonOutput.difficultyName = formattedOut[0].slice(formattedOut[0].indexOf('[') + 1, formattedOut[0].indexOf(']'));
-		jsonOutput.creator = formattedOut[0].slice(formattedOut[0].indexOf('mapped by ')).replace('mapped by ', '');
-
-		// Extract AR, OD, CS and HP
-		var values = formattedOut[1].split(' ');
-		// standard
-		if (values.length > 3) {
-			jsonOutput.AR = parseFloat(values[0].replace('AR', ''));
-			jsonOutput.OD = parseFloat(values[1].replace('OD', ''));
-			jsonOutput.CS = parseFloat(values[2].replace('CS', ''));
-			jsonOutput.HP = parseFloat(values[3].replace('HP', ''));
-		}
-		// Taiko
-		else {
-			jsonOutput.AR = parseFloat(values[0].replace('AR', ''));
-			jsonOutput.OD = parseFloat(values[1].replace('OD', ''));
-			jsonOutput.HP = parseFloat(values[2].replace('HP', ''));
-		}
-		// Extract hitwindow
-		jsonOutput.hitWindow = formattedOut[2].replace('300 hitwindow: ', '');
-
-		// Extract Calculated Difficulty
-		jsonOutput.stars = Math.round(parseFloat(formattedOut[4].slice(0, formattedOut[4].indexOf(' stars'))) * 100) / 100;
-
-		// Extract Mods, Combo and accuracy
-		jsonOutput.mods = (formattedOut[5].includes('+') ? formattedOut[5].slice(formattedOut[5].indexOf('+') + 1, formattedOut[5].indexOf(' ')) : '');
-		jsonOutput.combo = formattedOut[5].match(/\d+\/\d+x/g)[0];
-		jsonOutput.accuracy = formattedOut[5].match(/[\d\.]+%/)[0].replace('%', '');
-
-		// Extract pp
-		jsonOutput.pp = formattedOut[6].slice(0, formattedOut[6].indexOf(' pp'));
 
 		callback(jsonOutput);
-		return jsonOutput;
-	};
-	var cmd = `curl -s https://osu.ppy.sh/osu/${beatmapId} | "./handlers/pp/oppai" - ${(options.string ? options.string : `${(options.mods ? '+'+options.mods : '')} ${(options.accuracy ? options.accuracy+'%' : '')} ${(options.combo ? options.combo+'x' : '')} ${(options.misses ? options.misses+'m' : '')} ${(options.count100 ? options.count100+'x100' : '')} ${(options.count50 ? options.count50+'x50' : '')} ${(options.mode ? '-m'+options.mode : '')} `)}`;
-	if (options.sync) {
-		var output = execSync(cmd);
-		return processCallback(output.toString(), null);
-	} else {
-		exec(cmd, (err, stdout) => {
-			processCallback(stdout, err);
-		});
-	}
-
+	});
 }
 
 function calculateCatchpp(data) {

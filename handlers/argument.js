@@ -1,4 +1,5 @@
 const error = require('./error');
+const ojsama = require('ojsama');
 
 function parse(msg, args) {
 	var options = {
@@ -50,6 +51,26 @@ function parse(msg, args) {
 	return (options);
 }
 
+function parseOjsama(args) {
+	var output = {};
+	var argv = args.split(' ');
+
+	for (var i = 0; i < argv.length; ++i) {
+		if (argv[i].startsWith('+')) {
+			output.mods = ojsama.modbits.from_string(argv[i].slice(1) || '');
+		} else if (argv[i].endsWith('%')) {
+			output.accuracy = parseFloat(argv[i]);
+		} else if (argv[i].endsWith('x')) {
+			output.combo = parseInt(argv[i]);
+		} else if (argv[i].endsWith('m')) {
+			output.misses = parseInt(argv[i]);
+		}
+	}
+
+	return output;
+}
+
 module.exports = {
-	parse: parse
+	parse: parse,
+	parseOjsama: parseOjsama
 };
