@@ -2,6 +2,33 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.5 29-03-2020
+
+### Added
+ - Preformance points calculation for taiko and catch
+ - Maximum combo out of achieved combo in taiko
+ - Completion percentage for taiko and catch
+ - $modeset which will set your default mode to taiko, catch, mania or standard.
+ - Added a lot more information in $pp including beatmap values such as AR and CS and BPM that will change with the mods applied.
+ - Test file for the future and for Travis CI tests to pass correctly
+### Changed
+ - ~~Changed the pp handler to a better, faster and more up to date version C implementation~~ (This had cross platform inconsistencies) Used native ojsama rather than command line implementation.
+ - The threshold for the allowed minimum contrast between colours has been reduced from 4.5 to 4.0.
+ 
+### Fixed
+ - Bot crashing when a previous play is requested that is older than what is returned by the osu! API
+ - Bot crashing if you search for a map that doesn't exist using $map
+ - Show the actual pp for a FC in taiko rather than showing osu!standard's pp for a FC in taiko
+ - Incorrect accuracy for mania and catch
+ - Calculated difficulty with mods showing undefined in taiko and catch
+ - pp not rounded when using $c
+ - Bot crashing when the data that is passed in $pp couldn't be parsed.
+ - Bot crashing when url cant be parsed
+ - Bot not working when you try to ping someone using $rs and they don't have an account linked
+ - Bot crashing when using $best and $c or someone pinging a user without linking your account
+ - Bot crashing when pinging non-standard accounts in $osu
+ - Bot not respecting mode and user type across commands
+
 ## 1.3.4.2 22-03-2020
 
 ## Changed

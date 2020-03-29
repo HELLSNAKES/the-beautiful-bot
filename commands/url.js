@@ -2,13 +2,6 @@
 const request = require('request');
 const error = require('../handlers/error');
 const Canvas = require('canvas');
-const colours = require('../handlers/colours');
-const fs = require('fs');
-const {
-	execSync
-} = require('child_process');
-const Discord = require('discord.js');
-const format = require('../handlers/format');
 
 Canvas.registerFont('assets/Rubik-Bold.ttf', {
 	family: 'rubik'
@@ -37,17 +30,17 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 		}
 		var data = {};
 		data.beatmaps = [];
-		modes = ['osu','taiko', 'fruits', 'mania']
+		var modes = ['osu', 'taiko', 'fruits', 'mania'];
 		for (var i = 0; i < body.length; i++) {
 
-			body[i].mode = modes[body[i].mode]
-			body[i].difficulty_rating = body[i].difficultyrating
+			body[i].mode = modes[body[i].mode];
+			body[i].difficulty_rating = body[i].difficultyrating;
 			data.beatmaps.push(body[i]);
 			if (body[i].beatmap_id == beatmapid) {
 				data = {
 					...body[i],
 					...data
-				}
+				};
 			}
 		}
 
@@ -59,7 +52,7 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 		else if (data.approved == 2) approved = 'approved';
 		else if (data.approved == 3) approved = 'qualified';
 		else if (data.approved == 4) approved = 'loved';
-		
+
 		data = {
 			...data,
 			id: data.beatmapset_id,
@@ -77,11 +70,11 @@ function getBeatmapData(msg, beatmapsetid, beatmapid) {
 				total_length: data.total_length,
 				version: data.version
 			}
-		}
+		};
 
 		console.log(`BEATMAP DATA : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`);
 		if (msg) {
-			map.generateBeatmap(msg,data)
+			map.generateBeatmap(msg, data);
 		} else {
 			return (data);
 		}

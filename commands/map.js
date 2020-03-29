@@ -31,7 +31,7 @@ function search(msg, args) {
 		},
 		json: true
 	}, (err, res, body) => {
-		if (body.length == 0) {
+		if (body.beatmapsets.length == 0) {
 			error.log(msg, 4042);
 			return;
 		}
@@ -68,6 +68,10 @@ function search(msg, args) {
 
 function generateBeatmap(msg, data) {
 
+	if (data.beatmap.id == undefined) {
+		error.log(msg, 4042);
+		return;
+	}
 	// init the canvas
 	var canvas = Canvas.createCanvas(1080, 620);
 	var ctx = canvas.getContext('2d');
@@ -77,13 +81,13 @@ function generateBeatmap(msg, data) {
 		colour.foreground = colours.toHex(colour.foreground);
 		colour.background = colours.toHex(colour.background);
 		ctx.fillStyle = colour.background;
-		format.rect(ctx,0,0,canvas.width, canvas.height, 37)
+		format.rect(ctx, 0, 0, canvas.width, canvas.height, 37);
 
 		// Beatmap Image
 		try {
 			var beatmapImage = await Canvas.loadImage(url);
-		} catch (err) { 
-			var beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png');
+		} catch (err) {
+			beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png');
 		}
 
 		ctx.shadowColor = 'rgba(0,0,0,0.8)';
@@ -103,19 +107,19 @@ function generateBeatmap(msg, data) {
 		ctx.font = '20px rubik';
 		ctx.textAlign = 'center';
 		ctx.fillStyle = '#ffffff';
-		ctx.fillText(data.status.slice(0,1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
+		ctx.fillText(data.status.slice(0, 1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
 		ctx.textAlign = 'center';
-		var statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/'+data.status+'.png'));
-		ctx.drawImage(statusImage, 37, 33, 20, 20)
+		var statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/' + data.status + '.png'));
+		ctx.drawImage(statusImage, 37, 33, 20, 20);
 
 		// title
 		ctx.fillStyle = colour.foreground;
 		ctx.font = '42px rubik-bold';
 		ctx.textAlign = 'left';
-		ctx.fillText(data.title, 41, 367)
+		ctx.fillText(data.title, 41, 367);
 		ctx.font = '26px rubik-bold';
-		ctx.fillText(data.artist, 41, 406)
-		
+		ctx.fillText(data.artist, 41, 406);
+
 		// star rating
 		var svgFile = fs.readFileSync('assets/star.svg', 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
@@ -128,10 +132,10 @@ function generateBeatmap(msg, data) {
 			for (i = 0; i < Math.floor(data.beatmap.difficulty_rating); i++) {
 				ctx.drawImage(star, 40 + 33 * i, 420, 28, 27);
 			}
-			var lastStarSize = (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating))
-			var minSize = 0.5
-			var multiplier = ((1 - minSize) + (minSize * lastStarSize))
-			ctx.drawImage(star, 40 + 33 * (i) + ((28 - (28 * multiplier))/2), 420 + ((27 - (27 * multiplier))/2), 28 * multiplier, 27 * multiplier)
+			var lastStarSize = (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating));
+			var minSize = 0.5;
+			var multiplier = ((1 - minSize) + (minSize * lastStarSize));
+			ctx.drawImage(star, 40 + 33 * (i) + ((28 - (28 * multiplier)) / 2), 420 + ((27 - (27 * multiplier)) / 2), 28 * multiplier, 27 * multiplier);
 		}
 
 		//CS / AR /HP / OD
@@ -167,10 +171,10 @@ function generateBeatmap(msg, data) {
 		ctx.clip();
 		ctx.drawImage(mapperPfp, 478, 456, 91, 91);
 		ctx.restore();
-		
+
 		ctx.font = '21px rubik-bold';
 		ctx.textAlign = 'center';
-		ctx.fillText(data.creator, 523, 581)
+		ctx.fillText(data.creator, 523, 581);
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/clock.svg'), 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
@@ -202,11 +206,11 @@ function generateBeatmap(msg, data) {
 		ctx.fillText(data.beatmap.version, 629, 416 + 26);
 		var compare = (a, b) => {
 			if (parseFloat(a.difficulty_rating) > parseFloat(b.difficulty_rating)) {
-				return 1
+				return 1;
 			} else {
-				return -1
+				return -1;
 			}
-		}
+		};
 		data.beatmaps.sort(compare);
 
 		for (i = 0; i < data.beatmaps.length; i++) {

@@ -26,27 +26,28 @@ function osu(msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read({
+		database.read('users', {
 			discordID: discordID
-		}, (doc) => {
-			if (doc.error) {
+		}, (docs, err) => {
+			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
 			}
-			requestData(msg, doc.osuUsername, options);
+			options.type = docs[0].type;
+			requestData(msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
 		requestData(msg, args.join('_'), options);
 	} else {
-		database.read({
+		database.read('users', {
 			discordID: msg.author.id
-		}, function (doc) {
-			if (doc.error) {
+		}, function (docs, err) {
+			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
 			}
-			options.type = doc.type;
-			requestData(msg, doc.osuUsername, options);
+			options.type = docs[0].type;
+			requestData(msg, docs[0].osuUsername, options);
 		});
 	}
 }
@@ -176,7 +177,7 @@ async function generateUser(msg, type, body) {
 	ctx.textAlign = 'left';
 	ctx.fillStyle = '#ffffff';
 	ctx.font = '21px rubik';
-	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359+ 21);
+	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359 + 21);
 
 	ctx.fillStyle = '#ffffff21';
 	format.rect(ctx, 44, 472, 191, 53, 30);

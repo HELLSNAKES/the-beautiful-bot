@@ -14,20 +14,28 @@ function best(client, msg, args) {
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
 		var discordID = args[0].slice(3, 21);
-		database.read({
+		database.read('users', {
 			discordID: discordID
-		}, (doc) => {
-			options.type = doc.type;
-			sendRequest(client, msg, doc.osuUsername, options);
+		}, (docs, err) => {
+			if (err) {
+				error.log(msg, 4046);
+				return;
+			}
+			options.type = docs[0].type;
+			sendRequest(client, msg, docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
 		sendRequest(client, msg, args.join('_'), options);
 	} else {
-		database.read({
+		database.read('users', {
 			discordID: msg.author.id
-		}, (doc) => {
-			options.type = doc.type;
-			sendRequest(client, msg, doc.osuUsername, options);
+		}, (docs, err) => {
+			if (err) {
+				error.log(msg, 4046);
+				return;
+			}
+			options.type = docs[0].type;
+			sendRequest(client, msg, docs[0].osuUsername, options);
 		});
 	}
 }
@@ -63,7 +71,6 @@ function sendRequest(client, msg, user, options) {
 }
 
 function sendBest(client, msg, user, body, type) {
-	console.log(body)
 	if (body.length == 0) {
 		error.log(msg, 4041);
 		return;
@@ -103,7 +110,7 @@ function sendBest(client, msg, user, body, type) {
 		}, (err, res, beatmapData) => {
 			let index = urls.indexOf(res.request.href);
 
-			var grade = client.emojis.find(emoji => emoji.name === 'grade_' + body[index].rank.toLowerCase());
+			var grade = client.emojis.find(emoji => emoji.name === 'rank_' + body[index].rank.toLowerCase());
 			var pp = Math.floor(body[index].pp * 100) / 100;
 			var accuracy = Math.floor((50 * parseInt(body[index].count50) + 100 * parseInt(body[index].count100) + 300 * parseInt(body[index].count300)) / (300 * (parseInt(body[index].count50) + parseInt(body[index].count100) + parseInt(body[index].count300) + parseInt(body[index].countmiss))) * 10000) / 100;
 

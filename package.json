@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "nodemon index.js",
     "start": "node index.js",
-    "test": "node index.js test"
+    "test": "node test.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +15,7 @@
     "color-thief": "^2.2.5",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
-    "mongodb": "^3.4.1",
+    "mongodb": "^3.5.5",
     "node-vibrant": "^3.1.5",
     "ojsama": "^1.2.5",
     "request": "^2.88.0",
@@ -23,6 +23,6 @@
   },
   "devDependencies": {
     "eslint": "^6.8.0",
-    "nodemon": "^1.19.4"
+    "nodemon": "^2.0.2"
   }
 }
