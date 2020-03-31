@@ -129,7 +129,7 @@ function processData(client, msg, object, mode) {
 	if (mode == 0) {
 		object.accuracy = Math.floor((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 10000) / 100;
 		var outputObject = pp.calculatepp(object.beatmap_id, {
-			mods: mods.toString(object.enabled_mods, false),
+			mods: parseInt(object.enabled_mods),
 			accuracy: object.accuracy,
 			combo: parseInt(object.maxcombo),
 			misses: parseInt(object.countmiss),
