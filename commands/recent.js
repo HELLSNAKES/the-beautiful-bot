@@ -156,6 +156,7 @@ function processData(client, msg, object, mode) {
 		object.accuracy = Math.floor((Math.max(0, Math.min(1, (n50 + n100 + n300) / (n50 + n100 + n300 + nmiss + nkatu)))) * 10000) / 100;
 		object.diff_approach *= 1.5;
 		outputObject = pp.calculateCatchpp(object);
+		object.totalHits = object.max_combo;
 		object.pp = outputObject.pp;
 		generateRecent(client, msg, object);
 	} else if (mode == 3) {
@@ -197,7 +198,7 @@ function generateRecent(client, msg, body) {
 
 	var completion = 0;
 	if (body.rank.toLowerCase() == 'f') {
-		completion = Math.floor((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.max_combo) * 10000) / 100;
+		completion = Math.floor((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.totalHits) * 10000) / 100;
 	}
 
 	if (!selectedMods.includes('DT') && !selectedMods.includes('HR') && !selectedMods.includes('EZ') && !selectedMods.includes('HT') && !selectedMods.includes('NC')) {
