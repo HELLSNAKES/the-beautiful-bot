@@ -24,7 +24,7 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 		options.combo = (options.combo ? options.combo : parser.map.max_combo());
 		options.accuracy = (options.accuracy ? options.accuracy : 100);
 		options.mods = (options.mods ? options.mods : 0);
-
+		console.log(params)
 		var output = ojsama.ppv2(params);
 
 		params.nmiss = 0;

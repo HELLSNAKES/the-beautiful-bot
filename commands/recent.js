@@ -131,8 +131,8 @@ function processData(client, msg, object, mode) {
 		var outputObject = pp.calculatepp(object.beatmap_id, {
 			mods: mods.toString(object.enabled_mods, false),
 			accuracy: object.accuracy,
-			combo: object.maxcombo,
-			misses: object.countmiss,
+			combo: parseInt(object.maxcombo),
+			misses: parseInt(object.countmiss),
 			mode: mode
 		}, (json) => {
 			object.pp = object.pp || json.pp;
@@ -141,6 +141,13 @@ function processData(client, msg, object, mode) {
 			object.ppFC = json.ppFC;
 			generateRecent(client, msg, object);
 		});
+		console.log({
+			mods: mods.toString(object.enabled_mods, false),
+			accuracy: object.accuracy,
+			combo: object.maxcombo,
+			misses: object.countmiss,
+			mode: mode
+		})
 	} else if (mode == 1) {
 		object.accuracy = Math.floor(Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 10000) / 100;
 		object.pp = '-';
