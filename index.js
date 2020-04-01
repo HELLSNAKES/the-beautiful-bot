@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const http = require('http');
 const client = new Discord.Client();
 const prefix = process.env.prefix || '$';
+const parser = require('./handlers/parser');
 
 http.createServer((req, res) => {
 	if (req.url == '/') {
@@ -46,8 +47,8 @@ client.on('message', async msg => {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
 		require('./commands/url').beatmapCardFromLink(msg);
-	} else if (msg.content.includes('osu.ppy.sh/users')) {
-		require('./commands/osu').requestData(msg, msg.content.replace('https://osu.ppy.sh/users/', ''));
+	} else if (parser.userURL(msg.content).success) {
+		require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
 	}
 
 	if (!msg.content.startsWith(prefix)) return;

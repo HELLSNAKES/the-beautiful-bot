@@ -80,6 +80,7 @@ function requestData(msg, id, options = {}) {
 }
 
 async function generateUser(msg, type, body) {
+	var mainColour = '#ffffff';
 	if (body == undefined || body.length == 0) {
 		error.log(msg, 4041);
 		return;
@@ -125,7 +126,7 @@ async function generateUser(msg, type, body) {
 	ctx.drawImage(userPicture, x, y, userPicture.width * scale, userPicture.height * scale);
 	ctx.restore();
 
-	ctx.fillStyle = '#ffffff';
+	ctx.fillStyle = mainColour;
 	ctx.font = '63px rubik-bold';
 	ctx.fillText(body[0].username, 347, 56 + 63);
 
@@ -175,18 +176,18 @@ async function generateUser(msg, type, body) {
 	ctx.fillStyle = '#FFCC22';
 	format.rect(ctx, 441, 364, 504 * (body[0].level - Math.floor(body[0].level) > 0.02 ? body[0].level - Math.floor(body[0].level) : 0.02), 12, 7);
 	ctx.textAlign = 'left';
-	ctx.fillStyle = '#ffffff';
+	ctx.fillStyle = mainColour;
 	ctx.font = '21px rubik';
 	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359 + 21);
 
-	ctx.fillStyle = '#ffffff21';
+	ctx.fillStyle = mainColour+'21';
 	format.rect(ctx, 44, 472, 191, 53, 30);
 	format.rect(ctx, 278, 472, 232, 53, 30);
 	format.rect(ctx, 547, 472, 306, 53, 30);
 	format.rect(ctx, 897, 472, 250, 53, 30);
 
 
-	ctx.fillStyle = '#ffffff';
+	ctx.fillStyle = mainColour;
 	ctx.textAlign = 'center';
 	ctx.font = '30px rubik-bold';
 	ctx.fillText('pp', 118 + 20, 476 + 30);
