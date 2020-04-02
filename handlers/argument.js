@@ -10,6 +10,7 @@ function parse(msg, args) {
 		count: 25,
 		relax: 0,
 		mods: -1,
+		modsInclude: false
 	};
 	for (var i = 0; i < args.length; i++) {
 		if (args[i] == '-p') {
@@ -33,6 +34,10 @@ function parse(msg, args) {
 			args.splice(i, 2);
 			i = -1;
 		} else if (args[i] == '-mods') {
+			if (args[i + 1].startsWith('!')) {
+				args[i+1] = args[i + 1].replace('!','')
+				options.modsInclude = true;
+			}
 			options.mods = mods.toValue(args[i + 1]);
 			args.splice(i, 2);
 		} else if (args[i] == '-rx') {

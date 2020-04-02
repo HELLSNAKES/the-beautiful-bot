@@ -95,10 +95,9 @@ function sendBest(client, msg, user, body, options) {
 	const embed = {
 		'title': '',
 		'author': {
-			'name': `${user}'s Top 5 best plays:`,
 			'url': userUrl
 		},
-		'description': '',
+		'description': 'No plays were found	:flushed:',
 		'color': 3066993,
 		'thumbnail': {
 			'url': userPictureUrl
@@ -106,7 +105,15 @@ function sendBest(client, msg, user, body, options) {
 	};
 
 	for (var i = 0; i < body.length && plays.length != 5; i++) {
-		if (options.mods != -1 && options.mods != parseInt(body[i].enabled_mods)) continue;
+		if (options.mods != -1) {
+			if (options.modsInclude) {
+				if (!mods.toString(body[i].enabled_mods).includes(mods.toString(options.mods))) {
+					continue;
+				}
+			} else if (options.mods != parseInt(body[i].enabled_mods)) {
+				continue;
+			}
+		}
 		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`);
 		index.push(i);
 		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`, {
@@ -121,6 +128,7 @@ function sendBest(client, msg, user, body, options) {
 			playpp.push(pp);
 		}));
 	}
+	embed.author.name = `Here is ${user}'s top ${urls.length} plays:`;
 	Promise.all(plays).then(() => {
 		var sortedpp = playpp.slice(0).sort((a, b) => {
 			return (b - a);
@@ -129,7 +137,9 @@ function sendBest(client, msg, user, body, options) {
 		for (i = 0; i < sortedpp.length; i++) {
 			sortedString.push(playString[playpp.indexOf(sortedpp[i])]);
 		}
-		embed.description = sortedString.join(' ');
+		if (sortedpp.length != 0) {
+			embed.description = sortedString.join(' ');
+		}
 		msg.channel.send({
 			embed
 		});
