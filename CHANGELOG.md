@@ -2,6 +2,14 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.5.1 02-04-2020
+
+### Added
+ - Filtering best plays by mods
+
+### Changed
+ - Implemented a better user URL parser
+
 ## 1.3.5 29-03-2020
 
 ### Added

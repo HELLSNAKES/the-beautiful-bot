@@ -9,12 +9,12 @@ function userURL(url) {
 	var returnObject = {
 		userId: null,
 		success: true
-	}
+	};
 	var pattern = /^(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\/\d+/g;
 	var patternWithoutDigits = /^(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\//g;
 	if (pattern.test(url)) {
 		console.log();
-		returnObject.userId = url.match(pattern)[0].replace(patternWithoutDigits,'');
+		returnObject.userId = url.match(pattern)[0].replace(patternWithoutDigits, '');
 	} else {
 		returnObject.success = false;
 	}

@@ -141,13 +141,6 @@ function processData(client, msg, object, mode) {
 			object.ppFC = json.ppFC;
 			generateRecent(client, msg, object);
 		});
-		console.log({
-			mods: mods.toString(object.enabled_mods, false),
-			accuracy: object.accuracy,
-			combo: object.maxcombo,
-			misses: object.countmiss,
-			mode: mode
-		})
 	} else if (mode == 1) {
 		object.accuracy = Math.floor(Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 10000) / 100;
 		object.pp = '-';
@@ -182,7 +175,7 @@ function generateRecent(client, msg, body) {
 	let grade = client.emojis.find(emoji => emoji.name === 'rank_' + body.rank.toLowerCase());
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
 	let date = format.time(Date.parse(body.date));
-	body.difficultyrating = Math.floor(body.difficultyrating*100)/100 	
+	body.difficultyrating = Math.floor(body.difficultyrating*100)/100;
 	let selectedMods = mods.toString(body.enabled_mods);
 	var colour = 0;
 	if (body.rank.toLowerCase() == 'f' || body.rank.toLowerCase() == 'd') colour = 15158332;

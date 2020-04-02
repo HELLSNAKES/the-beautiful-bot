@@ -1,5 +1,6 @@
 const error = require('./error');
 const ojsama = require('ojsama');
+const mods = require('../handlers/mods');
 
 function parse(msg, args) {
 	var options = {
@@ -7,7 +8,8 @@ function parse(msg, args) {
 		mode: 0,
 		type: 0,
 		count: 25,
-		relax: 0
+		relax: 0,
+		mods: -1,
 	};
 	for (var i = 0; i < args.length; i++) {
 		if (args[i] == '-p') {
@@ -30,11 +32,13 @@ function parse(msg, args) {
 			options.count = (typeof options.count !== 'undefined') ? options.count : 0;
 			args.splice(i, 2);
 			i = -1;
+		} else if (args[i] == '-mods') {
+			options.mods = mods.toValue(args[i + 1]);
+			args.splice(i, 2);
 		} else if (args[i] == '-rx') {
 			options.relax = 1;
 			args.splice(i, 1);
 			i = -1;
-
 		}
 
 	}
