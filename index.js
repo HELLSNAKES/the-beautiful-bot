@@ -52,7 +52,7 @@ client.on('message', async msg => {
 	}
 
 	if (!msg.content.startsWith(prefix)) return;
-	var args = msg.content.slice(prefix.length).trim().split(' ');
+	var args = msg.content.slice(prefix.length).trim().split(/ +/);
 	var cmd = args.shift().toLowerCase();
 
 

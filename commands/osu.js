@@ -1,4 +1,3 @@
-const database = require('../handlers/database');
 const error = require('../handlers/error');
 const format = require('../handlers/format');
 const fs = require('fs');
@@ -21,36 +20,10 @@ Canvas.registerFont('assets/Rubik-Medium.ttf', {
 var time = Date.now();
 
 function osu(msg, args, mode = 0) {
-	var options = argument.parse(msg, args);
-	options.mode = mode;
-	if (options.error) return;
-
-	if (/<@![0-9]{18}>/g.test(args[0])) {
-		var discordID = args[0].slice(3, 21);
-		database.read('users', {
-			discordID: discordID
-		}, (docs, err) => {
-			if (err || Object.entries(docs).length == 0) {
-				error.log(msg, 4046);
-				return;
-			}
-			options.type = docs[0].type;
-			requestData(msg, docs[0].osuUsername, options);
-		});
-	} else if (args.length != 0) {
-		requestData(msg, args.join('_'), options);
-	} else {
-		database.read('users', {
-			discordID: msg.author.id
-		}, function (docs, err) {
-			if (err || Object.entries(docs).length == 0) {
-				error.log(msg, 4046);
-				return;
-			}
-			options.type = docs[0].type;
-			requestData(msg, docs[0].osuUsername, options);
-		});
-	}
+	argument.determineUser(msg, args, (user, options) => {
+		options.mode = mode;
+		requestData(msg, user, options);
+	});
 }
 
 function requestData(msg, id, options = {

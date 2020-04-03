@@ -1,6 +1,7 @@
 const error = require('./error');
 const ojsama = require('ojsama');
 const mods = require('../handlers/mods');
+const database = require('../handlers/database');
 
 function parse(msg, args) {
 	var options = {
@@ -35,7 +36,7 @@ function parse(msg, args) {
 			i = -1;
 		} else if (args[i] == '-mods') {
 			if (args[i + 1].startsWith('!')) {
-				args[i+1] = args[i + 1].replace('!','')
+				args[i + 1] = args[i + 1].replace('!', '');
 				options.modsInclude = true;
 			}
 			options.mods = mods.toValue(args[i + 1]);
@@ -79,7 +80,43 @@ function parseOjsama(args) {
 	return output;
 }
 
+function determineUser(msg, args, callback) {
+	var argsString = args.join(' ');
+	var options = parse(msg, args);
+	if (options.error) return;
+
+	if (/<@![0-9]{18}>/g.test(args[0])) {
+		var discordID = args[0].slice(3, 21);
+		database.read('users', {
+			discordID: discordID
+		}, (docs, err) => {
+			if (err || Object.entries(docs).length == 0) {
+				error.log(msg, 4046);
+				return;
+			}
+			options.mode = argsString.includes('-m') ? options.mode : docs[0].mode;
+			options.type = docs[0].type;
+			callback(docs[0].osuUsername, options);
+		});
+	} else if (args.length != 0) {
+		callback(args.join('_'), options);
+	} else {
+		database.read('users', {
+			discordID: msg.author.id
+		}, (docs, err) => {
+			if (err || Object.entries(docs).length == 0) {
+				error.log(msg, 4046);
+				return;
+			}
+			options.mode = argsString.includes('-m') ? options.mode : docs[0].mode;
+			options.type = docs[0].type;
+			callback(docs[0].osuUsername, options);
+		});
+	}
+}
+
 module.exports = {
 	parse: parse,
-	parseOjsama: parseOjsama
+	parseOjsama: parseOjsama,
+	determineUser: determineUser
 };

@@ -1,4 +1,3 @@
-const database = require('../handlers/database');
 const error = require('../handlers/error');
 const request = require('request');
 const requestPromiseNative = require('request-promise-native');
@@ -9,35 +8,9 @@ const argument = require('../handlers/argument');
 const akatsukiData = require('./convert/akatsukiData');
 
 function best(client, msg, args) {
-	var options = argument.parse(msg, args);
-	if (options.error) return;
-
-	if (/<@![0-9]{18}>/g.test(args[0])) {
-		var discordID = args[0].slice(3, 21);
-		database.read('users', {
-			discordID: discordID
-		}, (docs, err) => {
-			if (err) {
-				error.log(msg, 4046);
-				return;
-			}
-			options.type = docs[0].type;
-			sendRequest(client, msg, docs[0].osuUsername, options);
-		});
-	} else if (args.length != 0) {
-		sendRequest(client, msg, args.join('_'), options);
-	} else {
-		database.read('users', {
-			discordID: msg.author.id
-		}, (docs, err) => {
-			if (err) {
-				error.log(msg, 4046);
-				return;
-			}
-			options.type = docs[0].type;
-			sendRequest(client, msg, docs[0].osuUsername, options);
-		});
-	}
+	argument.determineUser(msg, args, (user, options) => {
+		sendRequest(client, msg, user, options);
+	});
 }
 
 function sendRequest(client, msg, user, options) {

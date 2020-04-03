@@ -2,6 +2,19 @@
 
 The beautiful bot's Changelog :)
 
+## 1.x x-x-20
+
+### Added
+
+### Fixed
+
+### Changed
+ - Argument space spliting, now extra spaces are ignored e.g. "$osu -m 0  Moorad"
+ - Refactored a lot of code
+### Removed
+
+### Security
+
 ## 1.3.5.2 03-04-2020
 
 ### Added 

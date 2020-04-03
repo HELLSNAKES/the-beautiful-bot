@@ -1,43 +1,13 @@
-const database = require('../handlers/database');
 const request = require('request');
 const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
 const argument = require('../handlers/argument');
-const error = require('../handlers/error');
 
 function compare(client, msg, args) {
 	getMaps.getMaps(client, msg, function (msg, client, url) {
-
-		var options = argument.parse(msg, args);
-
-		if (options.error) return;
-
-		if (/<@![0-9]{18}>/g.test(args[0])) {
-			var discordID = args[0].slice(3, 21);
-			database.read('users', {
-				discordID: discordID
-			}, (docs, err) => {
-				if (err) {
-					error.log(msg, 4046);
-					return;
-				}
-				options.type = docs[0].type;
-				sendCompareEmbed(client, msg, url, docs[0].osuUsername, options);
-			});
-		} else if (args.length != 0) {
-			sendCompareEmbed(client, msg, url, args.join('_'), options);
-		} else {
-			database.read('users', {
-				discordID: msg.author.id
-			}, (docs, err) => {
-				if (err) {
-					error.log(msg, 4046);
-					return;
-				}
-				options.type = docs[0].type;
-				sendCompareEmbed(client, msg, url, docs[0].osuUsername, options);
-			});
-		}
+		argument.determineUser(msg, args, (user, options) => {
+			sendCompareEmbed(client, msg, url, user, options);
+		});
 	});
 }
 

@@ -1,4 +1,3 @@
-const database = require('../handlers/database');
 const error = require('../handlers/error');
 const format = require('../handlers/format');
 const argument = require('../handlers/argument');
@@ -9,39 +8,9 @@ const akatsukiData = require('./convert/akatsukiData');
 const pp = require('../handlers/pp');
 
 function recent(client, msg, args) {
-	var argsString = args.join(' ');
-	var options = argument.parse(msg, args);
-
-	if (options.error) return;
-
-	if (/<@![0-9]{18}>/g.test(args[0])) {
-		var discordID = args[0].slice(3, 21);
-		database.read('users', {
-			discordID: discordID
-		}, (docs, err) => {
-			if (err) {
-				error.log(msg, 4046);
-				return;
-			}
-			options.mode = argsString.includes('-m') ? options.mode : docs[0].mode;
-			options.type = docs[0].type;
-			sendRecent(client, msg, docs[0].osuUsername, options);
-		});
-	} else if (args.length != 0) {
-		sendRecent(client, msg, args.join('_'), options);
-	} else {
-		database.read('users', {
-			discordID: msg.author.id
-		}, (docs, err) => {
-			if (err) {
-				error.log(msg, 4046);
-				return;
-			}
-			options.mode = argsString.includes('-m ') ? options.mode : docs[0].mode;
-			options.type = docs[0].type;
-			sendRecent(client, msg, docs[0].osuUsername, options);
-		});
-	}
+	argument.determineUser(msg, args, (user, options) => {
+		sendRecent(client, msg, user, options);
+	});
 }
 
 function sendRecent(client, msg, user, options = {}) {
