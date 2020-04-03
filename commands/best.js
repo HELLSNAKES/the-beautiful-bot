@@ -7,7 +7,7 @@ const gatariData = require('./convert/gatariData');
 const argument = require('../handlers/argument');
 const akatsukiData = require('./convert/akatsukiData');
 
-function best(client, msg, args) {
+function execute(client, msg, args) {
 	argument.determineUser(msg, args, (user, options) => {
 		sendRequest(client, msg, user, options);
 	});
@@ -121,5 +121,6 @@ function sendBest(client, msg, user, body, options) {
 }
 
 module.exports = {
-	best: best
+	name: 'best',
+	execute: execute
 };

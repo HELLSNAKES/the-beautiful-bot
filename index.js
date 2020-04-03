@@ -4,6 +4,7 @@ const http = require('http');
 const client = new Discord.Client();
 const prefix = process.env.prefix || '$';
 const parser = require('./handlers/parser');
+const fs = require('fs');
 
 http.createServer((req, res) => {
 	if (req.url == '/') {
@@ -35,6 +36,13 @@ client.on('ready', () => {
 	}, 300000);
 });
 
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (var i of commandFiles) {
+	var command = require(`./commands/${i}`);
+	client.commands.set(command.name, command);
+}
 
 
 client.on('message', async msg => {
@@ -57,37 +65,37 @@ client.on('message', async msg => {
 
 
 	if (cmd === 'ping') {
-		require('./commands/ping').ping(client, msg);
+		client.commands.get('ping').execute(client, msg);
 	} else if (cmd == 'osu') {
-		require('./commands/osu').osu(msg, args, 0);
+		client.commands.get('osu').execute(msg, args, 0);
 	} else if (cmd == 'taiko') {
-		require('./commands/osu').osu(msg, args, 1);
+		client.commands.get('osu').execute(msg, args, 1);
 	} else if (cmd == 'catch') {
-		require('./commands/osu').osu(msg, args, 2);
+		client.commands.get('osu').execute(msg, args, 2);
 	} else if (cmd == 'mania') {
-		require('./commands/osu').osu(msg, args, 3);
+		client.commands.get('osu').execute(msg, args, 3);
 	} else if (cmd == 'rs' || cmd == 'recent') {
-		require('./commands/recent').recent(client, msg, args);
+		client.commands.get('recent').execute(client, msg, args);
 	} else if (cmd == 'bt' || cmd == 'best') {
-		require('./commands/best').best(client, msg, args);
+		client.commands.get('best').execute(client, msg, args);
 	} else if (cmd == 'mp' || cmd == 'map') {
-		require('./commands/map').search(msg, args);
+		client.commands.get('map').execute(msg, args);
 	} else if (cmd == 'os' || cmd == 'osuset') {
-		require('./commands/set').set(msg, args);
+		client.commands.get('set').user(msg, args);
 	} else if (cmd == 'hl' || cmd == 'help') {
-		require('./commands/help').help(msg, prefix, args);
+		client.commands.get('help').execute(msg, prefix, args);
 	} else if (cmd == 'cl' || cmd == 'changelog') {
-		require('./commands/changelog').changelog(msg);
+		client.commands.get('changelog').execute(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
-		require('./commands/compare').compare(client, msg, args);
+		client.commands.get('compare').execute(client, msg, args);
 	} else if (cmd === 'cat') {
-		require('./commands/cat').cat(msg);
+		client.commands.get('cat').execute(msg);
 	} else if (cmd == 'leaderboard' || cmd == 'lb') {
-		require('./commands/leaderboard').leaderboard(client, msg, args);
+		client.commands.get('leaderboard').execute(client, msg, args);
 	} else if (cmd == 'pp') {
-		require('./commands/pp').show(client, msg, args.join(' '));
+		client.commands.get('pp').execute(client, msg, args.join(' '));
 	} else if (cmd == 'modeset') {
-		require('./commands/set').mode(msg, args);
+		client.commands.get('set').mode(msg, args);
 	}
 });
 

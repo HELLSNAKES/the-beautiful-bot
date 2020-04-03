@@ -9,17 +9,17 @@ const Discord = require('discord.js');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
 const argument = require('../handlers/argument');
-Canvas.registerFont('assets/Rubik-Bold.ttf', {
+Canvas.registerFont('./assets/Rubik-Medium.ttf', {
 	family: 'rubik-bold'
 });
 
-Canvas.registerFont('assets/Rubik-Medium.ttf', {
+Canvas.registerFont('./assets/Rubik-Regular.ttf', {
 	family: 'rubik'
 });
 
 var time = Date.now();
 
-function osu(msg, args, mode = 0) {
+function execute(msg, args, mode = 0) {
 	argument.determineUser(msg, args, (user, options) => {
 		options.mode = mode;
 		requestData(msg, user, options);
@@ -191,7 +191,8 @@ async function generateUser(msg, options, body) {
 
 
 module.exports = {
-	osu: osu,
+	name: 'osu',
+	execute: execute,
 	requestData: requestData,
 	generateUser: generateUser
 };

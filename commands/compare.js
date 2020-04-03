@@ -3,10 +3,11 @@ const recent = require('./recent');
 const getMaps = require('../handlers/getMap');
 const argument = require('../handlers/argument');
 
-function compare(client, msg, args) {
+function execute(client, msg, args) {
 	getMaps.getMaps(client, msg, function (msg, client, url) {
 		argument.determineUser(msg, args, (user, options) => {
 			sendCompareEmbed(client, msg, url, user, options);
+			console.log(url, user, options);
 		});
 	});
 }
@@ -40,5 +41,6 @@ function sendCompareEmbed(client, msg, url, user, options) {
 }
 
 module.exports = {
-	compare: compare
+	name: 'compare',
+	execute: execute
 };

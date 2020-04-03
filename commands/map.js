@@ -8,15 +8,15 @@ const path = require('path');
 const format = require('../handlers/format');
 const Discord = require('discord.js');
 
-Canvas.registerFont('assets/Rubik-Bold.ttf', {
+Canvas.registerFont('assets/Rubik-Medium.ttf', {
 	family: 'rubik-bold'
 });
 
-Canvas.registerFont('assets/Rubik-Medium.ttf', {
+Canvas.registerFont('assets/Rubik-Regular.ttf', {
 	family: 'rubik'
 });
 
-function search(msg, args) {
+function execute(msg, args) {
 	if (args.length != 0) {
 		var name = args.join(' ');
 	} else {
@@ -249,6 +249,7 @@ function generateBeatmap(msg, data) {
 
 
 module.exports = {
-	search: search,
+	name: 'map',
+	execute: execute,
 	generateBeatmap: generateBeatmap
 };

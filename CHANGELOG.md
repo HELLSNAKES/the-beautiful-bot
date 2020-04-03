@@ -11,6 +11,7 @@ The beautiful bot's Changelog :)
 ### Changed
  - Argument space spliting, now extra spaces are ignored e.g. "$osu -m 0  Moorad"
  - Refactored a lot of code
+
 ### Removed
 
 ### Security

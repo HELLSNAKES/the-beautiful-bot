@@ -1,4 +1,4 @@
-function help(msg, prefix, args) {
+function execute(msg, prefix, args) {
 	if (args[0] == 2) {
 		msg.channel.send(`>>> **---- osu! ----**\n**\`${prefix}leaderboard\`** or **\`$lb\`**\nWill display the top 25 people on the leaderboard in the last mentioned map in the chat e.g. \`$map Ange du Blanc Pur\` then \`$lb\`\n\t\t\`-c [count]\` - (optional) will change the count of people displayed e.g. \`${prefix}lb -c 10\` (This will show the top 10 people in the last mentioned map)\n\t\t\t\t\`0-25\` - Number of people (Default = 25)\n\n**\`${prefix}pp\`**\nCalculates the pp for the last mentioned map in the chat e.g. \`$map Ange du Blanc Pur\` then \`$pp 100% +HD\`\n\t\t\`[accuracy]%\` - (If not given the bot will assume its 100% accuracy when approriate) show the pp for a specific accuracy\n\t\t\`+[mods]\` - (If not given the bot will assume no mods are applied) show the pp with the specified maps applied.\n\t\t\`[Number of misses]m\` - (If not given the bot will assume 0 misses) show the pp with the specified miss count.\n\t\t\`[combo]x\` - (If not given the bot will assume a Full combo) show the pp with the specified combo.\n\t\t\`$map Ange du Blanc Pur\` then \`${prefix}pp 95% 1200x 2m +HD\` (This will return the pp for a 95% accuracy, 2 miss, 1200 combo HD play on Ange de Blanc Pur)\n\n**---- General ----**\n**\`${prefix}help\`** or **\`${prefix}hl\`**\nDisplays this command list\n**\`${prefix}cat\`**\n:)\n\n**\`${prefix}changelog\`** or **\`${prefix}cl\`**\nWill return the information on where to find the changelog for the bot\n\n**\`${prefix}ping\`**\nThe bot will measure the latency of the API's that the bot uses and returns their latency\n\nUse \`$help 1\` to go to the previous page\n[2/2]`);
 		return;
@@ -10,5 +10,6 @@ function help(msg, prefix, args) {
 
 
 module.exports = {
-	help: help
+	name: 'help',
+	execute: execute
 };

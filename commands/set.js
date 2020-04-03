@@ -2,7 +2,7 @@ const database = require('../handlers/database');
 const argument = require('../handlers/argument');
 const errorHandler = require('../handlers/error');
 
-function set(msg, args) {
+function user(msg, args) {
 	var options = argument.parse(msg, args);
 	if (options.error) return;
 
@@ -70,6 +70,7 @@ function mode(msg, args) {
 }
 
 module.exports = {
-	set: set,
+	name: 'set',
+	user: user,
 	mode: mode
 };

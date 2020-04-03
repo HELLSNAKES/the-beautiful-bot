@@ -7,7 +7,7 @@ const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
 const pp = require('../handlers/pp');
 
-function recent(client, msg, args) {
+function execute(client, msg, args) {
 	argument.determineUser(msg, args, (user, options) => {
 		sendRecent(client, msg, user, options);
 	});
@@ -197,7 +197,8 @@ function generateRecent(client, msg, body) {
 
 
 module.exports = {
-	recent: recent,
+	name: 'recent',
+	execute: execute,
 	generateRecent: generateRecent,
 	processData: processData
 };

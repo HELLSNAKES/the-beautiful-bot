@@ -3,7 +3,7 @@ const request = require('request');
 const mods = require('../handlers/mods');
 const argument = require('../handlers/argument');
 
-function leaderboard(client, msg, args) {
+function execute(client, msg, args) {
 	getMaps.getMaps(client, msg, function (clientFunc, msgFunc, url, userid) {
 		var options = argument.parse(msg, args);
 		if (options.error) return;
@@ -37,5 +37,6 @@ function leaderboard(client, msg, args) {
 }
 
 module.exports = {
-	leaderboard: leaderboard
+	name: 'leaderboard',
+	execute: execute
 };

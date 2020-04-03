@@ -1,7 +1,7 @@
 const request = require('request');
 const pp = require('../handlers/pp');
 const database = require('../handlers/database');
-async function ping(client, msg) {
+async function execute(client, msg) {
 	var times = [
 		[new Date(Date.now())]
 	];
@@ -39,5 +39,6 @@ async function ping(client, msg) {
 }
 
 module.exports = {
-	ping: ping
+	name: 'ping',
+	execute: execute
 };

@@ -3,7 +3,7 @@ const pp = require('../handlers/pp');
 const request = require('request');
 const argument = require('../handlers/argument');
 
-function show(client, msg, args) {
+function execute(client, msg, args) {
 	getMap.getMaps(client, msg, (msgFunc, clientFunc, url, userid) => {
 		pp.calculatepp(url.slice(url.indexOf('#osu/') + 5), argument.parseOjsama(args), (json, err) => {
 			if (err) {
@@ -24,5 +24,6 @@ function show(client, msg, args) {
 }
 
 module.exports = {
-	show: show
+	name: 'pp',
+	execute: execute
 };
