@@ -2,6 +2,11 @@
 
 The beautiful bot's Changelog :)
 
+## 1.3.5.2 03-04-2020
+
+### Added 
+ - taiko, catch and mania equivelants of $osu 
+
 ## 1.3.5.1 02-04-2020
 
 ### Added

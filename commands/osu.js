@@ -20,8 +20,9 @@ Canvas.registerFont('assets/Rubik-Medium.ttf', {
 
 var time = Date.now();
 
-function osu(msg, args) {
+function osu(msg, args, mode = 0) {
 	var options = argument.parse(msg, args);
+	options.mode = mode;
 	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
@@ -52,13 +53,15 @@ function osu(msg, args) {
 	}
 }
 
-function requestData(msg, id, options = {}) {
+function requestData(msg, id, options = {
+	mode: 0
+}) {
 	options.type = options.type ? options.type : 0;
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}`, {
+		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}&m=${options.mode}`, {
 			json: true
 		}, async (err, res, body) => {
-			generateUser(msg, 0, body);
+			generateUser(msg, options, body);
 		});
 	} else if (options.type == 1) {
 		request(`https://api.gatari.pw/user/stats?u=${id}`, {
@@ -67,19 +70,19 @@ function requestData(msg, id, options = {}) {
 			request(`https://api.gatari.pw/users/get?u=${id}`, {
 				json: true
 			}, (err, res, bodyInfo) => {
-				generateUser(msg, 1, [gatariData.userData(body, bodyInfo)]);
+				generateUser(msg, options, [gatariData.userData(body, bodyInfo)]);
 			});
 		});
 	} else if (options.type == 2) {
 		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 			json: true
 		}, (err, res, body) => {
-			generateUser(msg, 2, [akatsukiData.userData(body)]);
+			generateUser(msg, options, [akatsukiData.userData(body)]);
 		});
 	}
 }
 
-async function generateUser(msg, type, body) {
+async function generateUser(msg, options, body) {
 	var mainColour = '#ffffff';
 	if (body == undefined || body.length == 0) {
 		error.log(msg, 4041);
@@ -106,9 +109,9 @@ async function generateUser(msg, type, body) {
 
 	var userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`;
 
-	if (type == 1) {
+	if (options.type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body[0].user_id}?${Date.now().toString()}`;
-	} else if (type == 2) {
+	} else if (options.type == 2) {
 		userPictureUrl = `https://a.akatsuki.pw/${body[0].user_id}?${Date.now().toString()}`;
 	}
 	var userPicture;
@@ -126,11 +129,18 @@ async function generateUser(msg, type, body) {
 	ctx.drawImage(userPicture, x, y, userPicture.width * scale, userPicture.height * scale);
 	ctx.restore();
 
+	ctx.beginPath();
+	ctx.ellipse(268 + 30, 277 + 30, 40, 40, 0, 0, Math.PI * 2);
+	ctx.fill();
+
+	var modes = ['osu', 'taiko', 'fruits', 'mania'];
+	var icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/${modes[options.mode]}.png`));
+	ctx.drawImage(icon, 252, 261, 86, 86);
+
+
 	ctx.fillStyle = mainColour;
 	ctx.font = '63px rubik-bold';
 	ctx.fillText(body[0].username, 347, 56 + 63);
-
-
 
 	ctx.font = '40px rubik';
 	let country = countryCodes[body[0].country];
@@ -180,7 +190,7 @@ async function generateUser(msg, type, body) {
 	ctx.font = '21px rubik';
 	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359 + 21);
 
-	ctx.fillStyle = mainColour+'21';
+	ctx.fillStyle = mainColour + '21';
 	format.rect(ctx, 44, 472, 191, 53, 30);
 	format.rect(ctx, 278, 472, 232, 53, 30);
 	format.rect(ctx, 547, 472, 306, 53, 30);

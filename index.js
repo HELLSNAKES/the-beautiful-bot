@@ -59,7 +59,13 @@ client.on('message', async msg => {
 	if (cmd === 'ping') {
 		require('./commands/ping').ping(client, msg);
 	} else if (cmd == 'osu') {
-		require('./commands/osu').osu(msg, args);
+		require('./commands/osu').osu(msg, args, 0);
+	} else if (cmd == 'taiko') {
+		require('./commands/osu').osu(msg, args, 1);
+	} else if (cmd == 'catch') {
+		require('./commands/osu').osu(msg, args, 2);
+	} else if (cmd == 'mania') {
+		require('./commands/osu').osu(msg, args, 3);
 	} else if (cmd == 'rs' || cmd == 'recent') {
 		require('./commands/recent').recent(client, msg, args);
 	} else if (cmd == 'bt' || cmd == 'best') {
