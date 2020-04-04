@@ -119,9 +119,87 @@ function calculateCatchpp(data) {
 	};
 }
 
-function calculateManiapp(data) {}
+function calculateManiapp(data) {
+	data.difficultyrating = parseFloat(data.difficultyrating);
+	data.diff_overall = parseFloat(data.diff_overall);
+	data.maxcombo = parseInt(data.maxcombo);
+	data.score = parseInt(data.score);
+	data.accuracy = parseFloat(data.accuracy);
+	data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
+	var enabled_mods = mods.toString(data.enabled_mods).replace('No Mod', '');
+	
+	// Strain
+	var scoreMultiplier = mods.getScoreMultiplier(enabled_mods,3);
+	var strainValue = 0;
+	if (scoreMultiplier <= 0)
+	{
+		return;
+	}
+	
+	data.score *= 1/scoreMultiplier;
+
+	strainValue = Math.pow(5 * Math.max(1, data.difficultyrating / 0.2) - 4, 2.2) / 135;
+
+	strainValue *= 1 + 0.1 * Math.min(1, data.totalHits/1500);
+
+	if (data.score <= 500000) {
+		strainValue = 0;
+	} else if (data.score <= 600000) {
+		strainValue *= (data.score - 500000) / 100000 * 0.3;
+	} else if (data.score <= 700000) {
+		strainValue *= 0.3 + (data.score - 600000) / 100000 * 0.25;
+	} else if (data.score <= 800000) {
+		strainValue *= 0.55 + (data.score - 700000) / 100000 * 0.20;
+	} else if (data.score <= 900000) {
+		strainValue *= 0.75 + (data.score - 800000) / 100000 * 0.15;
+	} else {
+		strainValue *= 0.90 + (data.score - 900000) / 100000 * 0.1;
+	}
+
+	// Accuracy
+	var hitWindow300 = 34 + 3 * Math.min(10, Math.max(0, 10.0 - data.diff_overall));
+	var accValue = 0;
+	if (hitWindow300 <= 0) {
+		accValue = 0;
+		return;
+	}
+
+	accValue = Math.max(0, 0.2 - ((hitWindow300 - 34) * 0.00667)) * strainValue * Math.pow((Math.max(0, (data.score - 960000)/40000)),1.1);
+
+	// Total
+	var modMultiplier = 0.8;
+
+	if (enabled_mods.includes('NF')) {
+		modMultiplier *= 0.90;
+	}
+
+	if (enabled_mods.includes('SO')) {
+		modMultiplier *= 0.95;
+	}
+
+	if (enabled_mods.includes('EZ')) {
+		modMultiplier *= 0.50;
+	}
+
+	var value = Math.pow(Math.pow(strainValue, 1.1) + Math.pow(accValue, 1.1),1 / 1.1) * modMultiplier;
+
+	return {
+		title: data.title,
+		artist: data.artist,
+		difficultyName: data.version,
+		creator: data.creator,
+		OD: data.diff_overall,
+		stars: data.difficultyrating,
+		mods: enabled_mods,
+		totalHits: data.totalHits,
+		accuracy: data.accuracy,
+		pp: Math.floor(value * 100) / 100
+	};		
+}
+
 
 module.exports = {
 	calculatepp: calculatepp,
-	calculateCatchpp: calculateCatchpp
+	calculateCatchpp: calculateCatchpp,
+	calculateManiapp: calculateManiapp
 };

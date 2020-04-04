@@ -123,7 +123,8 @@ function processData(client, msg, object, mode) {
 		generateRecent(client, msg, object);
 	} else if (mode == 3) {
 		object.accuracy = Math.floor(Math.max(0, Math.min(1, (n50 * 50 + n100 * 100 + nkatu * 200 + (ngeki + n300) * 300) / ((n50 + n100 + n300 + nmiss + ngeki + nkatu) * 300)) * 10000)) / 100;
-		object.pp = '-';
+		outputObject = pp.calculateManiapp(object);
+		object.pp = outputObject.pp;
 		generateRecent(client, msg, object);
 	}
 

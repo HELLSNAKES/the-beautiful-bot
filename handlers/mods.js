@@ -30,11 +30,24 @@ function toValue(value) {
 	return (output);
 }
 
+function getScoreMultiplier(mods,mode) {
+	var scoreMultiplier = 1;
+	if (mode == 1) {
+		return 1;
+	} else if (mode == 2) {
+		return 1;
+	} else if (mode == 3) {
+		return 1;
+	} else if (mode == 4) {
+		if (mods.includes('EZ')) scoreMultiplier *= 0.5;
+		if (mods.includes('NF')) scoreMultiplier *= 0.5;
+		if (mods.includes('HT')) scoreMultiplier *= 0.5;
+		return scoreMultiplier;
+	}
+}
+
 module.exports = {
 	toString: toString,
-	toValue: toValue
+	toValue: toValue,
+	getScoreMultiplier: getScoreMultiplier
 };
-
-function getScoreMultiplier(number) {
-
-}
