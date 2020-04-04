@@ -4,19 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const countryCodes = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../country_codes.json')));
 const request = require('request');
-const Canvas = require('canvas');
+const { registerFont, createCanvas, loadImage } = require('canvas');
 const Discord = require('discord.js');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
 const argument = require('../handlers/argument');
-Canvas.registerFont('./assets/Rubik-Medium.ttf', {
-	family: 'rubik-bold'
+registerFont(path.resolve(__dirname,'../assets/VarelaRound.ttf'), {
+	family: 'VarelaRound'
 });
-
-Canvas.registerFont('./assets/Rubik-Regular.ttf', {
-	family: 'rubik'
-});
-
 var time = Date.now();
 
 function execute(msg, args, mode = 0) {
@@ -61,15 +56,16 @@ async function generateUser(msg, options, body) {
 		error.log(msg, 4041);
 		return;
 	}
-	var canvas = Canvas.createCanvas(1200, 624);
+	var canvas = createCanvas(1200, 624);
 	var ctx = canvas.getContext('2d');
 
+	
 	ctx.beginPath();
 	ctx.fillStyle = '#303F76';
 	format.rect(ctx, 0, 0, canvas.width, canvas.height, 45);
 	ctx.fill();
 
-	let backgroundImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/background.png'));
+	let backgroundImage = await loadImage(path.resolve(__dirname, '../assets/background.png'));
 	ctx.shadowColor = 'rgba(0,0,0,0.5)';
 	ctx.shadowBlur = 40;
 	ctx.save();
@@ -89,9 +85,9 @@ async function generateUser(msg, options, body) {
 	}
 	var userPicture;
 	try {
-		userPicture = await Canvas.loadImage(userPictureUrl);
+		userPicture = await loadImage(userPictureUrl);
 	} catch (err) {
-		userPicture = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png');
+		userPicture = await loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png');
 	}
 	format.rect(ctx, 44, 55, 277, 277, 47);
 	ctx.clip();
@@ -107,25 +103,25 @@ async function generateUser(msg, options, body) {
 	ctx.fill();
 
 	var modes = ['osu', 'taiko', 'fruits', 'mania'];
-	var icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/${modes[options.mode]}.png`));
+	var icon = await loadImage(path.resolve(__dirname, `../assets/${modes[options.mode]}.png`));
 	ctx.drawImage(icon, 252, 261, 86, 86);
 
 
 	ctx.fillStyle = mainColour;
-	ctx.font = '63px rubik-bold';
+	ctx.font = '63px VarelaRound';
 	ctx.fillText(body[0].username, 347, 56 + 63);
 
-	ctx.font = '40px rubik';
+	ctx.font = '40px VarelaRound';
 	let country = countryCodes[body[0].country];
-	var flag = await Canvas.loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
+	var flag = await loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
 	ctx.drawImage(flag, 350, 130, 60, 40);
 	ctx.fillText(country, 420, 127 + 40);
 
-	var gradeA = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_a.png'));
-	var gradeS = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_s.png'));
-	var gradeSS = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_ss.png'));
-	var gradeSH = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_sh.png'));
-	var gradeSSH = await Canvas.loadImage(path.resolve(__dirname, '../assets/grade_ssh.png'));
+	var gradeA = await loadImage(path.resolve(__dirname, '../assets/grade_a.png'));
+	var gradeS = await loadImage(path.resolve(__dirname, '../assets/grade_s.png'));
+	var gradeSS = await loadImage(path.resolve(__dirname, '../assets/grade_ss.png'));
+	var gradeSH = await loadImage(path.resolve(__dirname, '../assets/grade_sh.png'));
+	var gradeSSH = await loadImage(path.resolve(__dirname, '../assets/grade_ssh.png'));
 
 	ctx.drawImage(gradeA, 766, 112 + 25, 98, 50);
 	ctx.drawImage(gradeS, 922, 112 + 25, 98, 50);
@@ -133,7 +129,7 @@ async function generateUser(msg, options, body) {
 	ctx.drawImage(gradeSS, 847, 221 + 25, 98, 50);
 	ctx.drawImage(gradeSSH, 1002, 221 + 25, 98, 50);
 
-	ctx.font = '28px rubik';
+	ctx.font = '28px VarelaRound';
 	ctx.textAlign = 'center';
 	ctx.fillText(format.number(body[0].count_rank_a), 792 + 22, 171 + 25 + 28);
 	ctx.fillText(format.number(body[0].count_rank_s), 955 + 16, 171 + 25 + 28);
@@ -142,17 +138,17 @@ async function generateUser(msg, options, body) {
 	ctx.fillText(format.number(body[0].count_rank_ssh), 1038 + 13, 279 + 25 + 28);
 
 	ctx.textAlign = 'left';
-	ctx.font = '75px rubik';
+	ctx.font = '75px VarelaRound';
 	ctx.fillText('#' + format.number(body[0].pp_rank), 347, 170 + 75);
 
-	ctx.font = '57px rubik';
+	ctx.font = '57px VarelaRound';
 	ctx.fillText('#' + format.number(body[0].pp_country_rank), 347, 259 + 57);
 
-	var hexagon = await Canvas.loadImage(path.resolve(__dirname, '../assets/hexagon.png'));
+	var hexagon = await loadImage(path.resolve(__dirname, '../assets/hexagon.png'));
 	ctx.drawImage(hexagon, 342, 332, 72, 77);
 
 	ctx.textAlign = 'center';
-	ctx.font = '33px rubik';
+	ctx.font = '33px VarelaRound';
 	ctx.fillText(Math.floor(body[0].level), 378, 332 + 50);
 
 	format.rect(ctx, 441, 364, 504, 12, 7);
@@ -160,7 +156,7 @@ async function generateUser(msg, options, body) {
 	format.rect(ctx, 441, 364, 504 * (body[0].level - Math.floor(body[0].level) > 0.02 ? body[0].level - Math.floor(body[0].level) : 0.02), 12, 7);
 	ctx.textAlign = 'left';
 	ctx.fillStyle = mainColour;
-	ctx.font = '21px rubik';
+	ctx.font = '21px VarelaRound';
 	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359 + 21);
 
 	ctx.fillStyle = mainColour + '21';
@@ -172,13 +168,13 @@ async function generateUser(msg, options, body) {
 
 	ctx.fillStyle = mainColour;
 	ctx.textAlign = 'center';
-	ctx.font = '30px rubik-bold';
+	ctx.font = '30px VarelaRound';
 	ctx.fillText('pp', 118 + 20, 476 + 30);
 	ctx.fillText('Accuracy', 314 + 80, 478 + 30);
 	ctx.fillText('Hours Played', 592 + 110, 476 + 30);
 	ctx.fillText('Score', 973 + 50, 478 + 30);
 
-	ctx.font = '40px rubik';
+	ctx.font = '40px VarelaRound';
 	ctx.fillText(format.number(Math.floor(body[0].pp_raw)), 82 + 60, 534 + 40);
 	ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 324 + 75, 537 + 40);
 	ctx.fillText(format.number(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 651 + 50, 536 + 40);

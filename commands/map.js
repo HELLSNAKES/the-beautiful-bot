@@ -8,12 +8,8 @@ const path = require('path');
 const format = require('../handlers/format');
 const Discord = require('discord.js');
 
-Canvas.registerFont('assets/Rubik-Medium.ttf', {
-	family: 'rubik-bold'
-});
-
-Canvas.registerFont('assets/Rubik-Regular.ttf', {
-	family: 'rubik'
+Canvas.registerFont('assets/VarelaRound.ttf', {
+	family: 'VarelaRound'
 });
 
 function execute(msg, args) {
@@ -67,7 +63,6 @@ function execute(msg, args) {
 
 
 function generateBeatmap(msg, data) {
-
 	if (data.beatmap.id == undefined) {
 		error.log(msg, 4042);
 		return;
@@ -104,21 +99,29 @@ function generateBeatmap(msg, data) {
 		format.rect(ctx, 24, 20, 186, 46, 26);
 		ctx.fillStyle = colour.foreground;
 		format.rect(ctx, 24, 20, 46, 46, 26);
-		ctx.font = '20px rubik';
+		ctx.font = '20px VarelaRound';
 		ctx.textAlign = 'center';
 		ctx.fillStyle = '#ffffff';
+		ctx.strokeStyle = '#ffffff';
+		ctx.lineWidth = 1;
 		ctx.fillText(data.status.slice(0, 1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
+		ctx.strokeText(data.status.slice(0, 1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
 		ctx.textAlign = 'center';
 		var statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/' + data.status + '.png'));
 		ctx.drawImage(statusImage, 37, 33, 20, 20);
 
 		// title
 		ctx.fillStyle = colour.foreground;
-		ctx.font = '42px rubik-bold';
+		ctx.strokeStyle = colour.foreground;
+		ctx.lineWidth = 2;
+		ctx.font = '42px VarelaRound';
 		ctx.textAlign = 'left';
 		ctx.fillText(data.title, 41, 367);
-		ctx.font = '26px rubik-bold';
+		ctx.strokeText(data.title, 41, 367);
+		ctx.font = '26px VarelaRound';
+		ctx.lineWidth = 1;
 		ctx.fillText(data.artist, 41, 406);
+		ctx.strokeText(data.artist, 41, 406);
 
 		// star rating
 		var svgFile = fs.readFileSync('assets/star.svg', 'utf8');
@@ -141,16 +144,26 @@ function generateBeatmap(msg, data) {
 		//CS / AR /HP / OD
 
 		ctx.fillStyle = colour.foreground;
-		ctx.font = '22px rubik-bold';
+		ctx.strokeStyle = colour.foreground;
+		ctx.font = '22px VarelaRound';
 		ctx.fillText('CS', 41, 459 + 22);
+		ctx.strokeText('CS', 41, 459 + 22);
 		ctx.fillText('AR', 41, 495 + 22);
+		ctx.strokeText('AR', 41, 495 + 22);
 		ctx.fillText('HP', 41, 531 + 22);
+		ctx.strokeText('HP', 41, 531 + 22);
 		ctx.fillText('OD', 41, 567 + 22);
+		ctx.strokeText('OD', 41, 567 + 22);
 		ctx.fillText(Math.floor(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
+		ctx.strokeText(Math.floor(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
 		ctx.fillText(data.beatmap.cs, 390, 459 + 22);
+		ctx.strokeText(data.beatmap.cs, 390, 459 + 22);
 		ctx.fillText(data.beatmap.ar, 390, 495 + 22);
+		ctx.strokeText(data.beatmap.ar, 390, 495 + 22);
 		ctx.fillText(data.beatmap.drain, 390, 531 + 22);
+		ctx.strokeText(data.beatmap.drain, 390, 531 + 22);
 		ctx.fillText(data.beatmap.accuracy, 390, 567 + 22);
+		ctx.strokeText(data.beatmap.accuracy, 390, 567 + 22);
 
 		ctx.beginPath();
 		ctx.fillStyle = colour.foreground + '31';
@@ -172,9 +185,11 @@ function generateBeatmap(msg, data) {
 		ctx.drawImage(mapperPfp, 478, 456, 91, 91);
 		ctx.restore();
 
-		ctx.font = '21px rubik-bold';
+		ctx.font = '21px VarelaRound';
 		ctx.textAlign = 'center';
 		ctx.fillText(data.creator, 523, 581);
+		ctx.strokeText(data.creator, 523, 581);
+
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/clock.svg'), 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
@@ -196,14 +211,19 @@ function generateBeatmap(msg, data) {
 
 		var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
 		ctx.textAlign = 'left';
-		ctx.font = '27px rubik-bold';
+		ctx.font = '27px VarelaRound';
 		ctx.fillText(time, 532, 374 + 30);
+		ctx.strokeText(time, 532, 374 + 30);
 		ctx.fillText(data.bpm + ' bpm', 712, 374 + 30);
+		ctx.strokeText(data.bpm + ' bpm', 712, 374 + 30);
 		ctx.fillText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 937, 374 + 30);
+		ctx.strokeText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 937, 374 + 30);
 
 		ctx.textAlign = 'left';
-		ctx.font = '26px rubik-bold';
+		ctx.font = '26px VarelaRound';
 		ctx.fillText(data.beatmap.version, 629, 416 + 26);
+		ctx.strokeText(data.beatmap.version, 629, 416 + 26);
+
 		var compare = (a, b) => {
 			if (parseFloat(a.difficulty_rating) > parseFloat(b.difficulty_rating)) {
 				return 1;
