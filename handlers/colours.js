@@ -1,6 +1,5 @@
 const Vibrant = require('node-vibrant');
 const ColorThief = require('color-thief');
-// const fs = require('fs');
 const request = require('request');
 var colorThief = new ColorThief();
 
@@ -31,7 +30,12 @@ function getColours(url, options, callback) {
 		url,
 		encoding: null
 	}, (err, res, body) => {
+		try{
 		var dominant = colorThief.getColor(body);
+		} catch(err) {
+			getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png',options,callback);
+			return;
+		}
 		Vibrant.from(body).maxColorCount(64).getPalette(async function (err, palette) {
 
 
