@@ -1,3 +1,5 @@
+'use strict';
+
 const error = require('../handlers/error');
 const format = require('../handlers/format');
 const argument = require('../handlers/argument');

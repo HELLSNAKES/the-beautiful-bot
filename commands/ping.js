@@ -1,3 +1,5 @@
+'use strict';
+
 const request = require('request');
 const pp = require('../handlers/pp');
 const database = require('../handlers/database');

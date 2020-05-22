@@ -1,3 +1,5 @@
+'use strict';
+
 const error = require('./error');
 const ojsama = require('ojsama');
 const mods = require('../handlers/mods');

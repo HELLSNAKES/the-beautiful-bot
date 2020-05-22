@@ -1,4 +1,6 @@
 /* eslint-disable no-useless-escape */
+'use strict';
+
 const mods = require('./mods');
 const ojsama = require('ojsama');
 const request = require('request');

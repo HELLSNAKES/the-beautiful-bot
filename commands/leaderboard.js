@@ -1,3 +1,5 @@
+'use strict';
+
 const getMaps = require('../handlers/getMap');
 const request = require('request');
 const mods = require('../handlers/mods');

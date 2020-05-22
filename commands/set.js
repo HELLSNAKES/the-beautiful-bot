@@ -1,3 +1,5 @@
+'use strict';
+
 const database = require('../handlers/database');
 const argument = require('../handlers/argument');
 const errorHandler = require('../handlers/error');

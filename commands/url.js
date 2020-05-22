@@ -1,4 +1,6 @@
 /* eslint-disable no-useless-escape */
+'use strict';
+
 const request = require('request');
 const error = require('../handlers/error');
 const Canvas = require('canvas');

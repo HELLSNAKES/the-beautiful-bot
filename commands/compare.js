@@ -1,3 +1,5 @@
+'use strict';
+
 const request = require('request');
 const recent = require('./recent');
 const getMaps = require('../handlers/getMap');

@@ -1,3 +1,5 @@
+'use strict';
+
 const Vibrant = require('node-vibrant');
 const ColorThief = require('color-thief');
 const request = require('request');
@@ -30,10 +32,10 @@ function getColours(url, options, callback) {
 		url,
 		encoding: null
 	}, (err, res, body) => {
-		try{
-		var dominant = colorThief.getColor(body);
-		} catch(err) {
-			getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png',options,callback);
+		try {
+			var dominant = colorThief.getColor(body);
+		} catch (err) {
+			getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png', options, callback);
 			return;
 		}
 		Vibrant.from(body).maxColorCount(64).getPalette(async function (err, palette) {
@@ -97,7 +99,7 @@ function getContrastRatio(foreground, background) {
 	}
 	var L1 = 0.2126 * R1 + 0.7152 * G1 + 0.0722 * B1;
 	var L2 = 0.2126 * R2 + 0.7152 * G2 + 0.0722 * B2;
-	
+
 	var threshold = 4;
 
 	if (L1 > L2) {

@@ -7,6 +7,8 @@
 // 4045 - Badly formatted arguments
 // 4046 - User not found in the database
 
+'use strict';	
+
 function log(msg, errCode) {
 	if (errCode == 4041) {
 		console.log('Error 4041');

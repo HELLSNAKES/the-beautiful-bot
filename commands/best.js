@@ -1,3 +1,5 @@
+'use strict';
+
 const error = require('../handlers/error');
 const request = require('request');
 const requestPromiseNative = require('request-promise-native');

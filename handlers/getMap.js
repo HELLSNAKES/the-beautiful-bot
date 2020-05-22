@@ -1,3 +1,5 @@
+'use strict';
+
 function getMaps(client, msg, callback) {
 	var done = false;
 	var regex = new RegExp('https://osu.ppy.sh/beatmapsets/[0-9]+#osu/[0-9]+', 'g');

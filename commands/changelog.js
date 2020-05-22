@@ -1,3 +1,5 @@
+'use strict';
+
 function execute(msg) {
 	const embed = {
 		'title': 'All of the latest changes can be found on The Beautiful Bot website',

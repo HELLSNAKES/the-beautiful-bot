@@ -1,3 +1,5 @@
+'use strict';
+
 function rect(ctx, x, y, width, height, radius = 5) {
 	if (typeof radius === 'number') {
 		radius = {

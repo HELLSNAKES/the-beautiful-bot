@@ -1,3 +1,5 @@
+'use strict';
+
 var modes = {
 	osu: 0,
 	taiko: 1,
