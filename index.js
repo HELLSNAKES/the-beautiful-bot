@@ -24,14 +24,13 @@ client.on('ready', () => {
 	let counter = 0;
 	client.user.setActivity(messages[counter], {
 		type: 'playing'
-	}).then(console.log('CHANGED PLAYING'));
+	});
 	counter = (counter + 1) % messages.length;
 	setInterval(() => {
 		messages[3] = `I'm in a total of ${client.guilds.size} servers`;
 		client.user.setActivity('$help | ' + messages[counter], {
-				type: 'playing'
-			})
-			.then(console.log('CHANGED PLAYING'));
+			type: 'playing'
+		});
 		counter = (counter + 1) % messages.length;
 	}, 300000);
 });
