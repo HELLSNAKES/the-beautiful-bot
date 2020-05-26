@@ -20,6 +20,10 @@ setInterval(function () {
 	http.get(process.env.server.replace('https', 'http'));
 }, 300000);
 
+function isAlias(command, clientCommand) {
+	return client.commands.get(clientCommand).aliases && client.commands.get(clientCommand).aliases.includes(command);
+}
+
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 	let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I'm in a total of ${client.guilds.size} servers`];
@@ -64,38 +68,38 @@ client.on('message', async msg => {
 	var args = msg.content.slice(prefix.length).trim().split(/ +/);
 	var cmd = args.shift().toLowerCase();
 
-
-	if (cmd === 'ping') {
+	
+	if (cmd === 'ping' || isAlias(cmd, 'ping')) {
 		client.commands.get('ping').execute(client, msg);
-	} else if (cmd == 'osu') {
+	} else if (cmd === 'osu' || isAlias(cmd, 'osu')) {
 		client.commands.get('osu').execute(msg, args, 0);
-	} else if (cmd == 'taiko') {
+	} else if (cmd === 'taiko') {
 		client.commands.get('osu').execute(msg, args, 1);
-	} else if (cmd == 'catch') {
+	} else if (cmd === 'catch') {
 		client.commands.get('osu').execute(msg, args, 2);
-	} else if (cmd == 'mania') {
+	} else if (cmd === 'mania') {
 		client.commands.get('osu').execute(msg, args, 3);
-	} else if (cmd == 'rs' || cmd == 'recent') {
+	} else if (cmd === 'recent' || isAlias(cmd, 'recent')) {
 		client.commands.get('recent').execute(client, msg, args);
-	} else if (cmd == 'bt' || cmd == 'best') {
+	} else if (cmd === 'best' || isAlias(cmd, 'best')) {
 		client.commands.get('best').execute(client, msg, args);
-	} else if (cmd == 'mp' || cmd == 'map') {
+	} else if (cmd === 'map' || isAlias(cmd, 'map')) {
 		client.commands.get('map').execute(msg, args);
-	} else if (cmd == 'os' || cmd == 'osuset') {
+	} else if (cmd === 'set' || isAlias(cmd, 'set')) {
 		client.commands.get('set').execute(msg, args);
-	} else if (cmd == 'hl' || cmd == 'help') {
+	} else if (cmd === 'help' || isAlias(cmd, 'help')) {
 		client.commands.get('help').execute(client, msg, args);
-	} else if (cmd == 'cl' || cmd == 'changelog') {
+	} else if (cmd === 'changelog' || isAlias(cmd, 'changelog')) {
 		client.commands.get('changelog').execute(msg);
-	} else if (cmd == 'c' || cmd == 'compare') {
+	} else if (cmd === 'compare' || isAlias(cmd, 'compare')) {
 		client.commands.get('compare').execute(client, msg, args);
-	} else if (cmd === 'cat') {
+	} else if (cmd === 'cat' || isAlias(cmd, 'cat')) {
 		client.commands.get('cat').execute(msg);
-	} else if (cmd == 'leaderboard' || cmd == 'lb') {
+	} else if (cmd === 'leaderboard' || isAlias(cmd, 'leaderboard')) {
 		client.commands.get('leaderboard').execute(client, msg, args);
-	} else if (cmd == 'pp') {
+	} else if (cmd === 'pp' || isAlias(cmd, 'pp')) {
 		client.commands.get('pp').execute(client, msg, args.join(' '));
-	} else if (cmd == 'modeset') {
+	} else if (cmd === 'modeset' || isAlias(cmd, 'modeset')) {
 		client.commands.get('modeset').execute(msg, args);
 	}
 });
