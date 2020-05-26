@@ -201,6 +201,11 @@ function generateRecent(client, msg, body) {
 
 module.exports = {
 	name: 'recent',
+	description: 'Displays your recent play',
+	aliases: ['rs'],
+	group: 'osu',
+	options: argument.getArgumentDetails(['previous', 'mode', 'type', 'relax']),
+	arguments: argument.getOtherArgumentDetails(['Username']),
 	execute: execute,
 	generateRecent: generateRecent,
 	processData: processData

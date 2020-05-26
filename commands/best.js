@@ -124,5 +124,11 @@ function sendBest(client, msg, user, body, options) {
 
 module.exports = {
 	name: 'best',
+	description: 'Displays the top 5 plays of a user',
+	aliases: ['top', 'bt'],
+	group: 'osu',
+	options: argument.getArgumentDetails(['mods', 'mode', 'type']),
+	arguments: argument.getOtherArgumentDetails(['Username']),
+	example: 'https://i.imgur.com/GkL4mJV.jpg',
 	execute: execute
 };

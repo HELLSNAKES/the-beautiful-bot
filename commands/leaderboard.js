@@ -40,5 +40,8 @@ function execute(client, msg, args) {
 
 module.exports = {
 	name: 'leaderboard',
+	description: 'Displays the top 25 players on the last mentioned map',
+	aliases: ['lb'],
+	group: 'osu',
 	execute: execute
 };

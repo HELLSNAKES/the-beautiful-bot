@@ -190,6 +190,10 @@ async function generateUser(msg, options, body) {
 
 module.exports = {
 	name: 'osu',
+	description: 'Generates a user stats image',
+	group: 'osu',
+	options: argument.getArgumentDetails(['type']),
+	arguments: argument.getOtherArgumentDetails(['Username']),
 	execute: execute,
 	requestData: requestData,
 	generateUser: generateUser

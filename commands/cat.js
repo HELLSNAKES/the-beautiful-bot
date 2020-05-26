@@ -11,5 +11,8 @@ function execute(msg) {
 
 module.exports = {
 	name: 'cat',
+	description: 'Random cat image',
+	group: 'general',
+	example: 'https://imgur.com/DxU8nji.jpg',
 	execute: execute
 };

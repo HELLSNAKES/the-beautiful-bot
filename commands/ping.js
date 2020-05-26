@@ -42,5 +42,7 @@ async function execute(client, msg) {
 
 module.exports = {
 	name: 'ping',
+	description: 'Measures the latency of the APIs that TBB uses',
+	group: 'general',
 	execute: execute
 };

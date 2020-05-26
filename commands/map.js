@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const format = require('../handlers/format');
 const Discord = require('discord.js');
+const argument = require('../handlers/argument');
 
 Canvas.registerFont('assets/VarelaRound.ttf', {
 	family: 'VarelaRound'
@@ -272,6 +273,9 @@ function generateBeatmap(msg, data) {
 
 module.exports = {
 	name: 'map',
+	description: 'Searches for a map to generate a beatmap image for `DEPRECATED`',
+	group: 'osu',
+	arguments: argument.getOtherArgumentDetails(['Term']),
 	execute: execute,
 	generateBeatmap: generateBeatmap
 };

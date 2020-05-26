@@ -13,5 +13,9 @@ function execute(msg) {
 
 module.exports = {
 	name: 'changelog',
+	description: 'Where to find the changelog',
+	aliases: ['update', 'updates'],
+	group: 'general',
+	example: 'https://imgur.com/wqyUUPt.jpg',
 	execute: execute
 };

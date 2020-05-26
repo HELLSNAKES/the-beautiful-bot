@@ -82,9 +82,9 @@ client.on('message', async msg => {
 	} else if (cmd == 'mp' || cmd == 'map') {
 		client.commands.get('map').execute(msg, args);
 	} else if (cmd == 'os' || cmd == 'osuset') {
-		client.commands.get('set').user(msg, args);
+		client.commands.get('set').execute(msg, args);
 	} else if (cmd == 'hl' || cmd == 'help') {
-		client.commands.get('help').execute(msg, prefix, args);
+		client.commands.get('help').execute(client, msg, args);
 	} else if (cmd == 'cl' || cmd == 'changelog') {
 		client.commands.get('changelog').execute(msg);
 	} else if (cmd == 'c' || cmd == 'compare') {
@@ -96,7 +96,7 @@ client.on('message', async msg => {
 	} else if (cmd == 'pp') {
 		client.commands.get('pp').execute(client, msg, args.join(' '));
 	} else if (cmd == 'modeset') {
-		client.commands.get('set').mode(msg, args);
+		client.commands.get('modeset').execute(msg, args);
 	}
 });
 

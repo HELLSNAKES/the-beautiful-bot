@@ -44,5 +44,10 @@ function sendCompareEmbed(client, msg, url, user, options) {
 
 module.exports = {
 	name: 'compare',
+	description: 'Compares your play/specified play with the last mentioned play',
+	aliases: ['c'],
+	group: 'osu',
+	arguments: argument.getOtherArgumentDetails(['Username']),
+	example: 'https://i.imgur.com/GkL4mJV.jpg',
 	execute: execute
 };

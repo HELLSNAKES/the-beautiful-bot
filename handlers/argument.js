@@ -5,6 +5,68 @@ const ojsama = require('ojsama');
 const mods = require('../handlers/mods');
 const database = require('../handlers/database');
 
+const args = [{
+	name: 'previous',
+	description: 'Show the specificed previous play',
+	allowedValues: '0-49'
+}, {
+	name: 'mode',
+	description: 'Specify the osu! mode',
+	allowedValues: {
+		'0': 'Standard `(Default)`',
+		'1': 'Taiko',
+		'2': 'Catch',
+		'3': 'Mania'
+	}
+}, {
+	name: 'type',
+	description: 'Specify the server to pull data from',
+	allowedValues: {
+		'0': 'Offical Servers `(Default)`',
+		'1': 'Gatari Servers',
+		'2': 'Akatsuki Servers'
+	}
+}, {
+	name: 'relax',
+	description: 'Show relax plays `(Akatsuki Only)`'
+}, {
+	name: 'mods',
+	description: 'Filter plays by mods',
+	allowedValues: '\n`mod abbreviations` : only show plays with the exact mod combination e.g. `HDDT`\nadding a `!` at the start will show any play with the mod combination + any other mods e.g. `!HDDT`'
+}];
+
+const otherArgs = [{
+	name: 'Username',
+	description: 'The osu! username or a discord ping (their account must be linked) of the player to run the command on. `By default` if no name was provided, the linked osu! username of the user using the command will be used (refer to `$set`)',
+}, {
+	name: 'Command',
+	description: 'The command to show more information on. If no command was provided the bot will alternatively show the full list of commands available'
+}, {
+	name: 'Term',
+	description: 'A term to search for, this can be anything from beatmap name, artist, mapper or tags.\n\nNote: this command is deprecated and very unstable and soon will get completely revamped'
+}, {
+	name: 'Gamemode',
+	description: 'The gamemode to set as your default. This gamemode will be the default gamemode when using commands such as $recent, $best, etc if no gamemode is specified.\n`0` | `standard` | `std`\n`1` | `taiko`\n`2` | `catch` | `ctb` | `catch the beat`\n`3` | `mania`'
+}];
+
+const preformancePointsArgs = [{
+	name: '[accuracy]%',
+	description: 'show the pp for the specified accuracy `100% by Default` e.g. `$pp 85%`',
+	noInitialPrefix: true
+}, {
+	name: '+[mods]',
+	description: 'show the pp for the specified mods applied `No Mod by Default` e.g `$pp +HDHR`',
+	noInitialPrefix: true
+}, {
+	name: '[misses]m',
+	description: 'show the pp for the specified number of misses `0 misses by Default` e.g. `$pp 2m`',
+	noInitialPrefix: true
+}, {
+	name: '[combo]x',
+	description: 'show the pp for the specified combo `Full Combo by Default` e.g. `$pp 210x`',
+	noInitialPrefix: true
+}];
+
 function parse(msg, args) {
 	var options = {
 		previous: 0,
@@ -117,8 +179,52 @@ function determineUser(msg, args, callback) {
 	}
 }
 
+function getArgumentDetails(argsArray) {
+	var returnArray = [];
+
+	for (var i = 0; i < argsArray.length; i++) {
+		for (var j = 0; j < args.length; j++) {
+			if (args[j].name.toLowerCase() == argsArray[i].toLowerCase()) returnArray.push(args[j]);
+		}
+	}
+
+	return returnArray;
+}
+
+function getOtherArgumentDetails(argsArray) {
+	var returnArray = [];
+
+	for (var i = 0; i < argsArray.length; i++) {
+		for (var j = 0; j < otherArgs.length; j++) {
+			if (otherArgs[j].name == argsArray[i]) returnArray.push(otherArgs[j]);
+		}
+	}
+
+	return returnArray;
+}
+
+function getPerformancePointsArgumentDetails(argsArray) {
+	if (argsArray == undefined) {
+		return preformancePointsArgs;
+	}
+
+	var returnArray = [];
+
+	for (var i = 0; i < argsArray.length; i++) {
+		for (var j = 0; j < otherArgs.length; j++) {
+			if (preformancePointsArgs[j].name == argsArray[i]) returnArray.push(preformancePointsArgs[j]);
+		}
+	}
+
+	return returnArray;
+}
+
 module.exports = {
 	parse: parse,
 	parseOjsama: parseOjsama,
-	determineUser: determineUser
+	determineUser: determineUser,
+	getArgumentDetails: getArgumentDetails,
+	getOtherArgumentDetails: getOtherArgumentDetails,
+	getPerformancePointsArgumentDetails: getPerformancePointsArgumentDetails
+
 };

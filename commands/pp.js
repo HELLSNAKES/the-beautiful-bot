@@ -27,5 +27,9 @@ function execute(client, msg, args) {
 
 module.exports = {
 	name: 'pp',
+	description: 'Calculates the pp of the last mentioned map',
+	group: 'osu',
+	options: argument.getPerformancePointsArgumentDetails(),
+	example: 'https://imgur.com/SLr7kLt.jpg',
 	execute: execute
 };
