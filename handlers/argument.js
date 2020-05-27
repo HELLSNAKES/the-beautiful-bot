@@ -5,7 +5,8 @@ const ojsama = require('ojsama');
 const mods = require('../handlers/mods');
 const database = require('../handlers/database');
 
-// Switch:
+// isSwitch:
+// aliases
 // validator:
 // name:
 // allowedValues:
@@ -17,6 +18,7 @@ const args = [{
 	name: 'previous',
 	description: 'Show the specificed previous play',
 	allowedValues: '0-49',
+	aliases: ['p'],
 	validator: x => !isNaN(x) && x >= 0 && x < 50,
 	default: 0
 }, {
@@ -28,6 +30,8 @@ const args = [{
 		'2': 'Catch',
 		'3': 'Mania'
 	},
+	aliases: ['m'],
+	validator: x => x == 0 || x == 1 || x == 2 || x == 3,
 	default: 0
 }, {
 	name: 'type',
@@ -37,10 +41,13 @@ const args = [{
 		'1': 'Gatari Servers',
 		'2': 'Akatsuki Servers'
 	},
+	aliases: ['t'],
+	validator: x => x == 0 || x == 1 || x == 2,	
 	default: 0
 }, {
 	name: 'relax',
 	description: 'Show relax plays `(Akatsuki Only)`',
+	aliases: ['rx'],
 	default: false
 }, {
 	name: 'mods',
@@ -84,7 +91,7 @@ const preformancePointsArgs = [{
 
 function parse(msg, passedArgs) {
 	var options = {
-		error: undefined
+		error: false
 	};
 
 	for (var x of args) {
@@ -98,7 +105,8 @@ function parse(msg, passedArgs) {
 		let found = false;
 
 		for (var j = 0; j < args.length; j++) {
-			if (passedArgs[i].slice(1) == args[j].name) {
+			if (passedArgs[i].toLowerCase().slice(1) == args[j].name ||
+				(args[j].aliases && args[j].aliases.includes(passedArgs[i].toLowerCase().slice(1)))) {
 
 				found = true;
 
@@ -116,7 +124,7 @@ function parse(msg, passedArgs) {
 				}
 
 				if (args[j].validator && !args[j].validator(passedArgs[i + 1])) {
-					msg.channel.send(`:red_circle: Incorrect value after \`-${passedArgs}\``);
+					msg.channel.send(`:red_circle: Incorrect value after \`${passedArgs[i + 1]}\``);
 					options.error = true;
 					return options;
 				}
@@ -131,11 +139,13 @@ function parse(msg, passedArgs) {
 		}
 
 		if (!found) {
-			msg.channel.send(`:red_circle: \`${passedArgs[j]}\` is an invalid argument`);
+			msg.channel.send(`:red_circle: \`${passedArgs[i]}\` is an invalid argument`);
+			options.error = true;
 			return options;
 		}
 	}
-	
+
+	console.log(options);
 	return options;
 }
 
