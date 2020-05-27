@@ -5,10 +5,20 @@ const ojsama = require('ojsama');
 const mods = require('../handlers/mods');
 const database = require('../handlers/database');
 
+// Switch:
+// validator:
+// name:
+// allowedValues:
+// default:
+// description:
+// process:
+
 const args = [{
 	name: 'previous',
 	description: 'Show the specificed previous play',
-	allowedValues: '0-49'
+	allowedValues: '0-49',
+	validator: x => !isNaN(x) && x >= 0 && x < 50,
+	default: 0
 }, {
 	name: 'mode',
 	description: 'Specify the osu! mode',
@@ -17,7 +27,8 @@ const args = [{
 		'1': 'Taiko',
 		'2': 'Catch',
 		'3': 'Mania'
-	}
+	},
+	default: 0
 }, {
 	name: 'type',
 	description: 'Specify the server to pull data from',
@@ -25,14 +36,18 @@ const args = [{
 		'0': 'Offical Servers `(Default)`',
 		'1': 'Gatari Servers',
 		'2': 'Akatsuki Servers'
-	}
+	},
+	default: 0
 }, {
 	name: 'relax',
-	description: 'Show relax plays `(Akatsuki Only)`'
+	description: 'Show relax plays `(Akatsuki Only)`',
+	default: false
 }, {
 	name: 'mods',
 	description: 'Filter plays by mods',
-	allowedValues: '\n`mod abbreviations` : only show plays with the exact mod combination e.g. `HDDT`\nadding a `!` at the start will show any play with the mod combination + any other mods e.g. `!HDDT`'
+	allowedValues: '\n`mod abbreviations` : only show plays with the exact mod combination e.g. `HDDT`\nadding a `!` at the start will show any play with the mod combination + any other mods e.g. `!HDDT`',
+	process: (x) => [x.startsWith('!'), mods.toValue(x.replace('!', ''))],
+	default: [false, -1]
 }];
 
 const otherArgs = [{
@@ -67,62 +82,61 @@ const preformancePointsArgs = [{
 	noInitialPrefix: true
 }];
 
-function parse(msg, args) {
+function parse(msg, passedArgs) {
 	var options = {
-		previous: 0,
-		mode: 0,
-		type: 0,
-		count: 25,
-		relax: 0,
-		mods: -1,
-		modsInclude: false
+		error: undefined
 	};
-	for (var i = 0; i < args.length; i++) {
-		if (args[i] == '-p') {
-			options.previous = parseInt(args[i + 1]);
-			options.previous = (typeof options.previous !== 'undefined') ? options.previous : 0;
-			args.splice(i, 2);
-			i = -1;
-		} else if (args[i] == '-m') {
-			options.mode = parseInt(args[i + 1]);
-			options.mode = (typeof options.mode !== 'undefined') ? options.mode : 0;
-			args.splice(i, 2);
-			i = -1;
-		} else if (args[i] == '-t') {
-			options.type = parseInt(args[i + 1]);
-			options.type = (typeof options.type !== 'undefined') ? options.type : 0;
-			args.splice(i, 2);
-			i = -1;
-		} else if (args[i] == '-c') {
-			options.count = parseInt(args[i + 1]);
-			options.count = (typeof options.count !== 'undefined') ? options.count : 0;
-			args.splice(i, 2);
-			i = -1;
-		} else if (args[i] == '-mods') {
-			if (args[i + 1].startsWith('!')) {
-				args[i + 1] = args[i + 1].replace('!', '');
-				options.modsInclude = true;
+
+	for (var x of args) {
+		if (x.default != undefined) options[x.name] = x.default;
+	}
+
+	for (var i = 0; i < passedArgs.length; i++) {
+
+		if (!passedArgs[i].startsWith('-')) continue;
+
+		let found = false;
+
+		for (var j = 0; j < args.length; j++) {
+			if (passedArgs[i].slice(1) == args[j].name) {
+
+				found = true;
+
+				if (args[j].isSwitch) {
+					options[args[j].name] = true;
+					passedArgs.splice(i, 1);
+					i = -1;
+					break;
+				}
+
+				if (i == passedArgs.length - 1 || passedArgs[i + 1].startsWith('-')) {
+					msg.channel.send(`:red_circle: \`-${args[j].name}\` must have a value after it`);
+					options.error = true;
+					return options;
+				}
+
+				if (args[j].validator && !args[j].validator(passedArgs[i + 1])) {
+					msg.channel.send(`:red_circle: Incorrect value after \`-${passedArgs}\``);
+					options.error = true;
+					return options;
+				}
+
+				if (args[j].process) options[args[j].name] = args[j].process(passedArgs[i + 1]);
+				else options[args[j].name] = passedArgs[i + 1];
+
+				passedArgs.splice(i, 2);
+				i = -1;
+				break;
 			}
-			options.mods = mods.toValue(args[i + 1]);
-			args.splice(i, 2);
-		} else if (args[i] == '-rx') {
-			options.relax = 1;
-			args.splice(i, 1);
-			i = -1;
 		}
 
+		if (!found) {
+			msg.channel.send(`:red_circle: \`${passedArgs[j]}\` is an invalid argument`);
+			return options;
+		}
 	}
-
-	if ((0 > options.previous || options.previous > 49 || isNaN(options.previous)) ||
-		(0 > options.mode || options.mode > 3 || isNaN(options.mode)) ||
-		(0 > options.type || options.type > 2 || isNaN(options.type)) ||
-		(0 > options.count || options.count > 25 || isNaN(options.count))) {
-		error.log(msg, 4045);
-		return ({
-			error: 4045
-		});
-	}
-	return (options);
+	
+	return options;
 }
 
 function parseOjsama(args) {

@@ -80,12 +80,12 @@ function sendBest(client, msg, user, body, options) {
 	};
 
 	for (var i = 0; i < body.length && plays.length != 5; i++) {
-		if (options.mods != -1) {
-			if (options.modsInclude) {
-				if (!mods.toString(body[i].enabled_mods).includes(mods.toString(options.mods))) {
+		if (options.mods[1] != -1) {
+			if (options.mods[0]) {
+				if (!mods.toString(body[i].enabled_mods).includes(mods.toString(options.mods[1]))) {
 					continue;
 				}
-			} else if (options.mods != parseInt(body[i].enabled_mods)) {
+			} else if (options.mods[1] != parseInt(body[i].enabled_mods)) {
 				continue;
 			}
 		}

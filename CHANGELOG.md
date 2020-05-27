@@ -2,15 +2,21 @@
 
 The beautiful bot's Changelog :)
 
-## 1.x x-x-20
+## 1.4.0 26-05-20
 
 ### Added
+ - A completely new help system that is more condense, easier to read and more helpful
+ - A new algorithm for parsing arguments as a results:
+ - Arguments are not longer case sensitive
+ - Support for argument aliases e.g. you can use -mode now instead of only -m
+ - Argument Errors are a lot more clearer than before
 
 ### Fixed
-
+ -
 ### Changed
  - Argument space spliting, now extra spaces are ignored e.g. "$osu -m 0  Moorad"
  - Refactored a lot of code
+ - Renamed $osuset to $set, $osuset is now an alias
 
 ### Removed
 
