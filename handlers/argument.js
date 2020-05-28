@@ -5,14 +5,15 @@ const ojsama = require('ojsama');
 const mods = require('../handlers/mods');
 const database = require('../handlers/database');
 
-// isSwitch:
-// aliases
-// validator:
-// name:
-// allowedValues:
-// default:
-// description:
-// process:
+// isSwitch: (boolean) whether the argument takes a value after it
+// aliases: (string array) a list of aliases
+// validator: (function) used to validate the value after the argument
+// validatorText: (string) used for errors if the validator returned false (will be deprecated soon)
+// name: (string)
+// allowedValues: (string || object)
+// default: (any)
+// description: (string)
+// process: (function)
 
 const args = [{
 	name: 'previous',
@@ -20,6 +21,8 @@ const args = [{
 	allowedValues: '0-49',
 	aliases: ['p'],
 	validator: x => !isNaN(x) && x >= 0 && x < 50,
+	validatorText: 'a value  between `0` and `49`',
+	process: x => parseInt(x),
 	default: 0
 }, {
 	name: 'mode',
@@ -32,6 +35,8 @@ const args = [{
 	},
 	aliases: ['m'],
 	validator: x => x == 0 || x == 1 || x == 2 || x == 3,
+	validatorText: '`0`, `1`, `2` or `3`',
+	process: x => parseInt(x),
 	default: 0
 }, {
 	name: 'type',
@@ -43,11 +48,14 @@ const args = [{
 	},
 	aliases: ['t'],
 	validator: x => x == 0 || x == 1 || x == 2,	
+	validatorText: '`0`, `1` or `2`',
+	process: x => parseInt(x),
 	default: 0
 }, {
 	name: 'relax',
 	description: 'Show relax plays `(Akatsuki Only)`',
 	aliases: ['rx'],
+	isSwitch: true,
 	default: false
 }, {
 	name: 'mods',
@@ -118,13 +126,13 @@ function parse(msg, passedArgs) {
 				}
 
 				if (i == passedArgs.length - 1 || passedArgs[i + 1].startsWith('-')) {
-					msg.channel.send(`:red_circle: \`-${args[j].name}\` must have a value after it`);
+					msg.channel.send(`:red_circle: \`-${args[j].name}\` must have a value after it\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
 					options.error = true;
 					return options;
 				}
 
 				if (args[j].validator && !args[j].validator(passedArgs[i + 1])) {
-					msg.channel.send(`:red_circle: Incorrect value after \`${passedArgs[i + 1]}\``);
+					msg.channel.send(`:red_circle: \`${passedArgs[i + 1]}\` is an invalid value after \`${passedArgs[i]}\`\n\`-${args[j].name}\` only accepts ${args[j].validatorText}\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
 					options.error = true;
 					return options;
 				}
@@ -139,7 +147,7 @@ function parse(msg, passedArgs) {
 		}
 
 		if (!found) {
-			msg.channel.send(`:red_circle: \`${passedArgs[i]}\` is an invalid argument`);
+			msg.channel.send(`:red_circle: \`${passedArgs[i]}\` is an unrecognised argument\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
 			options.error = true;
 			return options;
 		}
