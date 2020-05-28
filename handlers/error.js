@@ -7,7 +7,9 @@
 // 4045 - Badly formatted arguments
 // 4046 - User not found in the database
 
-'use strict';	
+'use strict';
+
+const request = require('request');
 
 function log(msg, errCode) {
 	if (errCode == 4041) {
@@ -31,6 +33,44 @@ function log(msg, errCode) {
 	}
 }
 
+function unexpectedError(err, msg) {
+	if (!msg) msg = {
+		content: 'No message'
+	};
+	console.error(err);
+	const embed = {
+		'description': `\n\nError stack:\n\`\`\`${err.stack}\`\`\`\nThe error has been automatically reported to Moorad.`,
+		'color': 16725838,
+		'timestamp': Date.now()
+	};
+	sendToSlack(msg, err, () => {
+		msg.channel.send('**An unexpected error has occured**', {
+			embed
+		});
+	});
+
+}
+
+function sendToSlack(msg, err, callback) {
+	if (process.env.slackAPI) {
+		var message = `An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nMessage content before the error:\n\`\`\`${msg.content}\`\`\``;
+		request.post({
+			url: process.env.slackAPI,
+			body: {
+				'text': message
+			},
+			json: true
+		}, () => {
+			callback();
+		});
+
+	} else {
+		console.error('Slack Incoming Webhook URL was not found in the Environment Variables');
+		callback();
+	}
+}
+
 module.exports = {
-	log: log
+	log: log,
+	unexpectedError: unexpectedError
 };

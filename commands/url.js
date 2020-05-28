@@ -3,11 +3,6 @@
 
 const request = require('request');
 const error = require('../handlers/error');
-const Canvas = require('canvas');
-
-Canvas.registerFont('assets/Rubik-Bold.ttf', {
-	family: 'rubik'
-});
 const map = require('./map');
 
 function beatmapCardFromLink(msg) {
