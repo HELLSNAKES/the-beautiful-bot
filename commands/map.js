@@ -189,9 +189,14 @@ function generateBeatmap(msg, data) {
 		format.rect(ctx, 88, 539, 28.4 * (data.beatmap.drain > 0 ? data.beatmap.drain : 0.5), 13, 7);
 		format.rect(ctx, 88, 570, 28.4 * (data.beatmap.accuracy > 0 ? data.beatmap.accuracy : 0.5), 13, 7);
 
-		const mapperPfp = await Canvas.loadImage(`https://a.ppy.sh/${data.user_id}`).catch(err => {
-			error.unexpectedError(err, msg);
-		});
+		try {
+			var mapperPfp = await Canvas.loadImage(`https://a.ppy.sh/${data.user_id}`);
+		} catch(err) {
+			mapperPfp = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png').catch(err => {
+				error.unexpectedError(err, msg);
+			});
+
+		}
 		ctx.save();
 		format.rect(ctx, 478, 456, 91, 91, 16);
 		ctx.clip();
