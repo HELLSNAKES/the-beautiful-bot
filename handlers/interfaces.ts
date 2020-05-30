@@ -4,7 +4,9 @@ export interface IOptions {
 	type?: number,
 	relax?: boolean,
 	mods?: [boolean, number],
-	error: boolean
+	error: boolean,
+	[index: string] : any
+	
 }
 
 export interface IOjsamaOptions {
@@ -70,4 +72,66 @@ export interface IPPAttributes {
 	combo: string,
 	accuracy: number | string,
 	pp: number
+}
+
+export interface IAPIRecent {
+	beatmap_id: string,
+	score: string,
+	maxcombo: string,
+	count50: string,
+	count100: string,
+	count300: string,
+	countmiss: string,
+	countkatu: string,
+	countgeki: string,
+	perfect: string,
+	enabled_mods: string,
+	user_id: string,
+	date: string,
+	rank: string
+}
+
+export interface IAPIBest {
+	beatmap_id: string,
+	score_id: string,
+	score: string,
+	maxcombo: string,
+	count50: string,
+	count100: string,
+	count300: string,
+	countmiss: string,
+	countkatu: string,
+	countgeki: string,
+	perfect: string,
+	enabled_mods: string,
+	user_id: string,
+	date: string,
+	rank: string,
+	pp: string,
+	replay_available: string
+}
+
+export interface IAPIUser {
+	user_id: string,
+	username: string,
+	join_date: string,
+	count300: string,
+	count100: string,
+	count50: string,
+	playcount: string,
+	ranked_score: string,
+	total_score: string,
+	pp_rank: string,
+	level: string,
+	pp_raw: string,
+	accuracy: string,
+	count_rank_ss: string,
+	count_rank_ssh: string,
+	count_rank_s: string,
+	count_rank_sh: string,
+	count_rank_a: string,
+	country: string,
+	total_seconds_played: string,
+	pp_country_rank: string,
+	events?: any
 }
