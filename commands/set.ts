@@ -1,9 +1,11 @@
 'use strict';
 
-const database = require('../handlers/database');
-const argument = require('../handlers/argument');
+import { Message } from 'discord.js';
 
-function execute(msg, args) {
+import * as database from '../handlers/database';
+import * as argument from '../handlers/argument';
+
+function execute(msg: Message, args: any) {
 	var options = argument.parse(msg, args);
 	if (options.error) return;
 

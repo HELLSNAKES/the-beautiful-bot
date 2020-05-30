@@ -1,23 +1,27 @@
 /* eslint-disable no-useless-escape */
 'use strict';
 
+import { Message } from 'discord.js';
+
+import * as error from '../handlers/error';
+import * as colours from '../handlers/colours';
+import * as format from '../handlers/format';
+import * as argument from '../handlers/argument';
+
 const request = require('request');
-const error = require('../handlers/error');
 const Canvas = require('canvas');
-const colours = require('../handlers/colours');
 const fs = require('fs');
 const path = require('path');
-const format = require('../handlers/format');
 const Discord = require('discord.js');
-const argument = require('../handlers/argument');
 
 Canvas.registerFont('assets/VarelaRound.ttf', {
 	family: 'VarelaRound'
 });
 
-function execute(msg, args) {
+function execute(msg: Message, args: Array<string>) {
+	let name;
 	if (args.length != 0) {
-		var name = args.join(' ');
+		name = args.join(' ');
 	} else {
 		console.log('SEARCH NONE');
 		return;
@@ -29,14 +33,14 @@ function execute(msg, args) {
 			cookie: process.env.cookie
 		},
 		json: true
-	}, (err, res, body) => {
+	}, (err: any, res: any, body: any) => {
 		if (body.beatmapsets.length == 0) {
 			error.log(msg, 4042);
 			return;
 		}
-		var highestDiff = 0;
-		var highestDiffIndex = 0;
-		for (var i = 0; i < body.beatmapsets[0].beatmaps.length; i++) {
+		let highestDiff = 0;
+		let highestDiffIndex = 0;
+		for (let i = 0; i < body.beatmapsets[0].beatmaps.length; i++) {
 			if (highestDiff < body.beatmapsets[0].beatmaps[i].difficulty_rating) {
 				highestDiff = body.beatmapsets[0].beatmaps[i].difficulty_rating;
 				highestDiffIndex = i;
@@ -46,7 +50,7 @@ function execute(msg, args) {
 
 		const embed = {
 			'author': {
-				'name': `${ body.beatmapsets[0].artist} - ${body.beatmapsets[0].title} by ${ body.beatmapsets[0].creator} [Download]`,
+				'name': `${body.beatmapsets[0].artist} - ${body.beatmapsets[0].title} by ${body.beatmapsets[0].creator} [Download]`,
 				'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`
 			},
 			'color': 2065919
@@ -57,7 +61,7 @@ function execute(msg, args) {
 		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${body.beatmapsets[0].id}#osu/${body.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
 		request(`https://osu.ppy.sh/api/get_beatmaps?b=${body.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`, {
 			json: true
-		}, (err, res, beatmapBody) => {
+		}, (err: any, res: any, beatmapBody: any) => {
 			body.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = beatmapBody[0].max_combo;
 			generateBeatmap(msg, body.beatmapsets[0]);
 		});
@@ -65,29 +69,30 @@ function execute(msg, args) {
 }
 
 
-function generateBeatmap(msg, data) {
+function generateBeatmap(msg: Message, data: any) {
 	if (data.beatmap.id == undefined) {
 		error.log(msg, 4042);
 		return;
 	}
 	// init the canvas
-	var canvas = Canvas.createCanvas(1080, 620);
-	var ctx = canvas.getContext('2d');
+	let canvas = Canvas.createCanvas(1080, 620);
+	let ctx = canvas.getContext('2d');
 	let url = 'https://assets.ppy.sh/beatmaps/' + data.id + '/covers/cover@2x.jpg';
 	colours.getColours(url, async function (colour) {
-		colour = colours.toReadable(colours.toRGB(colour.foreground), colours.toRGB(colour.background));
-		colour.foreground = colours.toHex(colour.foreground);
-		colour.background = colours.toHex(colour.background);
+		let colourNumber = colours.toReadable(colours.toRGB(colour.foreground), colours.toRGB(colour.background));
+		colour.foreground = colours.toHex(colourNumber.foreground);
+		colour.background = colours.toHex(colourNumber.background);
 		ctx.fillStyle = colour.background;
 		format.rect(ctx, 0, 0, canvas.width, canvas.height, 37);
 
 		// Beatmap Image
+		let beatmapImage;
 		try {
-			var beatmapImage = await Canvas.loadImage(url).catch(err => {
+			beatmapImage = await Canvas.loadImage(url).catch((err: any) => {
 				error.unexpectedError(err, msg);
 			});
 		} catch (err) {
-			beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png').catch(err => {
+			beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png').catch((err: any) => {
 				error.unexpectedError(err, msg);
 			});
 		}
@@ -114,7 +119,7 @@ function generateBeatmap(msg, data) {
 		ctx.fillText(data.status.slice(0, 1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
 		ctx.strokeText(data.status.slice(0, 1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
 		ctx.textAlign = 'center';
-		var statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/' + data.status + '.png')).catch(err => {
+		let statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/' + data.status + '.png')).catch((err: any) => {
 			error.unexpectedError(err, msg);
 		});
 		ctx.drawImage(statusImage, 37, 33, 20, 20);
@@ -133,22 +138,22 @@ function generateBeatmap(msg, data) {
 		ctx.strokeText(data.artist, 41, 406);
 
 		// star rating
-		var svgFile = fs.readFileSync('assets/star.svg', 'utf8');
+		let svgFile = fs.readFileSync('assets/star.svg', 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
-		const star = await Canvas.loadImage(Buffer.from(svgFile)).catch(err => {
+		const star = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
 			error.unexpectedError(err, msg);
 		});
 		if (data.beatmap.difficulty_rating > 10) {
-			for (var i = 0; i < 10; i++) {
+			for (let i = 0; i < 10; i++) {
 				ctx.drawImage(star, 40 + 33 * i, 420, 28, 27);
 			}
 		} else {
-			for (i = 0; i < Math.floor(data.beatmap.difficulty_rating); i++) {
+			for (var i = 0; i < Math.floor(data.beatmap.difficulty_rating); i++) {
 				ctx.drawImage(star, 40 + 33 * i, 420, 28, 27);
 			}
-			var lastStarSize = (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating));
-			var minSize = 0.5;
-			var multiplier = ((1 - minSize) + (minSize * lastStarSize));
+			let lastStarSize = (data.beatmap.difficulty_rating - Math.floor(data.beatmap.difficulty_rating));
+			let minSize = 0.5;
+			let multiplier = ((1 - minSize) + (minSize * lastStarSize));
 			ctx.drawImage(star, 40 + 33 * (i) + ((28 - (28 * multiplier)) / 2), 420 + ((27 - (27 * multiplier)) / 2), 28 * multiplier, 27 * multiplier);
 		}
 
@@ -191,8 +196,8 @@ function generateBeatmap(msg, data) {
 
 		try {
 			var mapperPfp = await Canvas.loadImage(`https://a.ppy.sh/${data.user_id}`);
-		} catch(err) {
-			mapperPfp = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png').catch(err => {
+		} catch (err) {
+			mapperPfp = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png').catch((err: any) => {
 				error.unexpectedError(err, msg);
 			});
 
@@ -211,7 +216,7 @@ function generateBeatmap(msg, data) {
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/clock.svg'), 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
-		let clock = await Canvas.loadImage(Buffer.from(svgFile)).catch(err => {
+		let clock = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
 			error.unexpectedError(err, msg);
 		});
 
@@ -219,7 +224,7 @@ function generateBeatmap(msg, data) {
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/drum.svg'), 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
-		let drum = await Canvas.loadImage(Buffer.from(svgFile)).catch(err => {
+		let drum = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
 			error.unexpectedError(err, msg);
 		});
 
@@ -227,7 +232,7 @@ function generateBeatmap(msg, data) {
 
 		svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/times.svg'), 'utf8');
 		svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
-		let times = await Canvas.loadImage(Buffer.from(svgFile)).catch(err => {
+		let times = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
 			error.unexpectedError(err, msg);
 		});
 
@@ -248,7 +253,7 @@ function generateBeatmap(msg, data) {
 		ctx.fillText(data.beatmap.version, 629, 416 + 26);
 		ctx.strokeText(data.beatmap.version, 629, 416 + 26);
 
-		var compare = (a, b) => {
+		var compare = (a: any, b: any) => {
 			if (parseFloat(a.difficulty_rating) > parseFloat(b.difficulty_rating)) {
 				return 1;
 			} else {
@@ -268,27 +273,27 @@ function generateBeatmap(msg, data) {
 			}
 			var icon;
 			if (data.beatmaps[i].difficulty_rating < 2) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/easy_${data.beatmaps[i].mode}.png`)).catch(err => {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/easy_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
 					error.unexpectedError(err, msg);
 				});
 			} else if (data.beatmaps[i].difficulty_rating < 2.7) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/normal_${data.beatmaps[i].mode}.png`)).catch(err => {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/normal_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
 					error.unexpectedError(err, msg);
 				});
 			} else if (data.beatmaps[i].difficulty_rating < 4) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/hard_${data.beatmaps[i].mode}.png`)).catch(err => {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/hard_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
 					error.unexpectedError(err, msg);
 				});
 			} else if (data.beatmaps[i].difficulty_rating < 5.3) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/insane_${data.beatmaps[i].mode}.png`)).catch(err => {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/insane_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
 					error.unexpectedError(err, msg);
 				});
 			} else if (data.beatmaps[i].difficulty_rating < 6.5) {
-				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/expert_${data.beatmaps[i].mode}.png`)).catch(err => {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/expert_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
 					error.unexpectedError(err, msg);
 				});
 			} else {
-				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/extra_${data.beatmaps[i].mode}.png`)).catch(err => {
+				icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/extra_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
 					error.unexpectedError(err, msg);
 				});
 			}

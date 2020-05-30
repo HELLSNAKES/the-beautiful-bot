@@ -9,9 +9,11 @@
 
 'use strict';
 
+import { Message } from 'discord.js';
+
 const request = require('request');
 
-function log(msg, errCode) {
+export function log(msg: Message, errCode: number): void {
 	if (errCode == 4041) {
 		console.log('Error 4041');
 		msg.channel.send(':no_entry: **Unknown username!** This username doesn\'t seem to exist, check if you spelled the name correctly');
@@ -33,12 +35,9 @@ function log(msg, errCode) {
 	}
 }
 
-function unexpectedError(err, msg) {
-	if (!msg) msg = {
-		content: 'No message'
-	};
+export function unexpectedError(err: Error, msg: Message): void {
 	console.error(err);
-	const embed = {
+	const embed: any = {
 		'description': `\n\nError stack:\n\`\`\`${err.stack}\`\`\`\nThe error has been automatically reported to Moorad.`,
 		'color': 16725838,
 		'timestamp': Date.now()
@@ -51,9 +50,9 @@ function unexpectedError(err, msg) {
 
 }
 
-function sendToSlack(msg, err, callback) {
+function sendToSlack(msg: Message, err: Error, callback = () => { }) {
 	if (process.env.slackAPI) {
-		var message = `An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nMessage content before the error:\n\`\`\`${msg.content}\`\`\``;
+		let message = `An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nMessage content before the error:\n\`\`\`${msg.content}\`\`\``;
 		request.post({
 			url: process.env.slackAPI,
 			body: {
@@ -69,8 +68,3 @@ function sendToSlack(msg, err, callback) {
 		callback();
 	}
 }
-
-module.exports = {
-	log: log,
-	unexpectedError: unexpectedError
-};

@@ -7,8 +7,8 @@ var modes = {
 	fruits: 3
 };
 
-function userURL(url) {
-	var returnObject = {
+export function userURL(url: string): any {
+	var returnObject: any = {
 		userId: null,
 		success: true
 	};
@@ -16,13 +16,9 @@ function userURL(url) {
 	var patternWithoutDigits = /^(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\//g;
 	if (pattern.test(url)) {
 		console.log();
-		returnObject.userId = url.match(pattern)[0].replace(patternWithoutDigits, '');
+		returnObject.userId = url.match(pattern)![0].replace(patternWithoutDigits, '');
 	} else {
 		returnObject.success = false;
 	}
 	return returnObject;
 }
-
-module.exports = {
-	userURL: userURL
-};

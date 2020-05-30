@@ -1,21 +1,16 @@
 'use strict';
 
-const error = require('./error');
+import { IArgument, IOptions, IOjsamaOptions, IDBUser } from './interfaces';
+import { Message } from 'discord.js';
+
 const ojsama = require('ojsama');
-const mods = require('../handlers/mods');
-const database = require('../handlers/database');
+import * as error from './error';
+import * as mods from './mods';
+import * as database from './database';
 
-// isSwitch: (boolean) whether the argument takes a value after it
-// aliases: (string array) a list of aliases
-// validator: (function) used to validate the value after the argument
-// validatorText: (string) used for errors if the validator returned false (will be deprecated soon)
-// name: (string)
-// allowedValues: (string || object)
-// default: (any)
-// description: (string)
-// process: (function)
+// For supported properties look at IArguments in ./interfaces.ts
 
-const args = [{
+const args: Array<IArgument> = [{
 	name: 'previous',
 	description: 'Show the specificed previous play',
 	allowedValues: '0-49',
@@ -47,7 +42,7 @@ const args = [{
 		'2': 'Akatsuki Servers'
 	},
 	aliases: ['t'],
-	validator: x => x == 0 || x == 1 || x == 2,	
+	validator: x => x == 0 || x == 1 || x == 2,
 	validatorText: '`0`, `1` or `2`',
 	process: x => parseInt(x),
 	default: 0
@@ -65,7 +60,7 @@ const args = [{
 	default: [false, -1]
 }];
 
-const otherArgs = [{
+const otherArgs: Array<IArgument> = [{
 	name: 'Username',
 	description: 'The osu! username or a discord ping (their account must be linked) of the player to run the command on. `By default` if no name was provided, the linked osu! username of the user using the command will be used (refer to `$set`)',
 }, {
@@ -79,7 +74,7 @@ const otherArgs = [{
 	description: 'The gamemode to set as your default. This gamemode will be the default gamemode when using commands such as $recent, $best, etc if no gamemode is specified.\n`0` | `standard` | `std`\n`1` | `taiko`\n`2` | `catch` | `ctb` | `catch the beat`\n`3` | `mania`'
 }];
 
-const preformancePointsArgs = [{
+const preformancePointsArgs: Array<IArgument> = [{
 	name: '[accuracy]%',
 	description: 'show the pp for the specified accuracy `100% by Default` e.g. `$pp 85%`',
 	noInitialPrefix: true
@@ -97,29 +92,29 @@ const preformancePointsArgs = [{
 	noInitialPrefix: true
 }];
 
-function parse(msg, passedArgs) {
-	var options = {
+export function parse(msg: Message, passedArgs: Array<string>): IOptions {
+	let options: IOptions = {
 		error: false
 	};
 
-	for (var x of args) {
-		if (x.default != undefined) options[x.name] = x.default;
+	for (let x of args) {
+		if (x.default != undefined) Object.defineProperty(options, x.name, { value: x.default, writable: true });
 	}
 
-	for (var i = 0; i < passedArgs.length; i++) {
+	for (let i = 0; i < passedArgs.length; i++) {
 
 		if (!passedArgs[i].startsWith('-')) continue;
 
 		let found = false;
 
-		for (var j = 0; j < args.length; j++) {
+		for (let j = 0; j < args.length; j++) {
 			if (passedArgs[i].toLowerCase().slice(1) == args[j].name ||
-				(args[j].aliases && args[j].aliases.includes(passedArgs[i].toLowerCase().slice(1)))) {
+				(args[j].aliases && args[j].aliases!.includes(passedArgs[i].toLowerCase().slice(1)))) {
 
 				found = true;
 
 				if (args[j].isSwitch) {
-					options[args[j].name] = true;
+					Object.defineProperty(options, args[j].name, { value: true, writable: true });
 					passedArgs.splice(i, 1);
 					i = -1;
 					break;
@@ -131,14 +126,14 @@ function parse(msg, passedArgs) {
 					return options;
 				}
 
-				if (args[j].validator && !args[j].validator(passedArgs[i + 1])) {
+				if (args[j].validator && !args[j].validator!(passedArgs[i + 1])) {
 					msg.channel.send(`:red_circle: \`${passedArgs[i + 1]}\` is an invalid value after \`${passedArgs[i]}\`\n\`-${args[j].name}\` only accepts ${args[j].validatorText}\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
 					options.error = true;
 					return options;
 				}
 
-				if (args[j].process) options[args[j].name] = args[j].process(passedArgs[i + 1]);
-				else options[args[j].name] = passedArgs[i + 1];
+				if (args[j].process) Object.defineProperty(options, args[j].name, { value: args[j].process!(passedArgs[i + 1]), writable: true });
+				else Object.defineProperty(options, args[j].name, { value: passedArgs[i + 1], writable: true });
 
 				passedArgs.splice(i, 2);
 				i = -1;
@@ -153,15 +148,19 @@ function parse(msg, passedArgs) {
 		}
 	}
 
-	console.log(options);
 	return options;
 }
 
-function parseOjsama(args) {
-	var output = {};
-	var argv = args.split(' ');
+export function parseOjsama(args: string): IOjsamaOptions {
+	let output: IOjsamaOptions = {
+		mods: '',
+		accuracy: 100,
+		combo: 0,
+		misses: 0
+	};
+	let argv = args.split(' ');
 
-	for (var i = 0; i < argv.length; ++i) {
+	for (let i = 0; i < argv.length; ++i) {
 		if (argv[i].startsWith('+')) {
 			output.mods = ojsama.modbits.from_string(argv[i].slice(1) || '');
 		} else if (argv[i].endsWith('%')) {
@@ -176,16 +175,16 @@ function parseOjsama(args) {
 	return output;
 }
 
-function determineUser(msg, args, callback) {
-	var argsString = args.join(' ');
-	var options = parse(msg, args);
+export function determineUser(msg: Message, args: Array<string>, callback: (username: string | undefined, options: IOptions) => void): void {
+	let argsString = args.join(' ');
+	let options = parse(msg, args);
 	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
-		var discordID = args[0].slice(3, 21);
+		let discordID = args[0].slice(3, 21);
 		database.read('users', {
 			discordID: discordID
-		}, (docs, err) => {
+		}, (docs: Array<IDBUser>, err: any) => {
 			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
@@ -199,7 +198,7 @@ function determineUser(msg, args, callback) {
 	} else {
 		database.read('users', {
 			discordID: msg.author.id
-		}, (docs, err) => {
+		}, (docs: Array<IDBUser>, err: any) => {
 			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
@@ -211,11 +210,11 @@ function determineUser(msg, args, callback) {
 	}
 }
 
-function getArgumentDetails(argsArray) {
-	var returnArray = [];
+export function getArgumentDetails(argsArray: Array<string>): Array<IArgument> {
+	let returnArray = [];
 
-	for (var i = 0; i < argsArray.length; i++) {
-		for (var j = 0; j < args.length; j++) {
+	for (let i = 0; i < argsArray.length; i++) {
+		for (let j = 0; j < args.length; j++) {
 			if (args[j].name.toLowerCase() == argsArray[i].toLowerCase()) returnArray.push(args[j]);
 		}
 	}
@@ -223,11 +222,11 @@ function getArgumentDetails(argsArray) {
 	return returnArray;
 }
 
-function getOtherArgumentDetails(argsArray) {
-	var returnArray = [];
+export function getOtherArgumentDetails(argsArray: Array<string>): Array<IArgument> {
+	let returnArray = [];
 
-	for (var i = 0; i < argsArray.length; i++) {
-		for (var j = 0; j < otherArgs.length; j++) {
+	for (let i = 0; i < argsArray.length; i++) {
+		for (let j = 0; j < otherArgs.length; j++) {
 			if (otherArgs[j].name == argsArray[i]) returnArray.push(otherArgs[j]);
 		}
 	}
@@ -235,15 +234,15 @@ function getOtherArgumentDetails(argsArray) {
 	return returnArray;
 }
 
-function getPerformancePointsArgumentDetails(argsArray) {
+export function getPerformancePointsArgumentDetails(argsArray?: Array<string>): Array<IArgument> {
 	if (argsArray == undefined) {
 		return preformancePointsArgs;
 	}
 
-	var returnArray = [];
+	let returnArray = [];
 
-	for (var i = 0; i < argsArray.length; i++) {
-		for (var j = 0; j < otherArgs.length; j++) {
+	for (let i = 0; i < argsArray.length; i++) {
+		for (let j = 0; j < otherArgs.length; j++) {
 			if (preformancePointsArgs[j].name == argsArray[i]) returnArray.push(preformancePointsArgs[j]);
 		}
 	}
@@ -251,12 +250,3 @@ function getPerformancePointsArgumentDetails(argsArray) {
 	return returnArray;
 }
 
-module.exports = {
-	parse: parse,
-	parseOjsama: parseOjsama,
-	determineUser: determineUser,
-	getArgumentDetails: getArgumentDetails,
-	getOtherArgumentDetails: getOtherArgumentDetails,
-	getPerformancePointsArgumentDetails: getPerformancePointsArgumentDetails
-
-};

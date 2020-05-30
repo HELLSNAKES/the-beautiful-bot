@@ -1,26 +1,15 @@
 'use strict';
 
+import { Message } from 'discord.js';
+
 require('dotenv').config();
 const Discord = require('discord.js');
-const http = require('http');
 const client = new Discord.Client();
 const prefix = process.env.prefix || '$';
 const parser = require('./handlers/parser');
 const fs = require('fs');
 
-http.createServer((req, res) => {
-	if (req.url == '/') {
-		res.write('Pong');
-		res.end();
-	}
-}).listen(process.env.PORT || 4000);
-
-// Ping the app evert 5 minutes to prevent the app from sleeping
-setInterval(function () {
-	http.get(process.env.server.replace('https', 'http'));
-}, 300000);
-
-function isAlias(command, clientCommand) {
+function isAlias(command: string, clientCommand: string) {
 	return client.commands.get(clientCommand).aliases && client.commands.get(clientCommand).aliases.includes(command);
 }
 
@@ -42,15 +31,15 @@ client.on('ready', () => {
 });
 
 client.commands = new Discord.Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./commands').filter((file: any) => file.endsWith('.js') || file.endsWith('.ts'));
 
-for (var i of commandFiles) {
-	var command = require(`./commands/${i}`);
+for (let i of commandFiles) {
+	let command = require(`./commands/${i}`);
 	client.commands.set(command.name, command);
 }
 
 
-client.on('message', async msg => {
+client.on('message', async (msg: Message) => {
 	if (msg.author.bot) return;
 	if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
 
@@ -65,10 +54,9 @@ client.on('message', async msg => {
 	}
 
 	if (!msg.content.startsWith(prefix)) return;
-	var args = msg.content.slice(prefix.length).trim().split(/ +/);
-	var cmd = args.shift().toLowerCase();
+	let args = msg.content.slice(prefix.length).trim().split(/ +/);
+	let cmd = args.shift()!.toLowerCase();
 
-	
 	if (cmd === 'ping' || isAlias(cmd, 'ping')) {
 		client.commands.get('ping').execute(client, msg);
 	} else if (cmd === 'osu' || isAlias(cmd, 'osu')) {

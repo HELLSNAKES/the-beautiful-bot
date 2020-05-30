@@ -1,21 +1,24 @@
 /* eslint-disable no-useless-escape */
 'use strict';
 
-const mods = require('./mods');
+import { IOjsamaOptions } from './interfaces';
+
+import * as mods from './mods';
+
 const ojsama = require('ojsama');
 const request = require('request');
 
-function calculatepp(beatmapId, options, callback = () => {}) {
+export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback: (json: any) => void = (): void => { }): any {
 
 	var parser = new ojsama.parser();
 
 	request({
 		url: `https://osu.ppy.sh/osu/${beatmapId}`,
 		encoding: null
-	}, (res, err, body) => {
+	}, (err: any, res: any, body: any) => {
 		parser.feed(body.toString());
 
-		var params = {
+		var params: any = {
 			map: parser.map
 		};
 		if (options.mods) params.mods = options.mods;
@@ -51,7 +54,7 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 			CS: Math.floor(stats.cs * 100) / 100,
 			HP: Math.floor(stats.hp * 100) / 100,
 			stars: Math.floor(stars.total * 100) / 100,
-			mods: mods.toString(options.mods),
+			mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods),
 			combo: options.combo,
 			maxCombo: parser.map.max_combo(),
 			accuracy: options.accuracy,
@@ -65,7 +68,7 @@ function calculatepp(beatmapId, options, callback = () => {}) {
 	});
 }
 
-function calculateCatchpp(data) {
+export function calculateCatchpp(data: any): any {
 	var value = Math.pow(5 * Math.max(1, (data.diff_aim) / 0.0049) - 4, 2) / 100000;
 	var totalHits = parseInt(data.count300) + parseInt(data.count100) + parseInt(data.countmiss);
 
@@ -121,7 +124,7 @@ function calculateCatchpp(data) {
 	};
 }
 
-function calculateManiapp(data) {
+export function calculateManiapp(data: any): any {
 	data.difficultyrating = parseFloat(data.difficultyrating);
 	data.diff_overall = parseFloat(data.diff_overall);
 	data.maxcombo = parseInt(data.maxcombo);
@@ -129,20 +132,19 @@ function calculateManiapp(data) {
 	data.accuracy = parseFloat(data.accuracy);
 	data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
 	var enabled_mods = mods.toString(data.enabled_mods).replace('No Mod', '');
-	
+
 	// Strain
-	var scoreMultiplier = mods.getScoreMultiplier(enabled_mods,3);
+	var scoreMultiplier = mods.getScoreMultiplier(enabled_mods, 3);
 	var strainValue = 0;
-	if (scoreMultiplier <= 0)
-	{
+	if (scoreMultiplier <= 0) {
 		return;
 	}
-	
-	data.score *= 1/scoreMultiplier;
+
+	data.score *= 1 / scoreMultiplier;
 
 	strainValue = Math.pow(5 * Math.max(1, data.difficultyrating / 0.2) - 4, 2.2) / 135;
 
-	strainValue *= 1 + 0.1 * Math.min(1, data.totalHits/1500);
+	strainValue *= 1 + 0.1 * Math.min(1, data.totalHits / 1500);
 
 	if (data.score <= 500000) {
 		strainValue = 0;
@@ -166,7 +168,7 @@ function calculateManiapp(data) {
 		return;
 	}
 
-	accValue = Math.max(0, 0.2 - ((hitWindow300 - 34) * 0.00667)) * strainValue * Math.pow((Math.max(0, (data.score - 960000)/40000)),1.1);
+	accValue = Math.max(0, 0.2 - ((hitWindow300 - 34) * 0.00667)) * strainValue * Math.pow((Math.max(0, (data.score - 960000) / 40000)), 1.1);
 
 	// Total
 	var modMultiplier = 0.8;
@@ -183,7 +185,7 @@ function calculateManiapp(data) {
 		modMultiplier *= 0.50;
 	}
 
-	var value = Math.pow(Math.pow(strainValue, 1.1) + Math.pow(accValue, 1.1),1 / 1.1) * modMultiplier;
+	var value = Math.pow(Math.pow(strainValue, 1.1) + Math.pow(accValue, 1.1), 1 / 1.1) * modMultiplier;
 
 	return {
 		title: data.title,
@@ -196,12 +198,5 @@ function calculateManiapp(data) {
 		totalHits: data.totalHits,
 		accuracy: data.accuracy,
 		pp: Math.floor(value * 100) / 100
-	};		
+	};
 }
-
-
-module.exports = {
-	calculatepp: calculatepp,
-	calculateCatchpp: calculateCatchpp,
-	calculateManiapp: calculateManiapp
-};

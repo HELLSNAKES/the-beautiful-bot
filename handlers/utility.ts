@@ -1,12 +1,15 @@
 'use strict';
 
+import { Message } from 'discord.js';
+import { IDBUser } from './interfaces';
+
 const request = require('request');
 const error = require('../handlers/error');
 
-function checkUser(msg, data, callback) {
+export function checkUser(msg: Message, data: IDBUser, callback: (data: any) => {}): void {
 	request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${data.osuUsername}`, {
 		json: true
-	}, (err, res, body) => {
+	}, (err: any, res: any, body: Array<object>) => {
 		if (body.length == 0) {
 			error.log(msg, 4041);
 			return;
@@ -16,7 +19,3 @@ function checkUser(msg, data, callback) {
 		}
 	});
 }
-
-module.exports = {
-	checkUser: checkUser
-};

@@ -1,11 +1,14 @@
-const errorHandler = require('../handlers/error');
-const database = require('../handlers/database');
-const argument = require('../handlers/argument');
+'user-strict';
 
-function execute(msg, args) {
-	args = args[0];
-	if (args != '0' && args != '1' && args != '2' && args != '3') {
-		errorHandler.log(msg, 4045);
+import { Message } from 'discord.js';
+
+import * as error from '../handlers/error';
+import * as database from '../handlers/database';
+import * as argument from '../handlers/argument';
+
+function execute(msg: Message, args: any) {
+	if (typeof (args) != 'number' && (args[0] != '0' && args[0] != '1' && args[0] != '2' && args[0] != '3')) {
+		error.log(msg, 4045);
 		return;
 	}
 	args = parseInt(args[0]);
@@ -14,7 +17,7 @@ function execute(msg, args) {
 	}, (docs, err) => {
 		if (err) console.log(err);
 		if (docs.length == 0) {
-			errorHandler.log(msg, 4046);
+			error.log(msg, 4046);
 		}
 		if (docs[0].type != 0) {
 			msg.channel.send(':no_entry: Sorry but only offical osu servers users can use $modeset');

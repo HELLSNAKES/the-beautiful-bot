@@ -1,58 +1,62 @@
 'use strict';
 
-const error = require('../handlers/error');
-const format = require('../handlers/format');
-const fs = require('fs');
+import { Message } from 'discord.js';
+import { IOptions } from '../handlers/interfaces';
+
+import * as error from '../handlers/error';
+import * as format from '../handlers/format';
+import * as countryCodes from '../country_codes.json';
+import * as argument from '../handlers/argument';
+
 const path = require('path');
-const countryCodes = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../country_codes.json')));
 const request = require('request');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 const Discord = require('discord.js');
 const gatariData = require('./convert/gatariData');
 const akatsukiData = require('./convert/akatsukiData');
-const argument = require('../handlers/argument');
-registerFont(path.resolve(__dirname,'../assets/VarelaRound.ttf'), {
+registerFont(path.resolve(__dirname, '../assets/VarelaRound.ttf'), {
 	family: 'VarelaRound'
 });
 var time = Date.now();
 
-function execute(msg, args, mode = 0) {
+function execute(msg: Message, args: Array<string>, mode: number | undefined = 0) {
 	argument.determineUser(msg, args, (user, options) => {
 		options.mode = mode;
 		requestData(msg, user, options);
 	});
 }
 
-function requestData(msg, id, options = {
+function requestData(msg: Message, id: string | undefined, options: IOptions = {
+	error: false,
 	mode: 0
 }) {
 	options.type = options.type ? options.type : 0;
 	if (options.type == 0) {
 		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}&m=${options.mode}`, {
 			json: true
-		}, async (err, res, body) => {
+		}, async (err: any, res: any, body: any) => {
 			generateUser(msg, options, body);
 		});
 	} else if (options.type == 1) {
 		request(`https://api.gatari.pw/user/stats?u=${id}`, {
 			json: true
-		}, (err, res, body) => {
+		}, (err: any, res: any, body: any) => {
 			request(`https://api.gatari.pw/users/get?u=${id}`, {
 				json: true
-			}, (err, res, bodyInfo) => {
+			}, (err: any, res: any, bodyInfo: any) => {
 				generateUser(msg, options, [gatariData.userData(body, bodyInfo)]);
 			});
 		});
 	} else if (options.type == 2) {
 		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 			json: true
-		}, (err, res, body) => {
+		}, (err: any, res: any, body: any) => {
 			generateUser(msg, options, [akatsukiData.userData(body)]);
 		});
 	}
 }
 
-async function generateUser(msg, options, body) {
+async function generateUser(msg: Message, options: IOptions, body: any) {
 	var mainColour = '#ffffff';
 	if (body == undefined || body.length == 0) {
 		error.log(msg, 4041);
@@ -61,7 +65,7 @@ async function generateUser(msg, options, body) {
 	var canvas = createCanvas(1200, 624);
 	var ctx = canvas.getContext('2d');
 
-	
+
 	ctx.beginPath();
 	ctx.fillStyle = '#303F76';
 	format.rect(ctx, 0, 0, canvas.width, canvas.height, 45);
@@ -105,7 +109,7 @@ async function generateUser(msg, options, body) {
 	ctx.fill();
 
 	var modes = ['osu', 'taiko', 'fruits', 'mania'];
-	var icon = await loadImage(path.resolve(__dirname, `../assets/${modes[options.mode]}.png`));
+	var icon = await loadImage(path.resolve(__dirname, `../assets/${modes[options.mode || 0]}.png`));
 	ctx.drawImage(icon, 252, 261, 86, 86);
 
 
@@ -114,7 +118,7 @@ async function generateUser(msg, options, body) {
 	ctx.fillText(body[0].username, 347, 56 + 63);
 
 	ctx.font = '40px VarelaRound';
-	let country = countryCodes[body[0].country];
+	let country = Object.getOwnPropertyDescriptor(countryCodes, body[0].country)?.value;
 	var flag = await loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
 	ctx.drawImage(flag, 350, 130, 60, 40);
 	ctx.fillText(country, 420, 127 + 40);

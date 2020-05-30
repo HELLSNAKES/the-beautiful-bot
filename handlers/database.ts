@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 'use strict';
 
+import { IDBUser } from './interfaces';
+
 require('dotenv').config({
 	path: '../.env'
 });
@@ -8,13 +10,13 @@ const MongoClient = require('mongodb').MongoClient;
 
 const dbName = 'thebeautifulbot';
 
-function read(collectionName, findObject, callback = () => {}) {
+export function read(collectionName: string, findObject: IDBUser, callback: (results: Array<IDBUser>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
-	}, function (err, client) {
+	}, function (err: any, client: any) {
 		if (err) {
-			callback({}, err);
+			callback([], err);
 			console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 			return;
 		}
@@ -22,9 +24,9 @@ function read(collectionName, findObject, callback = () => {}) {
 
 		const collection = db.collection(collectionName);
 
-		collection.find(findObject).toArray(function (err, docs) {
+		collection.find(findObject).toArray(function (err: any, docs: Array<any>) {
 			if (err) {
-				callback({}, err);
+				callback([], err);
 
 				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 				return;
@@ -32,7 +34,7 @@ function read(collectionName, findObject, callback = () => {}) {
 
 			if (docs.length == 0) {
 				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				callback({}, 'user not found');
+				callback([], 'user not found');
 				return;
 			}
 			console.log(`READ : ${docs[0]._id}`);
@@ -43,15 +45,15 @@ function read(collectionName, findObject, callback = () => {}) {
 	});
 }
 
-function write(collectionName, writeObject, callback) {
+export function write(collectionName: string, writeObject: IDBUser, callback: (results: Array<IDBUser>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
-	}, function (err, client) {
+	}, function (err: any, client: any) {
 
 		if (err) {
 			console.log(`FAILED TO WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
-			callback({}, err);
+			callback([], err);
 			return;
 		}
 
@@ -59,28 +61,28 @@ function write(collectionName, writeObject, callback) {
 
 		const collection = db.collection(collectionName);
 
-		collection.insertOne(writeObject, function (err, result) {
+		collection.insertOne(writeObject, function (err: any, result: any) {
 			if (err) {
 				console.log(`FAILED TO WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
-				callback({}, err);
+				callback([], err);
 				return;
 			}
 			console.log(`WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
-			callback({}, null);
+			callback([], null);
 			client.close();
 		});
 
 	});
 }
 
-function update(collectionName, findObject, setObject, callback) {
+export function update(collectionName: string, findObject: IDBUser, setObject: IDBUser, callback: (results: Array<IDBUser>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
-	}, function (err, client) {
+	}, function (err: any, client: any) {
 		if (err) {
 			console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-			callback({}, err);
+			callback([], err);
 			return;
 		}
 		const db = client.db(dbName);
@@ -89,23 +91,16 @@ function update(collectionName, findObject, setObject, callback) {
 
 		collection.updateOne(findObject, {
 			$set: setObject
-		}, function (err, result) {
+		}, function (err: any, result: any) {
 			if (err) {
 				console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				callback({}, err);
+				callback([], err);
 				return;
 			}
 			console.log(`UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-			callback({}, null);
+			callback([], null);
 			client.close();
 		});
 
 	});
 }
-
-
-module.exports = {
-	read: read,
-	write: write,
-	update: update
-};

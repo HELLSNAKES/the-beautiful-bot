@@ -1,9 +1,12 @@
 'use strict';
 
-const argument = require('../handlers/argument');
+import { Message } from 'discord.js';
+import { ICommand } from '../handlers/interfaces';
 
-function execute(client, msg, args) {
-	var embed = {
+import * as argument from '../handlers/argument';
+
+function execute(client: any, msg: Message, args: Array<string>) {
+	const embed: any = {
 		'title': 'List of commands available',
 		'description': '',
 		'color': 14684241,
@@ -15,15 +18,16 @@ function execute(client, msg, args) {
 	if (args.length == 0) {
 		embed.fields[0] = {
 			name: 'osu! commands',
-			value: ''
+			value: '',
+			inline: false
 		};
-		
+
 		embed.fields[1] = {
 			name: 'general commands',
 			value: ''
 		};
 
-		client.commands.forEach(command => {
+		client.commands.forEach((command: ICommand) => {
 			if (command.group == undefined) return;
 
 			if (command.group == 'osu') {
@@ -39,14 +43,14 @@ function execute(client, msg, args) {
 
 		if (args[0].startsWith('$')) args[0] = args[0].slice(1);
 
-		var cmd;
+		let cmd: ICommand = {};
 
-		client.commands.some(command => {
-			if ( command.name == args[0] || (command.aliases &&command.aliases.includes(args[0]))) {
+		client.commands.some((command: ICommand) => {
+			if (command.name == args[0] || (command.aliases && command.aliases.includes(args[0]))) {
 				cmd = command;
 				return true;
 			}
-		});	
+		});
 
 		if (cmd == undefined) {
 			msg.channel.send(`:red_circle: **\`${args[0]}\` is an unrecognised command**\nThe command you specified is not recognised. Type \`$help\` to view the full list of commands available\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
@@ -56,7 +60,7 @@ function execute(client, msg, args) {
 		embed.description = `$${cmd.name}${cmd.options ? ' [Options]' : ''}`;
 
 		if (cmd.arguments) {
-			for (var i = 0; i < cmd.arguments.length; i++) {
+			for (let i = 0; i < cmd.arguments.length; i++) {
 				embed.description += ` [${cmd.arguments[i].name}]`;
 			}
 		}
@@ -71,7 +75,7 @@ function execute(client, msg, args) {
 
 			embed.description += '\n**Aliases** : ';
 
-			for (i = 0; i < cmd.aliases.length; i++) {
+			for (let i = 0; i < cmd.aliases.length; i++) {
 				embed.description += `\`${cmd.aliases[i]}\``;
 
 				if (i != cmd.aliases.length - 1) embed.description += ' | ';
@@ -82,15 +86,15 @@ function execute(client, msg, args) {
 
 		if (cmd.options) {
 			embed.description += '\n**[Options]**';
-			for (i = 0; i < cmd.options.length; i++) {
+			for (let i = 0; i < cmd.options.length; i++) {
 				embed.description += `\n**${cmd.options[i].noInitialPrefix ? '' : '-'}${cmd.options[i].name}** :\n${cmd.options[i].description}\n`;
 
-				if (!Object.prototype.hasOwnProperty.call(cmd.options[i],'allowedValues')) continue;
+				if (!Object.prototype.hasOwnProperty.call(cmd.options[i], 'allowedValues')) continue;
 				if (typeof cmd.options[i].allowedValues == 'object') {
-					for (var j = 0; j < Object.keys(cmd.options[i].allowedValues).length; j++) {
-						embed.description += `\`${Object.keys(cmd.options[i].allowedValues)[j]}\`: ${Object.values(cmd.options[i].allowedValues)[j]}`;
+					for (let j = 0; j < Object.keys(cmd.options[i].allowedValues || {}).length; j++) {
+						embed.description += `\`${Object.keys(cmd.options[i].allowedValues || {})[j]}\`: ${Object.values(cmd.options[i].allowedValues || {})[j]}`;
 
-						if (j != Object.keys(cmd.options[i].allowedValues).length - 1) embed.description += ' | ';
+						if (j != Object.keys(cmd.options[i].allowedValues || {}).length - 1) embed.description += ' | ';
 						else embed.description += '\n';
 					}
 				} else {
@@ -100,10 +104,10 @@ function execute(client, msg, args) {
 		}
 
 		if (cmd.arguments) {
-			for (i = 0; i < cmd.arguments.length; i++) {
+			for (let i = 0; i < cmd.arguments.length; i++) {
 				embed.description += `\n**[${cmd.arguments[i].name}]**\n${cmd.arguments[i].description}`;
 
-				if (i == cmd.arguments.length - 1 ) embed.description += '\n';
+				if (i == cmd.arguments.length - 1) embed.description += '\n';
 			}
 		}
 

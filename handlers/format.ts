@@ -1,6 +1,14 @@
 'use strict';
 
-function rect(ctx, x, y, width, height, radius = 5) {
+interface IRadius {
+	tl: number,
+	tr: number,
+	br: number,
+	bl: number
+}
+
+export function rect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number | IRadius = 5): void {
+
 	if (typeof radius === 'number') {
 		radius = {
 			tl: radius,
@@ -23,15 +31,15 @@ function rect(ctx, x, y, width, height, radius = 5) {
 	ctx.fill();
 }
 
-function number(number) {
+export function number(number: number): string {
 	return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }
 
-function time(date) {
+export function time(date: number): string {
 
-	var seconds = Math.floor((new Date() - date) / 1000);
+	let seconds = Math.floor((new Date().getTime() - date) / 1000);
 
-	var interval = Math.floor(seconds / 31536000);
+	let interval = Math.floor(seconds / 31536000);
 
 	if (interval > 1) {
 		return interval + ' years';
@@ -55,19 +63,12 @@ function time(date) {
 	return Math.floor(seconds) + ' seconds';
 }
 
-function numberSuffix(value, formatString) {
+export function numberSuffix(value: number, formatString = false): string {
 	if (value >= 1000000000) {
-		return ((formatString ? number(Math.floor(value.toString() / 10 ** 8) / 10) : Math.floor(value.toString() / 10 ** 8) / 10) + 'b');
+		return ((formatString ? number(Math.floor(value / 10 ** 8) / 10) : Math.floor(value / 10 ** 8) / 10) + 'b');
 	} else if (value >= 1000000) {
-		return ((formatString ? number(Math.floor(value.toString() / 10 ** 5) / 10) : Math.floor(value.toString() / 10 ** 5) / 10) + 'm');
+		return ((formatString ? number(Math.floor(value / 10 ** 5) / 10) : Math.floor(value / 10 ** 5) / 10) + 'm');
 	} else {
-		return (formatString ? number(value) : value);
+		return (formatString ? number(value) : value.toString());
 	}
 }
-
-module.exports = {
-	rect: rect,
-	number: number,
-	time: time,
-	numberSuffix: numberSuffix
-};

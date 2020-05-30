@@ -1,11 +1,14 @@
 /* eslint-disable no-useless-escape */
 'use strict';
 
+import { Message } from 'discord.js';
+
+import * as error from '../handlers/error';
+
 const request = require('request');
-const error = require('../handlers/error');
 const map = require('./map');
 
-function beatmapCardFromLink(msg) {
+function beatmapCardFromLink(msg: any) {
 	var beatmapsetid = msg.content.match(/osu.ppy.sh\S+/g)[0];
 	beatmapsetid = beatmapsetid.replace('osu.ppy.sh/beatmapsets/', '');
 	var beatmapid = beatmapsetid.match(/#\S+/g)[0];
@@ -17,15 +20,15 @@ function beatmapCardFromLink(msg) {
 	getBeatmapData(msg, beatmapsetid, beatmapid);
 }
 
-function getBeatmapData(msg, beatmapsetid, beatmapid) {
+function getBeatmapData(msg: Message, beatmapsetid: string, beatmapid: string) {
 	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, {
 		json: true
-	}, (err, res, body) => {
+	}, (err: any, res: any, body: any) => {
 		if (body.length == 0) {
 			error.log(msg, 4042);
 			return;
 		}
-		var data = {};
+		var data: any = {};
 		data.beatmaps = [];
 		var modes = ['osu', 'taiko', 'fruits', 'mania'];
 		for (var i = 0; i < body.length; i++) {

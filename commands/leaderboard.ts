@@ -1,21 +1,24 @@
 'use strict';
 
-const getMaps = require('../handlers/getMap');
-const request = require('request');
-const mods = require('../handlers/mods');
-const argument = require('../handlers/argument');
+import { Client, Message } from 'discord.js';
 
-function execute(client, msg, args) {
+import * as getMaps from '../handlers/getMap';
+import * as mods from '../handlers/mods';
+import * as argument from '../handlers/argument';
+
+const request = require('request');
+
+function execute(client: Client, msg: Message, args: Array<string>) {
 	getMaps.getMaps(client, msg, function (clientFunc, msgFunc, url, userid) {
-		var options = argument.parse(msg, args);
+		let options = argument.parse(msg, args);
 		if (options.error) return;
 
-		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&b=${url.slice(url.lastIndexOf('/')+1)}&limit=${options.count}`, (err, res, body) => {
+		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&b=${url.slice(url.lastIndexOf('/') + 1)}&limit=25`, (err: any, res: any, body: any) => {
 			body = JSON.parse(body);
-			var fields = [];
-			for (var i = 0; i < body.length; i++) {
+			let fields = [];
+			for (let i = 0; i < body.length; i++) {
 				fields.push({
-					name: `**${i+1}. ${client.emojis.find(emoji => emoji.name === 'grade_' + body[i].rank.toLowerCase())} ${body[i].username} +${mods.toString(body[i].enabled_mods)}**`,
+					name: `**${i + 1}. ${client.emojis.find(emoji => emoji.name === 'grade_' + body[i].rank.toLowerCase())} ${body[i].username} +${mods.toString(body[i].enabled_mods)}**`,
 					value: `${Math.floor(body[i].pp)}pp [${body[i].count300}/${body[i].count100}/${body[i].count50}/${body[i].countmiss}] x${body[i].maxcombo}`,
 					inline: true
 				});
