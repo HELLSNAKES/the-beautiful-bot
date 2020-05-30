@@ -98,7 +98,7 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 	};
 
 	for (let x of args) {
-		if (x.default != undefined) Object.defineProperty(options, x.name, { value: x.default, writable: true });
+		if (x.default != undefined) options[x.name] = x.default;
 	}
 
 	for (let i = 0; i < passedArgs.length; i++) {
@@ -114,7 +114,7 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 				found = true;
 
 				if (args[j].isSwitch) {
-					Object.defineProperty(options, args[j].name, { value: true, writable: true });
+					options[args[j].name] = true;
 					passedArgs.splice(i, 1);
 					i = -1;
 					break;
@@ -132,8 +132,8 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 					return options;
 				}
 
-				if (args[j].process) Object.defineProperty(options, args[j].name, { value: args[j].process!(passedArgs[i + 1]), writable: true });
-				else Object.defineProperty(options, args[j].name, { value: passedArgs[i + 1], writable: true });
+				if (args[j].process) options[args[j].name] = args[j].process!(passedArgs[i + 1]);
+				else options[args[j].name] = passedArgs[i + 1];
 
 				passedArgs.splice(i, 2);
 				i = -1;
@@ -177,7 +177,7 @@ export function parseOjsama(args: string): IOjsamaOptions {
 
 export function determineUser(msg: Message, args: Array<string>, callback: (username: string | undefined, options: IOptions) => void): void {
 	let argsString = args.join(' ');
-	let options = parse(msg, args);
+	let options : IOptions = parse(msg, args);
 	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {

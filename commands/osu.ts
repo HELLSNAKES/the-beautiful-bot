@@ -7,13 +7,14 @@ import * as error from '../handlers/error';
 import * as format from '../handlers/format';
 import * as countryCodes from '../country_codes.json';
 import * as argument from '../handlers/argument';
+import * as gatari from '../handlers/gatari';
+import * as akatsuki from '../handlers/akatsuki';
 
 const path = require('path');
 const request = require('request');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 const Discord = require('discord.js');
-const gatariData = require('./convert/gatariData');
-const akatsukiData = require('./convert/akatsukiData');
+
 registerFont(path.resolve(__dirname, '../assets/VarelaRound.ttf'), {
 	family: 'VarelaRound'
 });
@@ -44,14 +45,14 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 			request(`https://api.gatari.pw/users/get?u=${id}`, {
 				json: true
 			}, (err: any, res: any, bodyInfo: any) => {
-				generateUser(msg, options, [gatariData.userData(body, bodyInfo)]);
+				generateUser(msg, options, [gatari.user(body, bodyInfo)]);
 			});
 		});
 	} else if (options.type == 2) {
 		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 			json: true
 		}, (err: any, res: any, body: any) => {
-			generateUser(msg, options, [akatsukiData.userData(body)]);
+			generateUser(msg, options, [akatsuki.user(body)]);
 		});
 	}
 }
