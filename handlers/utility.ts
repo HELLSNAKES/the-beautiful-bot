@@ -19,3 +19,14 @@ export function checkUser(msg: Message, data: IDBUser, callback: (data: any) => 
 		}
 	});
 }
+
+export function renameKey(object : any, oldKey : string, newKey : string) {
+	if (oldKey === newKey) return object;
+
+	if (Object.prototype.hasOwnProperty.call(object, oldKey)) {
+		object[newKey] = object[oldKey];
+		delete object[oldKey];
+	}
+
+	return object;
+}

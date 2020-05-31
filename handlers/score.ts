@@ -5,9 +5,60 @@ export const modes = {
 	'3': ['mania']
 };
 
-function getAccuracy() { }
+export function getAccuracy(ruleset: number, n300: number | string, n100: number | string, n50: number | string, nmiss: number | string, nkatu : number | string = 0, ngeki: number | string = 0) : number {
+	n300 = Number(n300);
+	nkatu = Number(nkatu);
+	ngeki = Number(ngeki);
+	n100 = Number(n100);
+	n50 = Number(n50);
+	nmiss = Number(nmiss);
 
-function getRank() { }
+	if (ruleset == 0) {
+		return Math.floor((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 10000) / 100;
+	} else if (ruleset == 1) {
+		return Math.floor(Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 10000) / 100;
+	} else if (ruleset == 2) {
+		return Math.floor(Math.max(0, Math.min(1, (n50 + n100 + n300) / (n50 + n100 + n300 + nmiss + nkatu))) * 10000) / 100;
+	} else if (ruleset == 3) {
+		return Math.floor(Math.max(0, Math.min(1, (n50 * 50 + n100 * 100 + nkatu * 200 + (ngeki + n300) * 300) / ((n50 + n100 + n300 + nmiss + ngeki + nkatu) * 300))) * 10000) / 100;
+	}
+	
+	return -1;
+}
+
+export function getRank(ruleset : number, hidden : boolean, n300 : number | string, n100 : number | string, n50 : number | string, nmiss : number | string) : string { 
+	n300 = Number(n300);
+	n100 = Number(n100);
+	n50 = Number(n50);
+	nmiss = Number(nmiss);
+
+	var percentage300 = (n300 / (n300 + n100 + n50 + nmiss));
+	var percentage50 = (n50 / (n300 + n100 + n50 + nmiss));
+
+	if (ruleset == 0) {
+		if (percentage300 == 1) {
+			return (hidden ? 'xh' : 'x');
+		} else if (percentage300 > 0.9 && percentage50 < 0.01 && nmiss == 0) {
+			return (hidden ? 'sh' : 's');
+		} else if ((percentage300 > 0.8 && nmiss == 0) || percentage300 > 0.9) {
+			return 'a';
+		} else if ((percentage300 > 0.7 && nmiss == 0) || percentage300 > 0.8) {
+			return 'b';
+		} else if (percentage300 > 0.6) {
+			return 'c';
+		}
+
+		return 'd';
+	} else if (ruleset == 1) {
+		return 'f';
+	} else if (ruleset == 2) {
+		return 'f';
+	} else if (ruleset == 3) {
+		return 'f';
+	}
+
+	return '-1';
+}
 
 export function getRuleset(ruleset: string, getIndex = false): string {
 
@@ -24,6 +75,4 @@ export function getRuleset(ruleset: string, getIndex = false): string {
 	if (ruleset == '2') return 'catch';
 	if (ruleset == '3') return 'mania';
 	return '-1';
-
-
 }

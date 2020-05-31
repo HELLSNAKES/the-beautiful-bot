@@ -51,6 +51,8 @@ client.on('message', async (msg: Message) => {
 		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (parser.userURL(msg.content).success) {
 		require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
+	} else if (msg.attachments.first().filename.endsWith('.osr')) {
+		require('./commands/replay').execute(client, msg, msg.attachments.first().url);
 	}
 
 	if (!msg.content.startsWith(prefix)) return;

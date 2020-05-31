@@ -76,7 +76,7 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 	if (modsString.includes('HR')) enabled_mods += 16;
 	if (modsString.includes('EZ')) enabled_mods += 2;
 
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${object.beatmap_id}&m=${options.mode}&a=1&mods=${enabled_mods}`, {
+	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1&mods=${enabled_mods}`, {
 		json: true
 	}, (err: any, res: any, body: any) => {
 		object = {
@@ -124,7 +124,6 @@ function generateRecent(client: Client, msg: Message, body: any) {
 		return;
 	}
 
-	console.log(body.options);
 	var userPictureUrl = `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}`;
 	if (body.options.type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body.user_id}?${Date.now().toString()}`;
