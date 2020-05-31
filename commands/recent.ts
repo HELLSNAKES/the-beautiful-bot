@@ -10,6 +10,7 @@ import * as mods from '../handlers/mods';
 import * as pp from '../handlers/pp';
 import * as gatari from '../handlers/gatari';
 import * as akatsuki from '../handlers/akatsuki';
+import * as score from '../handlers/score';
 
 const request = require('request');
 
@@ -84,15 +85,9 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 		};
 
 		object.options = options;
-		var n300 = parseInt(object.count300);
-		var ngeki = parseInt(object.countgeki);
-		var nkatu = parseInt(object.countkatu);
-		var n100 = parseInt(object.count100);
-		var n50 = parseInt(object.count50);
-		var nmiss = parseInt(object.countmiss);
-
+		object.accuracy = score.getAccuracy(options.mode!, object.count300, object.count100, object.count50, object.countmiss, object.countkatu, object.countgeki);
+		
 		if (options.mode == 0) {
-			object.accuracy = Math.floor((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 10000) / 100;
 			var outputObject = pp.calculatepp(object.beatmap_id, {
 				mods: parseInt(object.enabled_mods),
 				accuracy: object.accuracy,
@@ -107,18 +102,15 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				generateRecent(client, msg, object);
 			});
 		} else if (options.mode == 1) {
-			object.accuracy = Math.floor(Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 10000) / 100;
 			object.pp = '-';
 			generateRecent(client, msg, object);
 		} else if (options.mode == 2) {
-			object.accuracy = Math.floor((Math.max(0, Math.min(1, (n50 + n100 + n300) / (n50 + n100 + n300 + nmiss + nkatu)))) * 10000) / 100;
 			object.diff_approach *= 1.5;
 			outputObject = pp.calculateCatchpp(object);
 			object.totalHits = object.max_combo;
 			object.pp = outputObject.pp;
 			generateRecent(client, msg, object);
 		} else if (options.mode == 3) {
-			object.accuracy = Math.floor(Math.max(0, Math.min(1, (n50 * 50 + n100 * 100 + nkatu * 200 + (ngeki + n300) * 300) / ((n50 + n100 + n300 + nmiss + ngeki + nkatu) * 300)) * 10000)) / 100;
 			outputObject = pp.calculateManiapp(object);
 			object.pp = outputObject.pp;
 			generateRecent(client, msg, object);

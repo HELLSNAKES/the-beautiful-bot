@@ -2,7 +2,7 @@
 
 import { IOptions, IAPIBest } from '../handlers/interfaces';
 import { Client, Message, Emoji } from 'discord.js';
-import { getRuleset } from '../handlers/score';
+import * as score from '../handlers/score';
 
 import * as error from '../handlers/error';
 import * as mods from '../handlers/mods';
@@ -102,7 +102,7 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 			let j = index[urls.indexOf(res.request.href)];
 			let grade = client.emojis.find((emoji: Emoji) => emoji.name === 'rank_' + body[j].rank.toLowerCase());
 			let pp = Math.floor(parseFloat(body[j].pp) * 100) / 100;
-			let accuracy = Math.floor((50 * parseInt(body[j].count50) + 100 * parseInt(body[j].count100) + 300 * parseInt(body[j].count300)) / (300 * (parseInt(body[j].count50) + parseInt(body[j].count100) + parseInt(body[j].count300) + parseInt(body[j].countmiss))) * 10000) / 100;
+			let accuracy = score.getAccuracy(options.mode!, body[j].count300, body[j].count100, body[j].count50, body[j].countmiss, body[j].countkatu, body[j].countgeki);
 
 			playString.push(`**[- ${beatmapData[0].title} [${beatmapData[0].version}]](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`}) +${mods.toString(parseInt(body[j].enabled_mods))}**\n| ${grade} - **${pp}pp** - ${accuracy}% - [${Math.floor(beatmapData[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(body[j].maxcombo))}x${beatmapData[0].max_combo ? '**/**' + format.number(beatmapData[0].max_combo) + 'x' : ''}**) - **${format.number(parseInt(body[j].score))}** - [${body[j].count300}/${body[j].count100}/${body[j].count50}/${body[j].countmiss}]\n| Achieved: **${format.time(Date.parse(body[j].date))}**\n`);
 			playpp.push(pp);
@@ -110,7 +110,7 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 	}
 	Promise.all(plays).then(() => {
 		let sortedpp = playpp.slice(0).sort((a, b) => {
-			embed.author.name = `Here is ${user}'s top ${urls.length} osu! ${getRuleset(options.mode?.toString() ?? '0')} plays:`;
+			embed.author.name = `Here is ${user}'s top ${urls.length} osu! ${score.getRuleset(options.mode?.toString() ?? '0')} plays:`;
 			return (b - a);
 		});
 		let sortedString = [];
