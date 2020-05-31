@@ -7,7 +7,7 @@ const ojsama = require('ojsama');
 import * as error from './error';
 import * as mods from './mods';
 import * as database from './database';
-
+import * as score from '../handlers/score';
 // For supported properties look at IArguments in ./interfaces.ts
 
 const args: Array<IArgument> = [{
@@ -58,6 +58,31 @@ const args: Array<IArgument> = [{
 	allowedValues: '\n`mod abbreviations` : only show plays with the exact mod combination e.g. `HDDT`\nadding a `!` at the start will show any play with the mod combination + any other mods e.g. `!HDDT`',
 	process: (x) => [x.startsWith('!'), mods.toValue(x.replace('!', ''))],
 	default: [false, -1]
+}, {
+	name: 'standard',
+	aliases: score.modes['0'].filter(x => x != 'standard'),
+	description: 'Change gamemode to osu! Standard',
+	noArgument: true,
+	processOptions: (options) => { options.mode = 0; return options; }
+},
+{
+	name: 'taiko',
+	description: 'Change gamemode to osu! Taiko',
+	noArgument: true,
+	processOptions: (options) => { options.mode = 1; return options; }
+},
+{
+	name: 'catch',
+	aliases: score.modes['2'].filter(x => x != 'catch'),
+	description: 'Change gamemode to osu! Catch',
+	noArgument: true,
+	processOptions: (options) => { options.mode = 2; return options; }
+},
+{
+	name: 'mania',
+	description: 'Change gamemode to osu! Mania',
+	noArgument: true,
+	processOptions: (options) => { options.mode = 3; return options; }
 }];
 
 const otherArgs: Array<IArgument> = [{
@@ -113,6 +138,14 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 
 				found = true;
 
+				if (args[j].noArgument) {
+					if (args[j].processOptions) options = args[j].processOptions!(options, passedArgs[i].replace('-', ''));
+					else return { error: true };
+					passedArgs.splice(i, 1);
+					i = -1;
+					break;
+				}
+
 				if (args[j].isSwitch) {
 					options[args[j].name] = true;
 					passedArgs.splice(i, 1);
@@ -147,7 +180,6 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 			return options;
 		}
 	}
-
 	return options;
 }
 
@@ -177,7 +209,7 @@ export function parseOjsama(args: string): IOjsamaOptions {
 
 export function determineUser(msg: Message, args: Array<string>, callback: (username: string | undefined, options: IOptions) => void): void {
 	let argsString = args.join(' ');
-	let options : IOptions = parse(msg, args);
+	let options: IOptions = parse(msg, args);
 	if (options.error) return;
 
 	if (/<@![0-9]{18}>/g.test(args[0])) {
@@ -189,7 +221,12 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 				error.log(msg, 4046);
 				return;
 			}
-			options.mode = argsString.includes('-m') ? options.mode : docs[0].mode;
+			var modes = Object.values(score.modes).reduce((acc, curr) => acc.concat(curr));
+			var found = false;
+			for (var i = 0; i < modes.length; i++) {
+				if (argsString.includes('-m') || argsString.includes(modes[i])) found = true;
+			}
+			if (!found) options.mode = docs[0].mode;
 			options.type = docs[0].type;
 			callback(docs[0].osuUsername, options);
 		});
@@ -203,7 +240,12 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 				error.log(msg, 4046);
 				return;
 			}
-			options.mode = argsString.includes('-m') ? options.mode : docs[0].mode;
+			var modes = Object.values(score.modes).reduce((acc, curr) => acc.concat(curr));
+			var found = false;
+			for (var i = 0; i < modes.length; i++) {
+				if (argsString.includes('-m') || argsString.includes(modes[i])) found = true;
+			}
+			if (!found) options.mode = docs[0].mode;
 			options.type = docs[0].type;
 			callback(docs[0].osuUsername, options);
 		});

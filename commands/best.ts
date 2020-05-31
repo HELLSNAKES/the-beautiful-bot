@@ -2,7 +2,7 @@
 
 import { IOptions, IAPIBest } from '../handlers/interfaces';
 import { Client, Message, Emoji } from 'discord.js';
-import { modes } from '../handlers/parser';
+import { getRuleset } from '../handlers/score';
 
 import * as error from '../handlers/error';
 import * as mods from '../handlers/mods';
@@ -110,7 +110,7 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 	}
 	Promise.all(plays).then(() => {
 		let sortedpp = playpp.slice(0).sort((a, b) => {
-			embed.author.name = `Here is ${user}'s top ${urls.length} osu! ${modes[options.mode?.toString() ?? '0']} plays:`;
+			embed.author.name = `Here is ${user}'s top ${urls.length} osu! ${getRuleset(options.mode?.toString() ?? '0')} plays:`;
 			return (b - a);
 		});
 		let sortedString = [];
@@ -132,7 +132,7 @@ module.exports = {
 	description: 'Displays the top 5 plays of a user',
 	aliases: ['top', 'bt'],
 	group: 'osu',
-	options: argument.getArgumentDetails(['mods', 'mode', 'type']),
+	options: argument.getArgumentDetails(['mods','standard', 'taiko', 'catch', 'mania', 'type']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
 	example: 'https://i.imgur.com/GkL4mJV.jpg',
 	execute: execute

@@ -19,7 +19,7 @@ export interface IOjsamaOptions {
 
 export interface IArgument {
 	name: string,
-	description: string,
+	description?: string,
 	aliases?: Array<string>,
 	isSwitch?: boolean,
 	default?: any,
@@ -27,7 +27,9 @@ export interface IArgument {
 	validatorText?: string,
 	allowedValues?: object | string,
 	process?: (x: any) => any,
-	noInitialPrefix?: boolean
+	processOptions?: (x : IOptions, z: string) => IOptions, //This is called only if noArugment is true
+	noInitialPrefix?: boolean,
+	noArgument?: boolean
 }
 
 export interface IDBUser {

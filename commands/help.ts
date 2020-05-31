@@ -85,9 +85,11 @@ function execute(client: any, msg: Message, args: Array<string>) {
 		embed.description += '\n';
 
 		if (cmd.options) {
-			embed.description += '\n**[Options]**';
+			embed.description += '\n**[Options]**\n';
 			for (let i = 0; i < cmd.options.length; i++) {
-				embed.description += `\n**${cmd.options[i].noInitialPrefix ? '' : '-'}${cmd.options[i].name}** :\n${cmd.options[i].description}\n`;
+				embed.description += `**${cmd.options[i].noInitialPrefix ? '' : '-'}${cmd.options[i].name}** :\n`;
+
+				if (cmd.options[i].description) embed.description += `${cmd.options[i].description}\n`;
 
 				if (!Object.prototype.hasOwnProperty.call(cmd.options[i], 'allowedValues')) continue;
 				if (typeof cmd.options[i].allowedValues == 'object') {
