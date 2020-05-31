@@ -2,6 +2,7 @@
 
 import { IOptions, IAPIBest } from '../handlers/interfaces';
 import { Client, Message, Emoji } from 'discord.js';
+import { modes } from '../handlers/parser';
 
 import * as error from '../handlers/error';
 import * as mods from '../handlers/mods';
@@ -21,7 +22,7 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 
 function sendRequest(client: Client, msg: Message, user: string | undefined, options: IOptions) {
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=100`, {
+		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=100&m=${options.mode}`, {
 			json: true
 		}, (err: any, res: any, body: Array<IAPIBest>) => {
 			sendBest(client, msg, user, body, options);
@@ -93,9 +94,9 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 				continue;
 			}
 		}
-		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`);
+		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}`);
 		index.push(i);
-		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}`, {
+		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}`, {
 			json: true
 		}, (err: any, res: any, beatmapData: any) => {
 			let j = index[urls.indexOf(res.request.href)];
@@ -103,13 +104,13 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 			let pp = Math.floor(parseFloat(body[j].pp) * 100) / 100;
 			let accuracy = Math.floor((50 * parseInt(body[j].count50) + 100 * parseInt(body[j].count100) + 300 * parseInt(body[j].count300)) / (300 * (parseInt(body[j].count50) + parseInt(body[j].count100) + parseInt(body[j].count300) + parseInt(body[j].countmiss))) * 10000) / 100;
 
-			playString.push(`**[- ${beatmapData[0].title} [${beatmapData[0].version}]](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`}) +${mods.toString(parseInt(body[j].enabled_mods))}**\n| ${grade} - **${pp}pp** - ${accuracy}% - [${Math.floor(beatmapData[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(body[j].maxcombo))}x**/**${format.number(beatmapData[0].max_combo)}x**) - **${format.number(parseInt(body[j].score))}** - [${body[j].count300}/${body[j].count100}/${body[j].count50}/${body[j].countmiss}]\n| Achieved: **${format.time(Date.parse(body[j].date))}**\n`);
+			playString.push(`**[- ${beatmapData[0].title} [${beatmapData[0].version}]](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`}) +${mods.toString(parseInt(body[j].enabled_mods))}**\n| ${grade} - **${pp}pp** - ${accuracy}% - [${Math.floor(beatmapData[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(body[j].maxcombo))}x${beatmapData[0].max_combo ? '**/**' + format.number(beatmapData[0].max_combo) + 'x' : ''}**) - **${format.number(parseInt(body[j].score))}** - [${body[j].count300}/${body[j].count100}/${body[j].count50}/${body[j].countmiss}]\n| Achieved: **${format.time(Date.parse(body[j].date))}**\n`);
 			playpp.push(pp);
 		}));
 	}
-	embed.author.name = `Here is ${user}'s top ${urls.length} plays:`;
 	Promise.all(plays).then(() => {
 		let sortedpp = playpp.slice(0).sort((a, b) => {
+			embed.author.name = `Here is ${user}'s top ${urls.length} osu! ${modes[options.mode?.toString() ?? '0']} plays:`;
 			return (b - a);
 		});
 		let sortedString = [];

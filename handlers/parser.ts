@@ -1,10 +1,11 @@
 'use strict';
 
-var modes = {
-	osu: 0,
-	taiko: 1,
-	catch: 2,
-	fruits: 3
+export const modes : any = {
+	'0' : 'Standard',
+	'1': 'Taiko',
+	'2': 'Catch',
+	'3': 'Mania'
+
 };
 
 export function userURL(url: string): any {
