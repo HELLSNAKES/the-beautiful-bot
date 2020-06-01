@@ -44,7 +44,7 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		}, (err: any, res: any, body: any) => {
 
 			if (Object.entries(body.stats).length == 0) {
-				error.log(msg,4041);
+				error.log(msg, 4041);
 				return;
 			}
 
@@ -58,7 +58,7 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 			json: true
 		}, (err: any, res: any, body: any) => {
-			
+
 			if (body.code == 404) {
 				error.log(msg, 4041);
 				return;
@@ -195,7 +195,7 @@ async function generateUser(msg: Message, options: IOptions, body: any) {
 
 	ctx.font = '40px VarelaRound';
 	ctx.fillText(format.number(Math.floor(body[0].pp_raw)), 82 + 60, 534 + 40);
-	ctx.fillText(Math.floor(body[0].accuracy * 100) / 100 + '%', 324 + 75, 537 + 40);
+	ctx.fillText(Math.round(body[0].accuracy * 100) / 100 + '%', 324 + 75, 537 + 40);
 	ctx.fillText(format.number(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 651 + 50, 536 + 40);
 	ctx.fillText(format.numberSuffix(body[0].total_score), 930 + 100, 536 + 40);
 

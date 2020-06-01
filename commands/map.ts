@@ -170,8 +170,8 @@ function generateBeatmap(msg: Message, data: any) {
 		ctx.strokeText('HP', 41, 531 + 22);
 		ctx.fillText('OD', 41, 567 + 22);
 		ctx.strokeText('OD', 41, 567 + 22);
-		ctx.fillText(Math.floor(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
-		ctx.strokeText(Math.floor(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
+		ctx.fillText(Math.round(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
+		ctx.strokeText(Math.round(data.beatmap.difficulty_rating * 10) / 10, 390, 423 + 22);
 		ctx.fillText(data.beatmap.cs, 390, 459 + 22);
 		ctx.strokeText(data.beatmap.cs, 390, 459 + 22);
 		ctx.fillText(data.beatmap.ar, 390, 495 + 22);

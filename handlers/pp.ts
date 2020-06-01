@@ -53,7 +53,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 			OD: Math.floor(stats.od * 100) / 100,
 			CS: Math.floor(stats.cs * 100) / 100,
 			HP: Math.floor(stats.hp * 100) / 100,
-			stars: Math.floor(stars.total * 100) / 100,
+			stars: Math.round(stars.total * 100) / 100,
 			mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods),
 			combo: options.combo,
 			maxCombo: parser.map.max_combo(),

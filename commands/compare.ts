@@ -36,7 +36,11 @@ function sendCompareEmbed(client: Client, msg: Message, url: string, username: s
 					msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
 					return;
 				}
-				recent.processData(client, msg, body, body.mode);
+
+				var options = argument.parse(msg, []);
+				options.mode = body.mode;
+
+				recent.processData(client, msg, body, options);
 				console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
 			});
 		});
