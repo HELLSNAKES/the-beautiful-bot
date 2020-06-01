@@ -30,6 +30,7 @@ function execute(client: Client, msg: Message, replayFileURL: string) {
 			data = utility.renameKey(data, 'max_combo', 'maxcombo');
 			data = utility.renameKey(data, 'timestamp', 'date');
 			data = utility.renameKey(data, 'mods', 'enabled_mods');
+			data = utility.renameKey(data, 'playerName', 'username');
 
 
 			var hidden = mods.toString(data.mods).includes('HD') || mods.toString(data.mods).includes('FL');

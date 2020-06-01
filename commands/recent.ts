@@ -79,6 +79,11 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1&mods=${enabled_mods}`, {
 		json: true
 	}, (err: any, res: any, body: any) => {
+		if (body.length  == 0) {
+			msg.channel.send(':red_circle: The beatmap could not be found');
+			return;
+		}
+
 		object = {
 			...object,
 			...body[0]
@@ -133,7 +138,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 
 	let grade = client.emojis.find(emoji => emoji.name === 'rank_' + body.rank.toLowerCase());
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
-	let date = format.time(new Date(body.date).getTime());
+	let date = format.time(new Date(body.date + ' UTC').getTime());
 	body.difficultyrating = Math.floor(body.difficultyrating * 100) / 100;
 	let selectedMods = mods.toString(body.enabled_mods);
 	var colour = 0;
@@ -181,7 +186,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	msg.channel.send({
 		embed
 	});
-	console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
+	console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id || body.username}`);
 
 }
 

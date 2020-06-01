@@ -51,7 +51,7 @@ client.on('message', async (msg: Message) => {
 		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (parser.userURL(msg.content).success) {
 		require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
-	} else if (msg.attachments.first().filename.endsWith('.osr')) {
+	} else if (msg.attachments.size > 0 && msg.attachments.first().filename.endsWith('.osr')) {
 		require('./commands/replay').execute(client, msg, msg.attachments.first().url);
 	}
 
@@ -94,4 +94,4 @@ client.on('message', async (msg: Message) => {
 	}
 });
 
-client.login(process.env.discordAPI);
+client.login(process.env.discordAPI); 
