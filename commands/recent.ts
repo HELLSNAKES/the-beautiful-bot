@@ -39,7 +39,12 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 		request(`https://api.gatari.pw/users/get?u=${user}`, {
 			json: true
 		}, (err: any, res: any, bodyInfo: any) => {
-
+			
+			if (bodyInfo.users.length == 0) {
+				error.log(msg,4041);
+				return;
+			}
+			
 			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=${options.previous! + 1}&mode=${options.mode}&f=1`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
@@ -57,6 +62,12 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
 			json: true
 		}, (err: any, res: any, bodyInfo: any) => {
+
+			if (bodyInfo.code == 404) {
+				error.log(msg, 4041);
+				return;
+			}
+
 			request(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax ? 1 : 0}`, {
 				json: true
 			}, (err: any, res: any, body: any) => {

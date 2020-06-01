@@ -42,6 +42,12 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		request(`https://api.gatari.pw/user/stats?u=${id}`, {
 			json: true
 		}, (err: any, res: any, body: any) => {
+
+			if (Object.entries(body.stats).length == 0) {
+				error.log(msg,4041);
+				return;
+			}
+
 			request(`https://api.gatari.pw/users/get?u=${id}`, {
 				json: true
 			}, (err: any, res: any, bodyInfo: any) => {
@@ -52,6 +58,12 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 			json: true
 		}, (err: any, res: any, body: any) => {
+			
+			if (body.code == 404) {
+				error.log(msg, 4041);
+				return;
+			}
+
 			generateUser(msg, options, [akatsuki.user(body)]);
 		});
 	}

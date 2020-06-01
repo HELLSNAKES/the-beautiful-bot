@@ -31,6 +31,12 @@ function sendRequest(client: Client, msg: Message, user: string | undefined, opt
 		request(`https://api.gatari.pw/users/get?u=${user}`, {
 			json: true
 		}, (err: any, res: any, info: any) => {
+			
+			if (info.users.length == 0) {
+				error.log(msg,4041);
+				return;
+			}
+
 			request(`https://api.gatari.pw/user/scores/best?id=${info.users[0].id}&l=100`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
@@ -41,6 +47,12 @@ function sendRequest(client: Client, msg: Message, user: string | undefined, opt
 		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
 			json: true
 		}, (err: any, res: any, info: any) => {
+
+			if (info.code == 404) {
+				error.log(msg, 4041);
+				return;
+			}
+			
 			request(`https://akatsuki.pw/api/v1/users/scores/best?name=${user}&rx=${options.relax ? 1 : 0 }&l=100`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
