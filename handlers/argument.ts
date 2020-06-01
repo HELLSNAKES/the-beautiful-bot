@@ -83,6 +83,12 @@ const args: Array<IArgument> = [{
 	description: 'Change gamemode to osu! Mania',
 	noArgument: true,
 	processOptions: (options) => { options.mode = 3; return options; }
+}, {
+	name: 'passesonly',
+	description: 'Only show passed scores',
+	aliases: ['passonly','pass','passes','onlypass','onlypasses','po'],
+	isSwitch: true,
+	default: false,
 }];
 
 const otherArgs: Array<IArgument> = [{

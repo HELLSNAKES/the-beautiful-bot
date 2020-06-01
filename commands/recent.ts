@@ -22,13 +22,19 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 
 function sendRecent(client: Client, msg: Message, user: string | undefined, options: IOptions) {
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=${options.previous! + 1}&m=${options.mode}`, {
+		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=50&m=${options.mode}`, {
 			json: true
 		}, (err: any, res: any, body: any) => {
+
+			if (options.passesonly) {
+				body = body.filter((x : any) => x.rank != 'F');
+			}
+
 			if (body.length == 0 || body.length < options.previous! + 1) {
 				error.log(msg, 4044);
 				return;
 			}
+
 			processData(client, msg, body[options.previous!], options);
 		});
 	} else if (options.type == 1) {
@@ -45,7 +51,7 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 				return;
 			}
 
-			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=${options.previous! + 1}&mode=${options.mode}&f=1`, {
+			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=100&mode=${options.mode}&f=1`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
 				body = gatari.recent(bodyInfo, body, options.previous!);

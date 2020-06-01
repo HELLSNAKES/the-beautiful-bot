@@ -4,6 +4,7 @@ export interface IOptions {
 	type?: number,
 	relax?: boolean,
 	mods?: [boolean, number],
+	passesonly?: boolean,
 	error: boolean,
 	[index: string] : any
 	
