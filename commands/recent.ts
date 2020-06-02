@@ -54,8 +54,19 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=100&mode=${options.mode}&f=1`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
-				body = gatari.recent(bodyInfo, body, options.previous!);
-				processData(client, msg, body, options);
+				body = gatari.recent(bodyInfo, body);
+
+				if (options.passesonly) {
+					body = body.filter((x : any) => x.rank != 'F') ?? [];
+				}
+
+				if (body.length == 0 || body.length < options.previous! + 1) {
+					error.log(msg, 4044);
+					return;
+				}
+	
+
+				processData(client, msg, body[options.previous!] ?? [], options);
 
 			});
 		});
@@ -77,8 +88,19 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 			request(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax ? 1 : 0}`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
-				body = akatsuki.recent(bodyInfo, body, options.previous!);
-				processData(client, msg, body, options);
+				body = akatsuki.recent(bodyInfo, body);
+
+				if (options.passesonly) {
+					body = body.filter((x : any) => x.rank != 'F') ?? [];
+				}
+
+				if (body.length == 0 || body.length < options.previous! + 1) {
+					error.log(msg, 4044);
+					return;
+				}
+	
+
+				processData(client, msg, body[options.previous!], options);
 			});
 		});
 	}
