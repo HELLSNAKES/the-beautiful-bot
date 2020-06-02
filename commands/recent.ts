@@ -54,6 +54,7 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=100&mode=${options.mode}&f=1`, {
 				json: true
 			}, (err: any, res: any, body: any) => {
+
 				body = gatari.recent(bodyInfo, body);
 
 				if (options.passesonly) {
@@ -180,7 +181,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 
 	let grade = client.emojis.find(emoji => emoji.name === 'rank_' + body.rank.toLowerCase());
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
-	let date = format.time(new Date(body.date + ' UTC').getTime());
+	let date = format.time(new Date(body.date + (body.options.type == 0 ? ' UTC' : '')).getTime());
 	body.difficultyrating = Math.round(body.difficultyrating * 100) / 100;
 	let selectedMods = mods.toString(body.enabled_mods);
 	var colour = 0;
