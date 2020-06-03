@@ -230,6 +230,25 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	msg.channel.send({
 		embed
 	});
+
+	if (body.otherComparePlays.length > 0) {
+		var otherPlaysString = 'A';
+
+		for (var i = 0; i < body.otherComparePlays.length; i++) {
+			otherPlaysString += ` \`${mods.toString(body.otherComparePlays[i]).replace('No Mod', 'NM')}\``;
+			if (i < body.otherComparePlays.length - 2) otherPlaysString += ',';
+			else if (i == body.otherComparePlays.length - 2) otherPlaysString += ' and';
+			else otherPlaysString += ' ';
+		}
+
+		if (i < 2) otherPlaysString += 'play is available';
+		else otherPlaysString += 'plays are available'; 
+
+		otherPlaysString += '\nUse `$compare -mods [Mod combination]` to view the specificed play';
+
+		msg.channel.send(otherPlaysString);
+	}
+
 	console.log(`RECENT : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id || body.username}`);
 
 }
