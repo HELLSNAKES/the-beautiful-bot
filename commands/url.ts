@@ -3,31 +3,33 @@
 
 import { Message } from 'discord.js';
 
-import * as error from '../handlers/error';
+// import * as error from '../handlers/error'; // Might be used again soon
 
 const request = require('request');
 const map = require('./map');
 
 function beatmapCardFromLink(msg: any) {
-	var beatmapsetid = msg.content.match(/osu.ppy.sh\S+/g)[0];
-	beatmapsetid = beatmapsetid.replace('osu.ppy.sh/beatmapsets/', '');
-	var beatmapid = beatmapsetid.match(/#\S+/g)[0];
-	beatmapid = beatmapid.replace('#osu/', '');
-	beatmapid = beatmapid.replace('#mania/', '');
-	beatmapid = beatmapid.replace('#taiko/', '');
-	beatmapid = beatmapid.replace('#fruits/', '');
-	beatmapsetid = beatmapsetid.replace(beatmapsetid.match(/#\S+/g), '');
-	getBeatmapData(msg, beatmapsetid, beatmapid);
+	if (msg.content.match(/osu.ppy.sh\/beatmapsets\/\d+#([A-Za-z0-9]+)\/\d+/g)) {
+		getBeatmapData(msg, msg.content.slice(msg.content.lastIndexOf('/') + 1), undefined);
+	} else if (msg.content.match(/osu.ppy.sh\/beatmapsets\/\d+/g)) {
+		getBeatmapData(msg, undefined, msg.content.slice(msg.content.lastIndexOf('/') + 1));
+	} else if (msg.content.match(/osu.ppy.sh\/b\/\d+/g)) {
+		getBeatmapData(msg, msg.content.slice(msg.content.lastIndexOf('/') + 1), undefined);
+	} else if (msg.content.match(/osu.ppy.sh\/s\/\d+/g)) {
+		getBeatmapData(msg, undefined, msg.content.slice(msg.content.lastIndexOf('/') + 1));
+	}
 }
 
-function getBeatmapData(msg: Message, beatmapsetid: string, beatmapid: string) {
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, {
+function getBeatmapData(msg: Message, beatmapid: string | undefined, beatmapsetid: string | undefined) {
+	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${beatmapid ? 'b=' + beatmapid : 's=' + beatmapsetid}`, {
 		json: true
 	}, (err: any, res: any, body: any) => {
 		if (body.length == 0) {
-			error.log(msg, 4042);
 			return;
 		}
+
+		if (beatmapid == undefined) beatmapid = body[body.length - 1].beatmap_id;
+
 		var data: any = {};
 		data.beatmaps = [];
 		var modes = ['osu', 'taiko', 'fruits', 'mania'];

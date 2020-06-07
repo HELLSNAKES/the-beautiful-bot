@@ -47,7 +47,7 @@ client.on('message', async (msg: Message) => {
 		msg.reply('**YES!!!**');
 	} else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
-	} else if (msg.content.includes('osu.ppy.sh/beatmapsets')) {
+	} else if (msg.content.includes('osu.ppy.sh/beatmapsets') || msg.content.includes('osu.ppy.sh/b') || msg.content.includes('osu.ppy.sh/s')) {
 		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (parser.userURL(msg.content).success) {
 		require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
