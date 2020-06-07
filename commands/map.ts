@@ -226,15 +226,7 @@ function generateBeatmap(msg: Message, data: any) {
 				error.unexpectedError(err, msg);
 			});
 
-			ctx.drawImage(clock, 481, 375, 38, 38);
-
-			svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/drum.svg'), 'utf8');
-			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
-			let drum = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
-				error.unexpectedError(err, msg);
-			});
-
-			ctx.drawImage(drum, 660, 375, 40, 35);
+			ctx.drawImage(clock, 455, 375, 38, 38);
 
 			svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/times.svg'), 'utf8');
 			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
@@ -242,33 +234,42 @@ function generateBeatmap(msg: Message, data: any) {
 				error.unexpectedError(err, msg);
 			});
 
-			ctx.drawImage(times, 892, 380, 28, 28);
+			ctx.drawImage(times, 600, 380, 28, 28);
+
+			svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/drum.svg'), 'utf8');
+			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
+			let drum = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
+				error.unexpectedError(err, msg);
+			});
+
+			ctx.drawImage(drum, 756, 375, 40, 35);
 
 			var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
 
-			const infiniteBPMThreshold = 1000;
+			const infiniteBPMThreshold = 2400;
 			if (osuContent.bpmMin != undefined && osuContent.bpmMax != undefined) {
-				var bpmTimingPoints = osuContent.timingPoints.filter((x : any) => x.bpm).map((x : any) => x.bpm);
-				var occuranceF = 1;
-				var occurance = 0;
-				var bpmMode = [];
-				for (var i = 0; i < bpmTimingPoints.length; i++) {
-					for (var j = 0; j < bpmTimingPoints.length; j++) {
-						if (bpmTimingPoints[i] == bpmTimingPoints[j]) {
-							occurance ++;
-							if (occuranceF < occurance) {
-								occuranceF = occurance;
-								bpmMode = bpmTimingPoints[i];
-							}
-						}
+				var bpmTimingPoints = osuContent.timingPoints.filter((x : any) => x.timingChange);
+				var uniqueBPMs : Array<number> = [];
+				var BPMLengths : Array<number> = [];
+				for (i = 0; i < bpmTimingPoints.length; i++) {
+					
+					if (!uniqueBPMs.includes(bpmTimingPoints[i].bpm)) {
+						uniqueBPMs.push(bpmTimingPoints[i].bpm);
+						BPMLengths.push(0);
 					}
-					occurance = 0;
+					
+					if (i < bpmTimingPoints.length - 1) {
+						BPMLengths[uniqueBPMs.indexOf(bpmTimingPoints[i].bpm)] += bpmTimingPoints[i + 1].offset - bpmTimingPoints[i].offset;
+					} else {
+						BPMLengths[uniqueBPMs.indexOf(bpmTimingPoints[i].bpm)] += (osuContent.totalTime * 1000) - bpmTimingPoints[i].offset;	
+					}
 				}
+				var modeAverageBPM = uniqueBPMs[BPMLengths.indexOf(Math.max(...BPMLengths))]; 
 
 				if (osuContent.bpmMin > infiniteBPMThreshold) osuContent.bpmMin = '∞';
 				if (osuContent.bpmMax > infiniteBPMThreshold) osuContent.bpmMax = '∞';
 				
-				var bpm = osuContent.bpmMin == osuContent.bpmMax ? osuContent.bpmMax : `${osuContent.bpmMin} - ${osuContent.bpmMax} (${bpmMode})`;
+				var bpm = osuContent.bpmMin == osuContent.bpmMax ? osuContent.bpmMax : `${osuContent.bpmMin} - ${osuContent.bpmMax} (${modeAverageBPM})`;
 			} else {
 				bpm = data.bpm;
 				error.unexpectedError(new Error('BPM could not be parsed from the .osu file'), msg);
@@ -276,12 +277,12 @@ function generateBeatmap(msg: Message, data: any) {
 
 			ctx.textAlign = 'left';
 			ctx.font = '27px VarelaRound';
-			ctx.fillText(time, 532, 374 + 30);
-			ctx.strokeText(time, 532, 374 + 30);
-			ctx.fillText(bpm + ' bpm', 712, 374 + 30);
-			ctx.strokeText(bpm + ' bpm', 712, 374 + 30);
-			ctx.fillText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 937, 374 + 30);
-			ctx.strokeText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 937, 374 + 30);
+			ctx.fillText(time, 505, 374 + 30);
+			ctx.strokeText(time, 505, 374 + 30);
+			ctx.fillText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 642, 374 + 30);
+			ctx.strokeText((data.beatmap.max_combo ? data.beatmap.max_combo : '-') + 'x', 642, 374 + 30);
+			ctx.fillText(bpm, 816, 374 + 30);
+			ctx.strokeText(bpm, 816, 374 + 30);
 
 			ctx.textAlign = 'left';
 			ctx.font = '26px VarelaRound';
