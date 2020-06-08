@@ -33,14 +33,16 @@ export interface IArgument {
 	noArgument?: boolean
 }
 
-export interface IDBUser {
+export interface IDBDocument {
 	_id?: {
 		'$oid': string
 	},
 	type?: number,
 	mode?: number,
 	discordID?: string,
-	osuUsername?: string
+	osuUsername?: string,
+	serverID?: string,
+	prefixOverwrite?: string
 }
 
 export interface ICommand {

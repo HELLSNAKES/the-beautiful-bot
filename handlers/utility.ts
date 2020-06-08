@@ -1,12 +1,12 @@
 'use strict';
 
 import { Message } from 'discord.js';
-import { IDBUser } from './interfaces';
+import { IDBDocument } from './interfaces';
 
 const request = require('request');
 const error = require('../handlers/error');
 
-export function checkUser(msg: Message, data: IDBUser, callback: (data: any) => {}): void {
+export function checkUser(msg: Message, data: IDBDocument, callback: (data: any) => {}): void {
 	request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${data.osuUsername}`, {
 		json: true
 	}, (err: any, res: any, body: Array<object>) => {

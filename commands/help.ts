@@ -5,7 +5,7 @@ import { ICommand } from '../handlers/interfaces';
 
 import * as argument from '../handlers/argument';
 
-function execute(client: any, msg: Message, args: Array<string>) {
+function execute(client: any, msg: Message, args: Array<string>, prefix : string) {
 	const embed: any = {
 		'title': 'List of commands available',
 		'description': '',
@@ -27,21 +27,30 @@ function execute(client: any, msg: Message, args: Array<string>) {
 			value: ''
 		};
 
+		embed.fields[2] = {
+			name: 'moderation commands',
+			value: ''
+		};
+
 		client.commands.forEach((command: ICommand) => {
 			if (command.group == undefined) return;
 
 			if (command.group == 'osu') {
-				embed.fields[0].value += `\`$${command.name}\`: ${command.description}\n`;
+				embed.fields[0].value += `\`${prefix}${command.name}\`: ${command.description}\n`;
 			}
 
 			if (command.group == 'general') {
-				embed.fields[1].value += `\`$${command.name}\`: ${command.description}\n`;
+				embed.fields[1].value += `\`${prefix}${command.name}\`: ${command.description}\n`;
+			}
+
+			if (command.group == 'moderation') {
+				embed.fields[2].value += `\`${prefix}${command.name}\`: ${command.description}\n`;
 			}
 		});
 	} else {
 		embed.title = '';
 
-		if (args[0].startsWith('$')) args[0] = args[0].slice(1);
+		if (args[0].startsWith(prefix)) args[0] = args[0].slice(1);
 
 		let cmd: ICommand = {};
 
@@ -53,11 +62,11 @@ function execute(client: any, msg: Message, args: Array<string>) {
 		});
 
 		if (cmd == undefined) {
-			msg.channel.send(`:red_circle: **\`${args[0]}\` is an unrecognised command**\nThe command you specified is not recognised. Type \`$help\` to view the full list of commands available\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
+			msg.channel.send(`:red_circle: **\`${args[0]}\` is an unrecognised command**\nThe command you specified is not recognised. Type \`${prefix}help\` to view the full list of commands available\n(If you believe this is a bug or have a suggestion use \`${prefix}report [description of bug/suggestion]\`)`);
 			return;
 		}
 
-		embed.description = `$${cmd.name}${cmd.options ? ' [Options]' : ''}`;
+		embed.description = `${prefix}${cmd.name}${cmd.options ? ' [Options]' : ''}`;
 
 		if (cmd.arguments) {
 			for (let i = 0; i < cmd.arguments.length; i++) {

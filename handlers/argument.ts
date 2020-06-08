@@ -1,6 +1,6 @@
 'use strict';
 
-import { IArgument, IOptions, IOjsamaOptions, IDBUser } from './interfaces';
+import { IArgument, IOptions, IOjsamaOptions, IDBDocument } from './interfaces';
 import { Message } from 'discord.js';
 
 const ojsama = require('ojsama');
@@ -93,7 +93,7 @@ const args: Array<IArgument> = [{
 
 const otherArgs: Array<IArgument> = [{
 	name: 'Username',
-	description: 'The osu! username or a discord ping (their account must be linked) of the player to run the command on. `By default` if no name was provided, the linked osu! username of the user using the command will be used (refer to `$set`)',
+	description: 'The osu! username or a discord ping (their account must be linked) of the player to run the command on. `By default` if no name was provided, the linked osu! username of the user using the command will be used (refer to the `set` command)',
 }, {
 	name: 'Command',
 	description: 'The command to show more information on. If no command was provided the bot will alternatively show the full list of commands available'
@@ -103,7 +103,11 @@ const otherArgs: Array<IArgument> = [{
 }, {
 	name: 'Gamemode',
 	description: 'The gamemode to set as your default. This gamemode will be the default gamemode when using commands such as $recent, $best, etc if no gamemode is specified.\n`0` | `standard` | `std`\n`1` | `taiko`\n`2` | `catch` | `ctb` | `catch the beat`\n`3` | `mania`'
-}];
+}, {
+	name: 'Action',
+	description: '`set [prefix]`: Overwrite the default or current set prefix with the specified prefix\n`reset`: Reset the bot\'s prefix to the default prefix (`$`)\n`show`: Show the current prefix of the bot for current server'
+}
+];
 
 const preformancePointsArgs: Array<IArgument> = [{
 	name: '[accuracy]%',
@@ -222,7 +226,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 		let discordID = args[0].slice(3, 21);
 		database.read('users', {
 			discordID: discordID
-		}, (docs: Array<IDBUser>, err: any) => {
+		}, (docs: Array<IDBDocument>, err: any) => {
 			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;
@@ -241,7 +245,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 	} else {
 		database.read('users', {
 			discordID: msg.author.id
-		}, (docs: Array<IDBUser>, err: any) => {
+		}, (docs: Array<IDBDocument>, err: any) => {
 			if (err || Object.entries(docs).length == 0) {
 				error.log(msg, 4046);
 				return;

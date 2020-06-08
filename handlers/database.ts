@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 'use strict';
 
-import { IDBUser } from './interfaces';
+import { IDBDocument } from './interfaces';
 
 require('dotenv').config({
 	path: '../.env'
@@ -10,7 +10,7 @@ const MongoClient = require('mongodb').MongoClient;
 
 const dbName = 'thebeautifulbot';
 
-export function read(collectionName: string, findObject: IDBUser, callback: (results: Array<IDBUser>, err: any) => void = (): void => { }): void {
+export function read(collectionName: string, findObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
@@ -45,7 +45,7 @@ export function read(collectionName: string, findObject: IDBUser, callback: (res
 	});
 }
 
-export function write(collectionName: string, writeObject: IDBUser, callback: (results: Array<IDBUser>, err: any) => void = (): void => { }): void {
+export function write(collectionName: string, writeObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
@@ -75,7 +75,7 @@ export function write(collectionName: string, writeObject: IDBUser, callback: (r
 	});
 }
 
-export function update(collectionName: string, findObject: IDBUser, setObject: IDBUser, callback: (results: Array<IDBUser>, err: any) => void = (): void => { }): void {
+export function update(collectionName: string, findObject: IDBDocument, setObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true

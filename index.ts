@@ -1,11 +1,11 @@
 'use strict';
 
 import { Message } from 'discord.js';
+import * as database from './handlers/database';
 
 require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const prefix = process.env.prefix || '$';
 const parser = require('./handlers/parser');
 const fs = require('fs');
 
@@ -40,58 +40,68 @@ for (let i of commandFiles) {
 
 
 client.on('message', async (msg: Message) => {
-	if (msg.author.bot) return;
-	if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
 
-	if (msg.content === 'bot you alive?') { // bot are you alive
-		msg.reply('**YES!!!**');
-	} else if (msg.content === 'good bot') {
-		msg.reply('<:heart:' + 615531857253105664 + '>');
-	} else if (msg.content.includes('osu.ppy.sh/beatmapsets') || msg.content.includes('osu.ppy.sh/b') || msg.content.includes('osu.ppy.sh/s')) {
-		require('./commands/url').beatmapCardFromLink(msg);
-	} else if (parser.userURL(msg.content).success) {
-		require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
-	} else if (msg.attachments.size > 0 && msg.attachments.first().filename.endsWith('.osr')) {
-		require('./commands/replay').execute(client, msg, msg.attachments.first().url);
-	}
+	var prefix = process.env.prefix || '$';
+	database.read('servers', { serverID: msg.guild.id }, (docs, err) => {
+		if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
 
-	if (!msg.content.startsWith(prefix)) return;
-	let args = msg.content.slice(prefix.length).trim().split(/ +/);
-	let cmd = args.shift()!.toLowerCase();
+		if (msg.author.bot) return;
+		if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
 
-	if (cmd === 'ping' || isAlias(cmd, 'ping')) {
-		client.commands.get('ping').execute(client, msg);
-	} else if (cmd === 'osu' || isAlias(cmd, 'osu')) {
-		client.commands.get('osu').execute(msg, args, 0);
-	} else if (cmd === 'taiko') {
-		client.commands.get('osu').execute(msg, args, 1);
-	} else if (cmd === 'catch') {
-		client.commands.get('osu').execute(msg, args, 2);
-	} else if (cmd === 'mania') {
-		client.commands.get('osu').execute(msg, args, 3);
-	} else if (cmd === 'recent' || isAlias(cmd, 'recent')) {
-		client.commands.get('recent').execute(client, msg, args);
-	} else if (cmd === 'best' || isAlias(cmd, 'best')) {
-		client.commands.get('best').execute(client, msg, args);
-	} else if (cmd === 'map' || isAlias(cmd, 'map')) {
-		client.commands.get('map').execute(msg, args);
-	} else if (cmd === 'set' || isAlias(cmd, 'set')) {
-		client.commands.get('set').execute(msg, args);
-	} else if (cmd === 'help' || isAlias(cmd, 'help')) {
-		client.commands.get('help').execute(client, msg, args);
-	} else if (cmd === 'changelog' || isAlias(cmd, 'changelog')) {
-		client.commands.get('changelog').execute(msg);
-	} else if (cmd === 'compare' || isAlias(cmd, 'compare')) {
-		client.commands.get('compare').execute(client, msg, args);
-	} else if (cmd === 'cat' || isAlias(cmd, 'cat')) {
-		client.commands.get('cat').execute(msg);
-	} else if (cmd === 'leaderboard' || isAlias(cmd, 'leaderboard')) {
-		client.commands.get('leaderboard').execute(client, msg, args);
-	} else if (cmd === 'pp' || isAlias(cmd, 'pp')) {
-		client.commands.get('pp').execute(client, msg, args.join(' '));
-	} else if (cmd === 'modeset' || isAlias(cmd, 'modeset')) {
-		client.commands.get('modeset').execute(msg, args);
-	}
+		if (msg.content === 'bot you alive?') { // bot are you alive
+			msg.reply('**YES!!!**');
+		} else if (msg.content === 'good bot') {
+			msg.reply('<:heart:' + 615531857253105664 + '>');
+		} else if (msg.content.includes('osu.ppy.sh/beatmapsets') || msg.content.includes('osu.ppy.sh/b') || msg.content.includes('osu.ppy.sh/s')) {
+			require('./commands/url').beatmapCardFromLink(msg);
+		} else if (parser.userURL(msg.content).success) {
+			require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
+		} else if (msg.attachments.size > 0 && msg.attachments.first().filename.endsWith('.osr')) {
+			require('./commands/replay').execute(client, msg, msg.attachments.first().url);
+		}
+
+		if (!msg.content.startsWith(prefix)) return;
+		let args = msg.content.slice(prefix.length).trim().split(/ +/);
+		let cmd = args.shift()!.toLowerCase();
+
+		if (cmd === 'ping' || isAlias(cmd, 'ping')) {
+			client.commands.get('ping').execute(client, msg);
+		} else if (cmd === 'osu' || isAlias(cmd, 'osu')) {
+			client.commands.get('osu').execute(msg, args, 0);
+		} else if (cmd === 'taiko') {
+			client.commands.get('osu').execute(msg, args, 1);
+		} else if (cmd === 'catch') {
+			client.commands.get('osu').execute(msg, args, 2);
+		} else if (cmd === 'mania') {
+			client.commands.get('osu').execute(msg, args, 3);
+		} else if (cmd === 'recent' || isAlias(cmd, 'recent')) {
+			client.commands.get('recent').execute(client, msg, args);
+		} else if (cmd === 'best' || isAlias(cmd, 'best')) {
+			client.commands.get('best').execute(client, msg, args);
+		} else if (cmd === 'map' || isAlias(cmd, 'map')) {
+			client.commands.get('map').execute(msg, args);
+		} else if (cmd === 'set' || isAlias(cmd, 'set')) {
+			client.commands.get('set').execute(msg, args);
+		} else if (cmd === 'help' || isAlias(cmd, 'help')) {
+			client.commands.get('help').execute(client, msg, args, prefix);
+		} else if (cmd === 'changelog' || isAlias(cmd, 'changelog')) {
+			client.commands.get('changelog').execute(msg);
+		} else if (cmd === 'compare' || isAlias(cmd, 'compare')) {
+			client.commands.get('compare').execute(client, msg, args);
+		} else if (cmd === 'cat' || isAlias(cmd, 'cat')) {
+			client.commands.get('cat').execute(msg);
+		} else if (cmd === 'leaderboard' || isAlias(cmd, 'leaderboard')) {
+			client.commands.get('leaderboard').execute(client, msg, args);
+		} else if (cmd === 'pp' || isAlias(cmd, 'pp')) {
+			client.commands.get('pp').execute(client, msg, args.join(' '));
+		} else if (cmd === 'modeset' || isAlias(cmd, 'modeset')) {
+			client.commands.get('modeset').execute(msg, args);
+		} else if (cmd === 'prefix' || isAlias(cmd, 'prefix')) {
+			client.commands.get('prefix').execute(msg, args);
+		} // else if (cmd === 'config' || isAlias(cmd, 'config')) {
+		//  	client.commands.get('config').execute(msg, args);
+		// }
+	});
 });
 
 client.login(process.env.discordAPI); 
