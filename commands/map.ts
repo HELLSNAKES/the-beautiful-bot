@@ -95,11 +95,11 @@ function generateBeatmap(msg: Message, data: any) {
 			let beatmapImage;
 			try {
 				beatmapImage = await Canvas.loadImage(url).catch((err: any) => {
-					error.unexpectedError(err, msg);
+					error.unexpectedError(err, 'Message Content: '+ msg);
 				});
 			} catch (err) {
 				beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png').catch((err: any) => {
-					error.unexpectedError(err, msg);
+					error.unexpectedError(err, 'Message Content: '+ msg);
 				});
 			}
 
@@ -126,7 +126,7 @@ function generateBeatmap(msg: Message, data: any) {
 			ctx.strokeText(data.status.slice(0, 1).toUpperCase() + data.status.slice(1).toLowerCase(), 127, 51);
 			ctx.textAlign = 'center';
 			let statusImage = await Canvas.loadImage(path.resolve(__dirname, '../assets/' + data.status + '.png')).catch((err: any) => {
-				error.unexpectedError(err, msg);
+				error.unexpectedError(err, 'Message Content: '+ msg);
 			});
 			ctx.drawImage(statusImage, 37, 33, 20, 20);
 
@@ -147,7 +147,7 @@ function generateBeatmap(msg: Message, data: any) {
 			let svgFile = fs.readFileSync('assets/star.svg', 'utf8');
 			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
 			const star = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
-				error.unexpectedError(err, msg);
+				error.unexpectedError(err, 'Message Content: '+ msg);
 			});
 			if (data.beatmap.difficulty_rating > 10) {
 				for (let i = 0; i < 10; i++) {
@@ -204,7 +204,7 @@ function generateBeatmap(msg: Message, data: any) {
 				var mapperPfp = await Canvas.loadImage(`https://a.ppy.sh/${data.user_id}`);
 			} catch (err) {
 				mapperPfp = await Canvas.loadImage('https://osu.ppy.sh/images/layout/avatar-guest.png').catch((err: any) => {
-					error.unexpectedError(err, msg);
+					error.unexpectedError(err, 'Message Content: '+ msg);
 				});
 
 			}
@@ -223,7 +223,7 @@ function generateBeatmap(msg: Message, data: any) {
 			svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/clock.svg'), 'utf8');
 			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
 			let clock = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
-				error.unexpectedError(err, msg);
+				error.unexpectedError(err, 'Message Content: '+ msg);
 			});
 
 			ctx.drawImage(clock, 455, 375, 38, 38);
@@ -231,7 +231,7 @@ function generateBeatmap(msg: Message, data: any) {
 			svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/times.svg'), 'utf8');
 			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
 			let times = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
-				error.unexpectedError(err, msg);
+				error.unexpectedError(err, 'Message Content: '+ msg);
 			});
 
 			ctx.drawImage(times, 600, 380, 28, 28);
@@ -239,7 +239,7 @@ function generateBeatmap(msg: Message, data: any) {
 			svgFile = fs.readFileSync(path.resolve(__dirname, '../assets/drum.svg'), 'utf8');
 			svgFile = svgFile.replace(/fill="[#\.a-zA-Z0-9]+"/g, `fill="${colour.foreground}"`);
 			let drum = await Canvas.loadImage(Buffer.from(svgFile)).catch((err: any) => {
-				error.unexpectedError(err, msg);
+				error.unexpectedError(err, 'Message Content: '+ msg);
 			});
 
 			ctx.drawImage(drum, 756, 375, 40, 35);
@@ -272,7 +272,7 @@ function generateBeatmap(msg: Message, data: any) {
 				var bpm = osuContent.bpmMin == osuContent.bpmMax ? osuContent.bpmMax : `${osuContent.bpmMin} - ${osuContent.bpmMax} (${modeAverageBPM})`;
 			} else {
 				bpm = data.bpm;
-				error.unexpectedError(new Error('BPM could not be parsed from the .osu file'), msg);
+				error.unexpectedError(new Error('BPM could not be parsed from the .osu file'), 'Message Content: '+ msg.content);
 			}
 
 			ctx.textAlign = 'left';
@@ -310,27 +310,27 @@ function generateBeatmap(msg: Message, data: any) {
 				var icon;
 				if (data.beatmaps[i].difficulty_rating < 2) {
 					icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/easy_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
-						error.unexpectedError(err, msg);
+						error.unexpectedError(err, 'Message Content: '+ msg);
 					});
 				} else if (data.beatmaps[i].difficulty_rating < 2.7) {
 					icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/normal_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
-						error.unexpectedError(err, msg);
+						error.unexpectedError(err, 'Message Content: '+ msg);
 					});
 				} else if (data.beatmaps[i].difficulty_rating < 4) {
 					icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/hard_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
-						error.unexpectedError(err, msg);
+						error.unexpectedError(err, 'Message Content: '+ msg);
 					});
 				} else if (data.beatmaps[i].difficulty_rating < 5.3) {
 					icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/insane_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
-						error.unexpectedError(err, msg);
+						error.unexpectedError(err, 'Message Content: '+ msg);
 					});
 				} else if (data.beatmaps[i].difficulty_rating < 6.5) {
 					icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/expert_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
-						error.unexpectedError(err, msg);
+						error.unexpectedError(err, 'Message Content: '+ msg);
 					});
 				} else {
 					icon = await Canvas.loadImage(path.resolve(__dirname, `../assets/extra_${data.beatmaps[i].mode}.png`)).catch((err: any) => {
-						error.unexpectedError(err, msg);
+						error.unexpectedError(err, 'Message Content: '+ msg);
 					});
 				}
 				ctx.drawImage(icon, 630 + ((i % 8) * 50), 457 + (Math.floor(i / 8) * 50), 40, 40);

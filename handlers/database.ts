@@ -33,8 +33,8 @@ export function read(collectionName: string, findObject: IDBDocument, callback: 
 			}
 
 			if (docs.length == 0) {
-				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				callback([], 'user not found');
+				console.log(`READ (NO DOCUMENTS FOUND) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+				callback([], undefined);
 				return;
 			}
 			console.log(`READ : ${docs[0]._id}`);

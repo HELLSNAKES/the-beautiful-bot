@@ -11,6 +11,7 @@ import * as pp from '../handlers/pp';
 import * as gatari from '../handlers/gatari';
 import * as akatsuki from '../handlers/akatsuki';
 import * as score from '../handlers/score';
+import * as utility from '../handlers/utility';
 
 const request = require('request');
 
@@ -30,9 +31,19 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 				body = body.filter((x : any) => x.rank != 'F');
 			}
 
-			if (body.length == 0 || body.length < options.previous! + 1) {
-				error.log(msg, 4044);
+			if (body.length == 0) {
+				utility.checkUser(user!).then(() => {
+					msg.channel.send(`:red_circle: **\`${user}\` does not have any recent plays**\nNo submitted plays were achieved in the past 24 hours by \`${user}\` on osu! \`${score.getRuleset(String(options.mode) ?? '0')}\`.`);
+				}).catch(() => {
+					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);	
+				});
 				return;
+			}
+
+			if (body.length < options.previous! + 1) {
+				msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${body.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);	
+				return;
+				
 			}
 
 			processData(client, msg, body[options.previous!], options);
@@ -47,7 +58,7 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 		}, (err: any, res: any, bodyInfo: any) => {
 
 			if (bodyInfo.users.length == 0) {
-				error.log(msg, 4041);
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
 				return;
 			}
 
@@ -61,8 +72,8 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 					body = body.filter((x : any) => x.rank != 'F') ?? [];
 				}
 
-				if (body.length == 0 || body.length < options.previous! + 1) {
-					error.log(msg, 4044);
+				if (body.length < options.previous! + 1) {
+					msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${body.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);
 					return;
 				}
 	
@@ -82,7 +93,7 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 		}, (err: any, res: any, bodyInfo: any) => {
 
 			if (bodyInfo.code == 404) {
-				error.log(msg, 4041);
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
 				return;
 			}
 
@@ -95,8 +106,8 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 					body = body.filter((x : any) => x.rank != 'F') ?? [];
 				}
 
-				if (body.length == 0 || body.length < options.previous! + 1) {
-					error.log(msg, 4044);
+				if (body.length < options.previous! + 1) {
+					msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${body.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);
 					return;
 				}
 	
@@ -122,7 +133,8 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 		json: true
 	}, (err: any, res: any, body: any) => {
 		if (body.length == 0) {
-			msg.channel.send(':red_circle: The beatmap could not be found');
+			msg.channel.send(':red_circle: **The beatmap is could not be found**\nFor some unknown reason the beatmap could not be found. This has been automatically reported and will be resolved asap');
+			error.unexpectedError(new Error('Beatmap could not be found'), 'GET request response:\n'+JSON.stringify(res));
 			return;
 		}
 

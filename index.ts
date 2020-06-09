@@ -2,6 +2,7 @@
 
 import { Message } from 'discord.js';
 import * as database from './handlers/database';
+import * as error from './handlers/error';
 
 require('dotenv').config();
 const Discord = require('discord.js');
@@ -40,7 +41,6 @@ for (let i of commandFiles) {
 
 
 client.on('message', async (msg: Message) => {
-
 	var prefix = process.env.prefix || '$';
 	database.read('servers', { serverID: msg.guild.id }, (docs, err) => {
 		if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
@@ -105,3 +105,11 @@ client.on('message', async (msg: Message) => {
 });
 
 client.login(process.env.discordAPI); 
+
+process.on('uncaughtException', (err) => {
+	error.unexpectedError(err, 'Uncaught Exception');
+});
+
+process.on('warning', (err) => {
+	error.unexpectedError(err, 'Warning');
+});

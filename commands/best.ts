@@ -4,7 +4,6 @@ import { IOptions, IAPIBest } from '../handlers/interfaces';
 import { Client, Message, Emoji } from 'discord.js';
 import * as score from '../handlers/score';
 
-import * as error from '../handlers/error';
 import * as mods from '../handlers/mods';
 import * as argument from '../handlers/argument';
 import * as format from '../handlers/format';
@@ -25,6 +24,12 @@ function sendRequest(client: Client, msg: Message, user: string | undefined, opt
 		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=100&m=${options.mode}`, {
 			json: true
 		}, (err: any, res: any, body: Array<IAPIBest>) => {
+
+			if (body.length == 0) {
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
+				return;
+			}
+
 			sendBest(client, msg, user, body, options);
 		});
 	} else if (options.type == 1) {
@@ -33,7 +38,7 @@ function sendRequest(client: Client, msg: Message, user: string | undefined, opt
 		}, (err: any, res: any, info: any) => {
 			
 			if (info.users.length == 0) {
-				error.log(msg,4041);
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
 				return;
 			}
 
@@ -49,7 +54,7 @@ function sendRequest(client: Client, msg: Message, user: string | undefined, opt
 		}, (err: any, res: any, info: any) => {
 
 			if (info.code == 404) {
-				error.log(msg, 4041);
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
 				return;
 			}
 
@@ -63,10 +68,6 @@ function sendRequest(client: Client, msg: Message, user: string | undefined, opt
 }
 
 function sendBest(client: Client, msg: Message, user: string | undefined, body: Array<IAPIBest>, options: IOptions) {
-	if (body.length == 0) {
-		error.log(msg, 4041);
-		return;
-	}
 
 	let plays = [];
 	let playString: Array<string> = [];

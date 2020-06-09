@@ -227,10 +227,17 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 		database.read('users', {
 			discordID: discordID
 		}, (docs: Array<IDBDocument>, err: any) => {
-			if (err || Object.entries(docs).length == 0) {
-				error.log(msg, 4046);
+			if (err) {
+				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
+				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);
 				return;
 			}
+
+			if (Object.entries(docs).length == 0) {
+				msg.channel.send(':red_circle: **Mentioned user does not have an osu account linked**\nThe user mentioned does not have a linked osu username with the bot. Use their osu username instead');
+				return;
+			}
+
 			var modes = Object.values(score.modes).reduce((acc, curr) => acc.concat(curr));
 			var found = false;
 			for (var i = 0; i < modes.length; i++) {
@@ -246,10 +253,17 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 		database.read('users', {
 			discordID: msg.author.id
 		}, (docs: Array<IDBDocument>, err: any) => {
-			if (err || Object.entries(docs).length == 0) {
-				error.log(msg, 4046);
+			if (err) {
+				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
+				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);
 				return;
 			}
+
+			if (Object.entries(docs).length == 0) {
+				msg.channel.send(`:red_circle: **\`@${msg.member.displayName}\` does not have an osu account linked**\nYour account is not linked with the bot. Use \`$set [username]\` to link your account`);
+				return;
+			}
+
 			var modes = Object.values(score.modes).reduce((acc, curr) => acc.concat(curr));
 			var found = false;
 			for (var i = 0; i < modes.length; i++) {

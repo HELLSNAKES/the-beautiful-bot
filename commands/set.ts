@@ -2,6 +2,7 @@
 
 import { Message } from 'discord.js';
 
+import * as error from '../handlers/error';
 import * as database from '../handlers/database';
 import * as argument from '../handlers/argument';
 
@@ -12,17 +13,22 @@ function execute(msg: Message, args: any) {
 	database.read('users', {
 		discordID: msg.author.id,
 	}, (docs, err) => {
+		
 		if (err) {
+			error.sendUnexpectedError(err, msg);
+		}
+
+		if (docs.length == 0) {
 			database.write('users', {
 				discordID: msg.author.id,
 				osuUsername: args.join(' '),
 				type: options.type,
 				mode: options.mode
-			}, (docs, error) => {
-				if (error) {
-					console.log(error);
+			}, (docs, err) => {
+				if (err) {
+					error.sendUnexpectedError(err, msg);
 				} else {
-					msg.channel.send(':white_check_mark: Your osu username has been successfully linked!');
+					msg.channel.send(`:green_circle: Your osu username has been successfully set to \`${args.join(' ')}\`!`);
 				}
 			});
 
@@ -30,10 +36,10 @@ function execute(msg: Message, args: any) {
 			database.update('users', {
 				discordID: msg.author.id
 			}, {
-				osuUsername: args.join('_'),
+				osuUsername: args.join(' '),
 				type: options.type
 			}, () => {
-				msg.channel.send(':white_check_mark: Your osu username has been successfully updated!');
+				msg.channel.send(`:green_circle: Your osu username has been successfully updated to \`${args.join(' ')}\`!`);
 			});
 		}
 	});

@@ -30,7 +30,7 @@ function sendCompareEmbed(client: Client, msg: Message, url: string, username: s
 				if (err) console.log(err);
 
 				if (body.length == 0) {
-					msg.channel.send(`Sorry but I couldn't find any plays on \`${beatmapData[0].title} [${beatmapData[0].version}].\``);
+					msg.channel.send(`:yellow_circle: **\`${username}\` does not have any submitted scores on \`${beatmapData[0].artist} - ${beatmapData[0].title} [${beatmapData[0].version}]\`**`);
 					return;
 				}
 				

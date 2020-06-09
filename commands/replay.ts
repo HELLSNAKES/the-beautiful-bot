@@ -15,7 +15,7 @@ function execute(client: Client, msg: Message, replayFileURL: string) {
 		osr.read(body).then((data: any) => {
 			
 			if (data.beatmapMD5 == undefined) {
-				msg.channel.send(':red_circle: The file could not be parsed correctly because no beatmap hash was found\nThis could be due to a local modification to the map (including a custom difficulty)\nor the beatmap was not submitted to osu! servers');
+				msg.channel.send(':red_circle: **The file could not be parsed correctly, no beatmap hash was found**\nThis could be due to a local modification to the map (including a custom difficulty)\nor the beatmap was not submitted to osu! servers');
 				return;
 			}
 
@@ -42,11 +42,11 @@ function execute(client: Client, msg: Message, replayFileURL: string) {
 		}).catch((err: Error) => {
 
 			if (err.name == 'RangeError') {
-				msg.channel.send(':red_circle: The file could not be parsed correctly because the file is not encoded correctly\nThis could be due to a user modification to the file\nor the file was not generated correctly');
+				msg.channel.send(':red_circle: **The file could not be encoded correctly\nThis could be due to a user modification to the replay file\nor the replay file was not generated correctly');
 				return;
 			}
 
-			error.unexpectedError(err, msg);
+			error.unexpectedError(err, 'Message Content: ' + msg.content);
 		});
 	});
 }

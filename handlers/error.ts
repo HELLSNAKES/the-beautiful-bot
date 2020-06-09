@@ -35,34 +35,30 @@ export function log(msg: Message, errCode: number): void {
 	}
 }
 
-export function unexpectedError(err: Error, msg: Message): void {
+export function sendUnexpectedError(err: Error, msg: Message): void {
 	console.error(err);
 	const embed: any = {
 		'description': `\n\nError stack:\n\`\`\`${err.stack}\`\`\`\nThe error has been automatically reported to Moorad.`,
 		'color': 16725838,
 		'timestamp': Date.now()
 	};
-	sendToSlack(msg, err, () => {
+	unexpectedError(err,'Message Content: ' + msg.content , () => {
 		msg.channel.send('**An unexpected error has occured**', {
 			embed
 		});
 	});
-
 }
 
-function sendToSlack(msg: Message, err: Error, callback = () => { }) {
+export function unexpectedError(err : Error, additionalInfo : string, callback = () => {}) {
 	if (process.env.slackAPI) {
-		let message = `An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nMessage content before the error:\n\`\`\`${msg.content}\`\`\``;
+		let message = `___________\n\n(Error) An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nAdditional Information:\n\`\`\`${additionalInfo}\`\`\``;
 		request.post({
 			url: process.env.slackAPI,
 			body: {
 				'text': message
 			},
 			json: true
-		}, () => {
-			callback();
-		});
-
+		}, callback);
 	} else {
 		console.error('Slack Incoming Webhook URL was not found in the Environment Variables');
 		callback();

@@ -3,7 +3,6 @@
 import { Message } from 'discord.js';
 import { IOptions } from '../handlers/interfaces';
 
-import * as error from '../handlers/error';
 import * as format from '../handlers/format';
 import * as countryCodes from '../country_codes.json';
 import * as argument from '../handlers/argument';
@@ -36,6 +35,12 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}&m=${options.mode}`, {
 			json: true
 		}, async (err: any, res: any, body: any) => {
+
+			if (body == undefined || body.length == 0) {
+				msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
+				return;
+			}
+
 			generateUser(msg, options, body);
 		});
 	} else if (options.type == 1) {
@@ -44,7 +49,7 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		}, (err: any, res: any, body: any) => {
 
 			if (Object.entries(body.stats).length == 0) {
-				error.log(msg, 4041);
+				msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
 				return;
 			}
 
@@ -60,7 +65,7 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 		}, (err: any, res: any, body: any) => {
 
 			if (body.code == 404) {
-				error.log(msg, 4041);
+				msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
 				return;
 			}
 
@@ -71,10 +76,6 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 
 async function generateUser(msg: Message, options: IOptions, body: any) {
 	var mainColour = '#ffffff';
-	if (body == undefined || body.length == 0) {
-		error.log(msg, 4041);
-		return;
-	}
 	var canvas = createCanvas(1200, 624);
 	var ctx = canvas.getContext('2d');
 

@@ -27,7 +27,7 @@ export function getMaps(client: Client, msg: Message, callback: (client: Client,
 			}
 			count++;
 			if (count == 50) {
-				msg.channel.send(':no_entry: I couldn\'t find any maps in the last 50 messages');
+				msg.channel.send(':yellow_circle: No maps were found in the last 50 messages');
 			}
 		})).catch(console.error);
 

@@ -12,7 +12,7 @@ async function execute(client: Client, msg: any) {
 		[new Date(Date.now()).getTime()]
 	];
 
-	const message = await msg.channel.send('Pinging');
+	const message = await msg.channel.send(':blue_circle: **Pinging**');
 
 	request(`https://osu.ppy.sh/api/get_user_recent?${process.env.osuAPI}&u=Moorad`, () => {
 		times[0][1] = new Date(Date.now()).getTime();
