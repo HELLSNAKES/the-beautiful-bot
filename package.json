@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "nodemon --exec ts-node index.ts",
     "start": "node index.js",
-	"test": "ts-node test.ts"
+    "test": "ts-node test.ts"
   },
   "author": "Moorad",
   "license": "MIT",
