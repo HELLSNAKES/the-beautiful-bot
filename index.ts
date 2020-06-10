@@ -31,7 +31,7 @@ client.on('ready', () => {
 			type: 'playing'
 		});
 		counter = (counter + 1) % messages.length;
-	}, 3000);
+	}, 300000);
 });
 
 client.commands = new Discord.Collection();
