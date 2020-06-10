@@ -3,6 +3,7 @@
 import { Message } from 'discord.js';
 import * as database from './handlers/database';
 import * as error from './handlers/error';
+import * as format from './handlers/format';
 
 require('dotenv').config();
 const Discord = require('discord.js');
@@ -10,13 +11,15 @@ const client = new Discord.Client();
 const parser = require('./handlers/parser');
 const fs = require('fs');
 
+const lastUpdated = new Date(1591828100646);
+
 function isAlias(command: string, clientCommand: string) {
 	return client.commands.get(clientCommand).aliases && client.commands.get(clientCommand).aliases.includes(command);
 }
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-	let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I'm in a total of ${client.guilds.size} servers`];
+	let messages = ['osu!', 'https://github.com/moorad/the-beautiful-bot', 'with FL. Imagine not being able to FC with FL lol', `I'm in a total of ${client.guilds.size} servers`, `I was last updated ${format.time(lastUpdated.getTime())} ago`];
 	let counter = 0;
 	client.user.setActivity(messages[counter], {
 		type: 'playing'
@@ -28,7 +31,7 @@ client.on('ready', () => {
 			type: 'playing'
 		});
 		counter = (counter + 1) % messages.length;
-	}, 300000);
+	}, 3000);
 });
 
 client.commands = new Discord.Collection();
@@ -104,7 +107,7 @@ client.on('message', async (msg: Message) => {
 	});
 });
 
-client.login(process.env.discordAPI); 
+client.login(process.env.discordAPI);
 
 process.on('uncaughtException', (err) => {
 	error.unexpectedError(err, 'Uncaught Exception');
