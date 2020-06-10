@@ -200,3 +200,74 @@ export function calculateManiapp(data: any): any {
 		pp: Math.floor(value * 100) / 100
 	};
 }
+
+export function calculateTaikopp(data : any) : any {
+	data.difficultyrating = parseFloat(data.difficultyrating);
+	data.diff_overall = parseFloat(data.diff_overall);
+	// data.maxcombo = parseInt(data.maxcombo);
+	// data.score = parseInt(data.score);
+	data.accuracy = parseFloat(data.accuracy) / 100;
+	// data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
+	var enabled_mods = mods.toString(data.enabled_mods).replace('No Mod', '');
+	var countGreat = parseInt(data.count300);
+	var countGood = parseInt(data.count100);
+	var countMeh = parseInt(data.count50);
+	var countMiss = parseInt(data.countmiss);
+	var totalHits = countGreat + countGood + countMeh + countMiss;
+
+	console.log(data);
+
+	var multiplier = 1.1;
+
+	if (enabled_mods.includes('NF')) multiplier *= 0.9;
+
+	if (enabled_mods.includes('HD')) multiplier *= 1.1;
+
+	var strainValue =  Math.pow(5 * Math.max(1, data.difficultyrating / 0.0075) - 4, 2) / 100000;
+	var lengthBonus = 1 + 0.1 * Math.min(1, totalHits / 1500);
+	strainValue *= lengthBonus;
+	strainValue *= Math.pow(0.985, countMiss);
+
+	if (enabled_mods.includes('HD')) strainValue *= 1.025;
+
+	if (enabled_mods.includes('FL')) strainValue *= 1.05 * lengthBonus;
+
+	strainValue = strainValue * data.accuracy;
+
+	var accuracyValue = 0;
+
+	// Hitwindows
+	var hitWindow300Range = [50, 35, 20];
+	
+	if (data.diff_overall > 5) {
+		var hitWindow300 = hitWindow300Range[1] + (hitWindow300Range[2] - hitWindow300Range[1]) * (data.diff_overall - 5) / 5;
+	} else if (data.diff_overall < 5) {
+		hitWindow300 = hitWindow300Range[1] - (hitWindow300Range[1] - hitWindow300Range[0]) * (5 - data.diff_overall) / 5;
+	} else {
+		hitWindow300 = hitWindow300Range[1];
+	}
+
+	if (hitWindow300 <= 0) {
+		accuracyValue = 0;
+		return;
+	}
+
+	accuracyValue = Math.pow(150 / hitWindow300, 1.1) * Math.pow(data.accuracy, 15) * 22;
+	
+	accuracyValue = accuracyValue * Math.min(1.15, Math.pow(totalHits / 1500, 0.3));
+
+	var totalValue = Math.pow(Math.pow(strainValue, 1.1) + Math.pow(accuracyValue, 1.1), 1.0 / 1.1) * multiplier;
+
+	return {
+		title: data.title,
+		artist: data.artist,
+		difficultyName: data.version,
+		creator: data.creator,
+		OD: data.diff_overall,
+		stars: data.difficultyrating,
+		mods: enabled_mods,
+		totalHits: data.totalHits,
+		accuracy: data.accuracy * 100,
+		pp: Math.floor(totalValue * 100) / 100
+	};
+}
