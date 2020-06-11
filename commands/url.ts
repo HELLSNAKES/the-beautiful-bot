@@ -3,37 +3,52 @@
 
 import { Message } from 'discord.js';
 
-// import * as error from '../handlers/error'; // Might be used again soon
+import * as error from '../handlers/error';
 
 const request = require('request');
 const map = require('./map');
 
 function beatmapCardFromLink(msg: any) {
 	if (msg.content.match(/osu.ppy.sh\/beatmapsets\/\d+#([A-Za-z0-9]+)\/\d+/g)) {
-		getBeatmapData(msg, msg.content.slice(msg.content.lastIndexOf('/') + 1), undefined);
+		getBeatmapsetData(msg, msg.content.slice(msg.content.indexOf('beatmapsets/') + 11 + 1, msg.content.indexOf('#')), msg.content.slice(msg.content.lastIndexOf('/') + 1));
 	} else if (msg.content.match(/osu.ppy.sh\/beatmapsets\/\d+/g)) {
-		getBeatmapData(msg, undefined, msg.content.slice(msg.content.lastIndexOf('/') + 1));
+		getBeatmapsetData(msg, msg.content.slice(msg.content.indexOf('beatmapsets/') + 11 + 1), undefined);
 	} else if (msg.content.match(/osu.ppy.sh\/b\/\d+/g)) {
-		getBeatmapData(msg, msg.content.slice(msg.content.lastIndexOf('/') + 1), undefined);
+		getBeatmapData(msg, msg.content.slice(msg.content.lastIndexOf('/') + 1));
 	} else if (msg.content.match(/osu.ppy.sh\/s\/\d+/g)) {
-		getBeatmapData(msg, undefined, msg.content.slice(msg.content.lastIndexOf('/') + 1));
+		getBeatmapsetData(msg, msg.content.slice(msg.content.lastIndexOf('/') + 1), undefined);
 	}
 }
 
-function getBeatmapData(msg: Message, beatmapid: string | undefined, beatmapsetid: string | undefined) {
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${beatmapid ? 'b=' + beatmapid : 's=' + beatmapsetid}`, {
+function getBeatmapsetData(msg: Message, beatmapsetid: string | undefined, beatmapid: string | undefined) {
+	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, {
 		json: true
 	}, (err: any, res: any, body: any) => {
-		if (body.length == 0) {
+
+		if (err) {
+			error.sendUnexpectedError(err, msg);
 			return;
 		}
 
-		if (beatmapid == undefined) beatmapid = body[body.length - 1].beatmap_id;
+		if (body == undefined || body.length == 0) {
+			error.unexpectedError(new Error('Unexpected empty or undefined response body'), `https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`);
+			return;
+		}
+		
+		// If no beatmap is specified, set beatmap id to the hardest difficulty 
+		// Cannot use the last index because osu's API seems to return beatmap difficulties in a random order
+		if (beatmapid == undefined) {
+			var highestIndex = 0;
+			for (var i = 0; i < body.length; i++) {
+				if (body[i].difficultyrating > body[highestIndex].difficultyrating) highestIndex = i;
+			}
+			beatmapid = body[highestIndex].beatmap_id;
+		}
 
 		var data: any = {};
 		data.beatmaps = [];
 		var modes = ['osu', 'taiko', 'fruits', 'mania'];
-		for (var i = 0; i < body.length; i++) {
+		for (i = 0; i < body.length; i++) {
 
 			body[i].mode = modes[body[i].mode];
 			body[i].difficulty_rating = body[i].difficultyrating;
@@ -81,6 +96,14 @@ function getBeatmapData(msg: Message, beatmapid: string | undefined, beatmapseti
 			return (data);
 		}
 
+	});
+}
+
+function getBeatmapData(msg: Message, beatmapid: string | undefined) {
+	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${beatmapid}`, {
+		json: true
+	}, (err: any, res: any, body: any) => {
+		getBeatmapsetData(msg, body[0].beatmapset_id, beatmapid);
 	});
 }
 
