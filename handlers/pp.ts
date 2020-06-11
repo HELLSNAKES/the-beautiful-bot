@@ -69,28 +69,46 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 }
 
 export function calculateCatchpp(data: any): any {
-	var value = Math.pow(5 * Math.max(1, (data.diff_aim) / 0.0049) - 4, 2) / 100000;
-	var totalHits = parseInt(data.count300) + parseInt(data.count100) + parseInt(data.countmiss);
+	var difficultyrating = parseFloat(data.difficultyrating);
+	var diff_approach = parseFloat(data.diff_approach);
+	var max_combo = parseInt(data.max_combo);
+	var maxcombo = parseInt(data.maxcombo);
+	var count300 = parseInt(data.count300);
+	var count100 = parseInt(data.count100);
+	var countmiss = parseInt(data.countmiss);
 
-	var lengthBonus = 0.95 + 0.4 * Math.min(1, totalHits / 3000) + (totalHits > 3000 ? Math.log10(totalHits / 3000) * 0.5 : 0);
+	
+	var value = Math.pow(5 * Math.max(1, (difficultyrating) / 0.0049) - 4, 2) / 100000;
+	var totalHits = count300 + count100 + countmiss;
+
+	var lengthBonus = 0.95 + 0.3 * Math.min(1, totalHits / 2500) + (totalHits > 2500 ? Math.log10(totalHits / 2500) * 0.475 : 0);
 	value *= lengthBonus;
-	value *= Math.pow(0.97, data.countmiss);
+	value *= Math.pow(0.97, countmiss);
 
-	if (data.max_combo > 0) {
-		value *= Math.min(Math.pow(data.maxcombo, 0.8) / Math.pow(data.max_combo, 0.8), 1);
+	if (max_combo > 0) {
+		value *= Math.min(Math.pow(maxcombo, 0.8) / Math.pow(max_combo, 0.8), 1);
 	}
 
 	var approachRateFactor = 1;
-	if (data.diff_approach > 9) {
-		approachRateFactor += 0.1 * (data.diff_approach - 9);
-	} else if (data.diff_approach < 8) {
-		approachRateFactor += 0.025 * (8 - data.diff_approach);
+	if (diff_approach > 9) {
+		approachRateFactor += 0.1 * (diff_approach - 9);
+	} 
+	if (diff_approach > 10) {
+		approachRateFactor += 0.1 * (diff_approach - 10);
+	} else if (diff_approach < 8) {
+		approachRateFactor += 0.025 * (8 - diff_approach);
 	}
 
 	value *= approachRateFactor;
 	var enabled_mods = mods.toString(data.enabled_mods);
 	if (enabled_mods.includes('HD')) {
-		value *= 1.05 + 0.075 * (10 - Math.min(10, data.diff_approach));
+		value *= 1.05 + 0.075 * (10 - Math.min(10, diff_approach));
+
+		if (diff_approach <= 10) {
+			value *= 1.05 + 0.075 * (10 - diff_approach);
+		} else if (diff_approach > 10) {
+			value *= 1.01+ 0.04 * (11 - Math.min(11, diff_approach));
+		}
 	}
 
 	if (enabled_mods.includes('FL')) {
