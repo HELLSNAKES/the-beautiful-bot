@@ -191,6 +191,8 @@ function generateRecent(client: Client, msg: Message, body: any) {
 		userPictureUrl = `https://a.akatsuki.pw/${body.user_id}?${Date.now().toString()}`;
 	}
 
+	if (body.approved < 1) body.approved = 0;
+
 	let grade = client.emojis.find(emoji => emoji.name === 'rank_' + body.rank.toLowerCase());
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
 	let date = format.time(new Date(body.date + (body.options.type == 0 ? ' UTC' : '')).getTime());
@@ -243,7 +245,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 		embed
 	});
 
-	if (body.otherComparePlays.length > 0) {
+	if (body.otherComparePlays != undefined && body.otherComparePlays.length > 0) {
 		var otherPlaysString = 'A';
 
 		for (var i = 0; i < body.otherComparePlays.length; i++) {
