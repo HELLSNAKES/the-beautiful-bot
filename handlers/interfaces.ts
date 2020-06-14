@@ -140,3 +140,11 @@ export interface IAPIUser {
 	pp_country_rank: string,
 	events?: any
 }
+
+export interface IURLParserBeatmap {
+	URL: string | undefined,
+	beatmapID: string | undefined,
+	beatmapsetID: string | undefined,
+	ruleset: number,
+	valid: boolean
+}

@@ -9,11 +9,11 @@ import * as argument from '../handlers/argument';
 const request = require('request');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
-	getMaps.getMaps(client, msg, function (clientFunc, msgFunc, url, userid) {
+	getMaps.getMaps(client, msg, function (clientFunc, msgFunc, URLData, userid) {
 		let options = argument.parse(msg, args);
 		if (options.error) return;
 
-		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&b=${url.slice(url.lastIndexOf('/') + 1)}&limit=25`, (err: any, res: any, body: any) => {
+		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&b=${URLData.beatmapID}&limit=25`, (err: any, res: any, body: any) => {
 			body = JSON.parse(body);
 			let fields = [];
 			for (let i = 0; i < body.length; i++) {
@@ -36,7 +36,7 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 			msg.channel.send({
 				embed
 			});
-			console.log(`LEADERBOARD : ${userid} : ${url}`);
+			console.log(`LEADERBOARD : ${userid} : ${URLData.URL}`);
 		});
 	});
 }
