@@ -94,9 +94,7 @@ function generateBeatmap(msg: Message, data: any) {
 			// Beatmap Image
 			let beatmapImage;
 			try {
-				beatmapImage = await Canvas.loadImage(url).catch((err: any) => {
-					error.unexpectedError(err, 'Message Content: '+ msg);
-				});
+				beatmapImage = await Canvas.loadImage(url);
 			} catch (err) {
 				beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png').catch((err: any) => {
 					error.unexpectedError(err, 'Message Content: '+ msg);
