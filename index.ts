@@ -49,7 +49,7 @@ client.on('message', async (msg: Message) => {
 		if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
 
 		if (msg.author.bot) return;
-		if (msg.content == `<@!${client.user.id}>`) require('./commands/help').help(msg, prefix);
+		if (msg.content == `<@!${client.user.id}>`) require('./commands/help').execute(client, msg, '', prefix);
 
 		if (msg.content === 'bot you alive?') { // bot are you alive
 			msg.reply('**YES!!!**');
