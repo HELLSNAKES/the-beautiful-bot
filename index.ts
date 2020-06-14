@@ -4,6 +4,8 @@ import { Message } from 'discord.js';
 import * as database from './handlers/database';
 import * as error from './handlers/error';
 import * as format from './handlers/format';
+import * as levenshtein from './handlers/levenshtein';
+import { best } from './handlers/gatari';
 
 require('dotenv').config();
 const Discord = require('discord.js');
@@ -12,6 +14,7 @@ const parser = require('./handlers/parser');
 const fs = require('fs');
 
 const lastUpdated = new Date(1591828100646);
+const distanceThresholdAbsolute = 0.5;
 
 function isAlias(command: string, clientCommand: string) {
 	return client.commands.get(clientCommand).aliases && client.commands.get(clientCommand).aliases.includes(command);
@@ -104,6 +107,15 @@ client.on('message', async (msg: Message) => {
 		} // else if (cmd === 'config' || isAlias(cmd, 'config')) {
 		//  	client.commands.get('config').execute(msg, args);
 		// }
+		else {
+			var commands: Array<string> = [];
+			client.commands.forEach((command: any) => { if (command.name != undefined) commands.push(command.name); });
+			var bestMatch = levenshtein.getBestMatch(commands, cmd);
+			var distanceThresholdRelative = Math.floor(cmd.length * (1 - distanceThresholdAbsolute));
+			if (bestMatch.distance <= distanceThresholdRelative) {
+				msg.channel.send(`:yellow_circle: **Did you mean \`$${bestMatch.string}\`?**\nUse \`$help\` to view the full list of commands available\n- "${cmd}"  → "${bestMatch.string}" (${levenshtein.getPercentageFromDistance(cmd, bestMatch.distance)}% similarity)`);
+			}
+		}
 	});
 });
 
