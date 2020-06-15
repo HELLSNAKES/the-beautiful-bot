@@ -9,15 +9,16 @@ export const modes : any = {
 	'3': 'Mania'
 };
 
-export function userURL(url: string): any {
+export function userURL(content: string): any {
 	var returnObject: any = {
 		userId: null,
 		success: true
 	};
-	var pattern = /^(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\/\d+/g;
-	var patternWithoutDigits = /^(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\//g;
-	if (pattern.test(url)) {
-		returnObject.userId = url.match(pattern)![0].replace(patternWithoutDigits, '');
+	var pattern = /(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\/[0-9A-Za-z_!? -\[\]]+/;
+	var patternWithoutDigits = /(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\//;
+	if (pattern.test(content)) {
+		var extractedURL = pattern.exec(content)![0];
+		returnObject.userId = extractedURL.match(pattern)![0].replace(patternWithoutDigits, '');
 	} else {
 		returnObject.success = false;
 	}
