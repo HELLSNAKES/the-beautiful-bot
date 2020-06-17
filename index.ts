@@ -63,13 +63,13 @@ for (let i of commandFiles) {
 
 client.on('message', async (msg: Message) => {
 	var prefix = process.env.prefix || '$';
-	database.read('servers', { serverID: msg.guild.id }, (docs, err) => {
+	database.read('servers', { serverID: msg.guild.id }, (docs) => {
 		if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
 
 		if (msg.author.bot) return;
 		if (msg.content == `<@!${client.user.id}>`) require('./commands/help').execute(client, msg, '', prefix);
 
-		if (msg.content === 'bot you alive?') { // bot are you alive
+		if (msg.content === 'bot you alive?') {
 			msg.reply('**YES!!!**');
 		} else if (msg.content === 'good bot') {
 			msg.reply('<:heart:' + 615531857253105664 + '>');
@@ -124,6 +124,8 @@ client.on('message', async (msg: Message) => {
 		// }
 		else if (cmd === 'flush') {
 			client.commands.get('flush').execute(msg);
+		} else if (cmd == 'invite') {
+			client.commands.get('invite').execute(msg);
 		}
 		else {
 			var commands: Array<string> = [];
