@@ -2,46 +2,58 @@
 'use strict';
 
 import { IDBDocument } from './interfaces';
+import * as cache from './cache';
 
 require('dotenv').config({
 	path: '../.env'
 });
 const MongoClient = require('mongodb').MongoClient;
-
 const dbName = 'thebeautifulbot';
 
 export function read(collectionName: string, findObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
-	MongoClient.connect(process.env.dbURI, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true
-	}, function (err: any, client: any) {
-		if (err) {
-			callback([], err);
-			console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-			return;
+	cache.get(collectionName).then((cacheData) => {
+		if (cacheData) {
+			// Filter
+			for (var i = 0; i < Object.keys(findObject).length; i++) {
+				cacheData = cacheData.filter((x: any) => x[Object.keys(findObject)[i]] == Object.values(findObject)[i]);
+			}
+
+			callback(cacheData, undefined);
+			console.log(`READ (CACHE) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+		} else {
+			MongoClient.connect(process.env.dbURI, {
+				useNewUrlParser: true,
+				useUnifiedTopology: true
+			}, function (err: any, client: any) {
+				if (err) {
+					callback([], err);
+					console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+					return;
+				}
+				const db = client.db(dbName);
+
+				const collection = db.collection(collectionName);
+
+				collection.find(findObject).toArray(function (err: any, docs: Array<any>) {
+					if (err) {
+						callback([], err);
+
+						console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+						return;
+					}
+
+					if (docs.length == 0) {
+						console.log(`READ (NO DOCUMENTS FOUND) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+						callback([], undefined);
+						return;
+					}
+					console.log(`READ : ${docs[0]._id}`);
+					callback(docs, null);
+					client.close();
+				});
+
+			});
 		}
-		const db = client.db(dbName);
-
-		const collection = db.collection(collectionName);
-
-		collection.find(findObject).toArray(function (err: any, docs: Array<any>) {
-			if (err) {
-				callback([], err);
-
-				console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				return;
-			}
-
-			if (docs.length == 0) {
-				console.log(`READ (NO DOCUMENTS FOUND) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-				callback([], undefined);
-				return;
-			}
-			console.log(`READ : ${docs[0]._id}`);
-			callback(docs, null);
-			client.close();
-		});
-
 	});
 }
 
@@ -70,6 +82,13 @@ export function write(collectionName: string, writeObject: IDBDocument, callback
 			console.log(`WRITE : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
 			callback([], null);
 			client.close();
+			// Append writeObject to cache
+			cache.get(collectionName).then((data) => {
+				data.push(writeObject);
+				cache.set(collectionName, data).then(() => {
+					console.log(`WRITE (CACHE) : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
+				}).catch((err) => { throw err; });
+			}).catch((err) => { throw err; });
 		});
 
 	});
@@ -100,7 +119,27 @@ export function update(collectionName: string, findObject: IDBDocument, setObjec
 			console.log(`UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 			callback([], null);
 			client.close();
-		});
 
+			// Filter and update cache
+			cache.get(collectionName).then((data) => {
+				// Finding the index of the first object that matches findObject
+
+				var index = data.findIndex((x: any) => {
+					for (var i = 0; i < Object.keys(findObject).length; i++) {
+						if (x[Object.keys(findObject)[i]] != Object.values(findObject)[i]) return false;
+					}
+					return true;
+				});
+
+				// Updating the object using setObject
+				for (var i = 0; i < Object.keys(setObject).length; i++) {
+					data[index][Object.keys(setObject)[i]] = Object.values(setObject)[i];
+				}
+
+				cache.set(collectionName, data).then(() => {
+					console.log(`UPDATE (CACHE) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+				}).catch((err) => { throw err; });
+			}).catch((err) => { throw err; });
+		});
 	});
 }

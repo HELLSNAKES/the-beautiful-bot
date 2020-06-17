@@ -5,7 +5,7 @@ import * as database from './handlers/database';
 import * as error from './handlers/error';
 import * as format from './handlers/format';
 import * as levenshtein from './handlers/levenshtein';
-import { best } from './handlers/gatari';
+import * as cache from './handlers/cache';
 
 require('dotenv').config();
 const Discord = require('discord.js');
@@ -15,6 +15,21 @@ const fs = require('fs');
 
 const lastUpdated = new Date(1591828100646);
 const distanceThresholdAbsolute = 0.5;
+
+export function preCache() {
+	database.read('users', {}, (docs) => { 
+		cache.set('users', docs).then(() => {
+			console.log('PRE CACHE : USERS COLLECTION');
+			database.read('servers', {}, (docs) => { 
+				cache.set('servers', docs).then(() => {console.log('PRE CACHE : SERVERS COLLECTION');});
+			});
+		});
+	});
+
+	
+}
+
+preCache();
 
 function isAlias(command: string, clientCommand: string) {
 	return client.commands.get(clientCommand).aliases && client.commands.get(clientCommand).aliases.includes(command);
@@ -107,6 +122,9 @@ client.on('message', async (msg: Message) => {
 		} // else if (cmd === 'config' || isAlias(cmd, 'config')) {
 		//  	client.commands.get('config').execute(msg, args);
 		// }
+		else if (cmd === 'flush') {
+			client.commands.get('flush').execute(msg);
+		}
 		else {
 			var commands: Array<string> = [];
 			client.commands.forEach((command: any) => { if (command.name != undefined) commands.push(command.name); });

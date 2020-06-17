@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "nodemon": "nodemon --exec ts-node index.ts",
+    "nodemon": "nodemon --ignore cache/ index.ts",
     "start": "node index.js",
     "test": "ts-node test.ts"
   },
