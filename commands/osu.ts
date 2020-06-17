@@ -1,10 +1,9 @@
 'use strict';
 
 import { Message } from 'discord.js';
-import { IOptions } from '../handlers/interfaces';
+import { IOptions, IAPIUser } from '../handlers/interfaces';
 
 import * as format from '../handlers/format';
-import * as countryCodes from '../country_codes.json';
 import * as argument from '../handlers/argument';
 import * as gatari from '../handlers/gatari';
 import * as akatsuki from '../handlers/akatsuki';
@@ -13,6 +12,8 @@ const path = require('path');
 const request = require('request');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 const Discord = require('discord.js');
+
+var countryCodes = require('../country_codes.json');
 
 registerFont(path.resolve(__dirname, '../assets/VarelaRound.ttf'), {
 	family: 'VarelaRound'
@@ -74,7 +75,7 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 	}
 }
 
-async function generateUser(msg: Message, options: IOptions, body: any) {
+async function generateUser(msg: Message, options: IOptions, body: Array<IAPIUser>) {
 	var mainColour = '#ffffff';
 	var canvas = createCanvas(1200, 624);
 	var ctx = canvas.getContext('2d');
@@ -132,7 +133,8 @@ async function generateUser(msg: Message, options: IOptions, body: any) {
 	ctx.fillText(body[0].username, 347, 56 + 63);
 
 	ctx.font = '40px VarelaRound';
-	let country = Object.getOwnPropertyDescriptor(countryCodes, body[0].country)?.value;
+	let country = countryCodes[body[0].country];
+	console.log(body[0].country);
 	var flag = await loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
 	ctx.drawImage(flag, 350, 130, 60, 40);
 	ctx.fillText(country, 420, 127 + 40);
@@ -151,33 +153,35 @@ async function generateUser(msg: Message, options: IOptions, body: any) {
 
 	ctx.font = '28px VarelaRound';
 	ctx.textAlign = 'center';
-	ctx.fillText(format.number(body[0].count_rank_a), 792 + 22, 171 + 25 + 28);
-	ctx.fillText(format.number(body[0].count_rank_s), 955 + 16, 171 + 25 + 28);
-	ctx.fillText(format.number(body[0].count_rank_sh), 1108 + 22, 171 + 25 + 28);
-	ctx.fillText(format.number(body[0].count_rank_ss), 888 + 9, 279 + 25 + 28);
-	ctx.fillText(format.number(body[0].count_rank_ssh), 1038 + 13, 279 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_a)), 792 + 22, 171 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_s)), 955 + 16, 171 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_sh)), 1108 + 22, 171 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_ss)), 888 + 9, 279 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_ssh)), 1038 + 13, 279 + 25 + 28);
 
 	ctx.textAlign = 'left';
 	ctx.font = '75px VarelaRound';
-	ctx.fillText('#' + format.number(body[0].pp_rank), 347, 170 + 75);
+	ctx.fillText('#' + format.number(parseInt(body[0].pp_rank)), 347, 170 + 75);
 
 	ctx.font = '57px VarelaRound';
-	ctx.fillText('#' + format.number(body[0].pp_country_rank), 347, 259 + 57);
+	ctx.fillText('#' + format.number(parseInt(body[0].pp_country_rank)), 347, 259 + 57);
 
 	var hexagon = await loadImage(path.resolve(__dirname, '../assets/hexagon.png'));
 	ctx.drawImage(hexagon, 342, 332, 72, 77);
 
+	const level = parseInt(body[0].level);
+	
 	ctx.textAlign = 'center';
 	ctx.font = '33px VarelaRound';
-	ctx.fillText(Math.floor(body[0].level), 378, 332 + 50);
+	ctx.fillText(Math.floor(level), 378, 332 + 50);
 
 	format.rect(ctx, 441, 364, 504, 12, 7);
 	ctx.fillStyle = '#FFCC22';
-	format.rect(ctx, 441, 364, 504 * (body[0].level - Math.floor(body[0].level) > 0.02 ? body[0].level - Math.floor(body[0].level) : 0.02), 12, 7);
+	format.rect(ctx, 441, 364, 504 * (level - Math.floor(level) > 0.02 ? level - Math.floor(level) : 0.02), 12, 7);
 	ctx.textAlign = 'left';
 	ctx.fillStyle = mainColour;
 	ctx.font = '21px VarelaRound';
-	ctx.fillText(Math.floor(100 * (body[0].level - Math.floor(body[0].level))) + '%', 960, 359 + 21);
+	ctx.fillText(Math.floor(100 * (level - Math.floor(level))) + '%', 960, 359 + 21);
 
 	ctx.fillStyle = mainColour + '21';
 	format.rect(ctx, 44, 472, 191, 53, 30);
@@ -195,10 +199,10 @@ async function generateUser(msg: Message, options: IOptions, body: any) {
 	ctx.fillText('Score', 973 + 50, 478 + 30);
 
 	ctx.font = '40px VarelaRound';
-	ctx.fillText(format.number(Math.floor(body[0].pp_raw)), 82 + 60, 534 + 40);
-	ctx.fillText(Math.round(body[0].accuracy * 100) / 100 + '%', 324 + 75, 537 + 40);
-	ctx.fillText(format.number(Math.floor(body[0].total_seconds_played / 60 / 60)) + 'h', 651 + 50, 536 + 40);
-	ctx.fillText(format.numberSuffix(body[0].total_score), 930 + 100, 536 + 40);
+	ctx.fillText(format.number(Math.floor(parseFloat(body[0].pp_raw))), 82 + 60, 534 + 40);
+	ctx.fillText(Math.round(parseFloat(body[0].accuracy) * 100) / 100 + '%', 324 + 75, 537 + 40);
+	ctx.fillText(format.number(Math.floor(parseFloat(body[0].total_seconds_played) / 60 / 60)) + 'h', 651 + 50, 536 + 40);
+	ctx.fillText(format.numberSuffix(parseInt(body[0].total_score)), 930 + 100, 536 + 40);
 
 	const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 	msg.channel.send(attachment);
