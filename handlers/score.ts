@@ -5,6 +5,12 @@ export const modes = {
 	'3': ['mania']
 };
 
+export const servers = {
+	'0': ['official osu'],
+	'1': ['gatari'],
+	'2': ['akatsuki']
+};
+
 export function getAccuracy(ruleset: number, n300: number | string, n100: number | string, n50: number | string, nmiss: number | string, nkatu: number | string = 0, ngeki: number | string = 0): number {
 	n300 = Number(n300);
 	nkatu = Number(nkatu);
@@ -74,5 +80,19 @@ export function getRuleset(ruleset: string, getIndex = false): string {
 	if (ruleset == '1') return 'taiko';
 	if (ruleset == '2') return 'catch';
 	if (ruleset == '3') return 'mania';
+	return '-1';
+}
+
+export function getServer(serverType : string, getIndex = false) : string {
+	if (getIndex) {
+		if (modes['0'].includes(serverType)) return '0';
+		if (modes['1'].includes(serverType)) return '1';
+		if (modes['2'].includes(serverType)) return '2';
+		return '-1';
+	}
+
+	if (serverType == '0') return 'offical osu';
+	if (serverType == '1') return 'gatari';
+	if (serverType == '2') return 'akatsuki';
 	return '-1';
 }
