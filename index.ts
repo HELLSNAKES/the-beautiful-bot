@@ -63,7 +63,7 @@ for (let i of commandFiles) {
 
 client.on('message', async (msg: Message) => {
 	var prefix = process.env.prefix || '$';
-	database.read('servers', { serverID: msg.guild.id }, (docs) => {
+	database.read('servers', { serverID: msg.guild.id }, {}, (docs) => {
 		if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
 
 		if (msg.author.bot) return;

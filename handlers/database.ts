@@ -10,9 +10,13 @@ require('dotenv').config({
 const MongoClient = require('mongodb').MongoClient;
 const dbName = 'thebeautifulbot';
 
-export function read(collectionName: string, findObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
+// Options:
+// - useCache : whether to read and update cache or not
+// 
+
+export function read(collectionName: string, findObject: IDBDocument, {useCache = true} , callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	cache.get(collectionName).then((cacheData) => {
-		if (cacheData) {
+		if (useCache && cacheData != undefined) {
 			// Filter
 			for (var i = 0; i < Object.keys(findObject).length; i++) {
 				cacheData = cacheData.filter((x: any) => x[Object.keys(findObject)[i]] == Object.values(findObject)[i]);
@@ -27,7 +31,7 @@ export function read(collectionName: string, findObject: IDBDocument, callback: 
 			}, function (err: any, client: any) {
 				if (err) {
 					callback([], err);
-					console.log(`FAILED TO READ : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+					console.log(`FAILED TO READ :  ${cacheData[0]._id}`);
 					return;
 				}
 				const db = client.db(dbName);
@@ -54,10 +58,10 @@ export function read(collectionName: string, findObject: IDBDocument, callback: 
 
 			});
 		}
-	});
+	}).catch(err => {throw err;});
 }
 
-export function write(collectionName: string, writeObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
+export function write(collectionName: string, writeObject: IDBDocument, {useCache = true}, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
@@ -83,18 +87,20 @@ export function write(collectionName: string, writeObject: IDBDocument, callback
 			callback([], null);
 			client.close();
 			// Append writeObject to cache
-			cache.get(collectionName).then((data) => {
-				data.push(writeObject);
-				cache.set(collectionName, data).then(() => {
-					console.log(`WRITE (CACHE) : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
+			if (useCache) {
+				cache.get(collectionName).then((data) => {
+					data.push(writeObject);
+					cache.set(collectionName, data).then(() => {
+						console.log(`WRITE (CACHE) : { ${Object.keys(writeObject)[0]} : ${Object.values(writeObject)[0]} }`);
+					}).catch((err) => { throw err; });
 				}).catch((err) => { throw err; });
-			}).catch((err) => { throw err; });
+			}
 		});
 
 	});
 }
 
-export function update(collectionName: string, findObject: IDBDocument, setObject: IDBDocument, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
+export function update(collectionName: string, findObject: IDBDocument, setObject: IDBDocument, {useCache = true}, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
@@ -121,25 +127,27 @@ export function update(collectionName: string, findObject: IDBDocument, setObjec
 			client.close();
 
 			// Filter and update cache
-			cache.get(collectionName).then((data) => {
-				// Finding the index of the first object that matches findObject
+			if (useCache) {
+				cache.get(collectionName).then((data) => {
+					// Finding the index of the first object that matches findObject
 
-				var index = data.findIndex((x: any) => {
-					for (var i = 0; i < Object.keys(findObject).length; i++) {
-						if (x[Object.keys(findObject)[i]] != Object.values(findObject)[i]) return false;
+					var index = data.findIndex((x: any) => {
+						for (var i = 0; i < Object.keys(findObject).length; i++) {
+							if (x[Object.keys(findObject)[i]] != Object.values(findObject)[i]) return false;
+						}
+						return true;
+					});
+
+					// Updating the object using setObject
+					for (var i = 0; i < Object.keys(setObject).length; i++) {
+						data[index][Object.keys(setObject)[i]] = Object.values(setObject)[i];
 					}
-					return true;
-				});
 
-				// Updating the object using setObject
-				for (var i = 0; i < Object.keys(setObject).length; i++) {
-					data[index][Object.keys(setObject)[i]] = Object.values(setObject)[i];
-				}
-
-				cache.set(collectionName, data).then(() => {
-					console.log(`UPDATE (CACHE) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+					cache.set(collectionName, data).then(() => {
+						console.log(`UPDATE (CACHE) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
+					}).catch((err) => { throw err; });
 				}).catch((err) => { throw err; });
-			}).catch((err) => { throw err; });
+			}
 		});
 	});
 }

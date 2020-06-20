@@ -226,7 +226,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 		let discordID = args[0].slice(3, 21);
 		database.read('users', {
 			discordID: discordID
-		}, (docs: Array<IDBDocument>, err: any) => {
+		}, {}, (docs: Array<IDBDocument>, err: any) => {
 			if (err) {
 				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
 				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);
@@ -252,7 +252,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 	} else {
 		database.read('users', {
 			discordID: msg.author.id
-		}, (docs: Array<IDBDocument>, err: any) => {
+		}, {}, (docs: Array<IDBDocument>, err: any) => {
 			if (err) {
 				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
 				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);

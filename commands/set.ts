@@ -14,7 +14,7 @@ function execute(msg: Message, args: any) {
 	utility.checkUser(args.join(' '), options.type).then(() => {
 		database.read('users', {
 			discordID: msg.author.id,
-		}, (docs, err) => {
+		}, {}, (docs, err) => {
 			
 			if (err) {
 				error.sendUnexpectedError(err, msg);
@@ -26,7 +26,7 @@ function execute(msg: Message, args: any) {
 					osuUsername: args.join(' '),
 					type: options.type,
 					mode: options.mode
-				}, (docs, err) => {
+				}, {}, (docs, err) => {
 					if (err) {
 						error.sendUnexpectedError(err, msg);
 					} else {
@@ -40,7 +40,7 @@ function execute(msg: Message, args: any) {
 				}, {
 					osuUsername: args.join(' '),
 					type: options.type
-				}, () => {
+				}, {}, () => {
 					msg.channel.send(`:green_circle: Your osu username has been successfully updated to \`${args.join(' ')}\`!`);
 				});
 			}

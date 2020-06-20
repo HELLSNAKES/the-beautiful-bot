@@ -1,4 +1,4 @@
-import { Message } from 'discord.js'
+import { Message } from 'discord.js';
 
 function execute(msg : Message) {
 	const embed = {
@@ -15,4 +15,4 @@ module.exports = {
 	description: 'Get the invite link for the bot',
 	group: 'general',
 	execute: execute
-}
+};

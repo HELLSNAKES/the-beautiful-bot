@@ -36,7 +36,7 @@ async function execute(client: Client, msg: any) {
 					request('https://akatsuki.pw/api/v1/surprise_me', (err : Error) => {
 						responseStatus(err);
 
-						database.read('users', {}, (docs, err) => {
+						database.read('users', {}, {useCache: false}, (docs, err) => {
 							responseStatus(err);
 
 							message.edit(`Discord API: **OK** (${Math.round(client.ping)}ms)\nosu! API: ${values[0]}\nTBB API: ${values[1]}\nOjsama: ${values[2]}\nGatari: ${values[3]}\nAkatsuki: ${values[4]}\n\nNumber of servers: ${client.guilds.size}\nNumber of users: ${docs.length}`);
