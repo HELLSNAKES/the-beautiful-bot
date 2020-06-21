@@ -96,3 +96,19 @@ export function getServer(serverType : string, getIndex = false) : string {
 	if (serverType == '2') return 'akatsuki';
 	return '-1';
 }
+
+export function getDifficultyName(ruleset : number, stars : number) {
+	if (stars < 2) {
+		return'easy';
+	} else if (stars < 2.7) {
+		return'normal';
+	} else if (stars < 4) {
+		return'hard';
+	} else if (stars < 5.3) {
+		return'insane';
+	} else if (stars < 6.5) {
+		return'expert';
+	} else {
+		return'extra';
+	}
+}

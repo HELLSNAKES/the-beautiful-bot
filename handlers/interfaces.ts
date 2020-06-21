@@ -42,7 +42,9 @@ export interface IDBDocument {
 	discordID?: string,
 	osuUsername?: string,
 	serverID?: string,
-	prefixOverwrite?: string
+	prefixOverwrite?: string,
+	lastChecked?: number,
+	mapFeedChannelID?: string
 }
 
 export interface ICommand {

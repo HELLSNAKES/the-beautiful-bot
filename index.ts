@@ -13,20 +13,19 @@ const client = new Discord.Client();
 const parser = require('./handlers/parser');
 const fs = require('fs');
 
+const mapFeedRate = 180000; // 180000 = 3 min in milliseconds
 const lastUpdated = new Date(1591828100646);
 const distanceThresholdAbsolute = 0.5;
 
 export function preCache() {
-	database.read('users', {}, (docs) => { 
+	database.read('users', {}, {}, (docs) => { 
 		cache.set('users', docs).then(() => {
 			console.log('PRE CACHE : USERS COLLECTION');
-			database.read('servers', {}, (docs) => { 
+			database.read('servers', {}, {}, (docs) => { 
 				cache.set('servers', docs).then(() => {console.log('PRE CACHE : SERVERS COLLECTION');});
 			});
 		});
 	});
-
-	
 }
 
 preCache();
@@ -50,6 +49,11 @@ client.on('ready', () => {
 		});
 		counter = (counter + 1) % messages.length;
 	}, 300000);
+
+	// map feed
+	setInterval(() => {
+		require('./commands/mapfeed').execute(client);
+	}, mapFeedRate);
 });
 
 client.commands = new Discord.Collection();
