@@ -100,7 +100,7 @@ export function write(collectionName: string, writeObject: IDBDocument, {useCach
 	});
 }
 
-export function update(collectionName: string, findObject: IDBDocument, setObject: IDBDocument, {useCache = true, noLogs = false}, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
+export function update(collectionName: string, findObject: IDBDocument, setObject: IDBDocument, {useCache = true, noLogs = false, unset = false}, callback: (results: Array<IDBDocument>, err: any) => void = (): void => { }): void {
 	MongoClient.connect(process.env.dbURI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
@@ -114,9 +114,17 @@ export function update(collectionName: string, findObject: IDBDocument, setObjec
 
 		const collection = db.collection(collectionName);
 
-		collection.updateOne(findObject, {
+		var updateOperation : any = {
 			$set: setObject
-		}, function (err: any, result: any) {
+		};
+
+		if (unset) {
+			updateOperation = {
+				$unset: setObject
+			};
+		}
+
+		collection.updateOne(findObject, updateOperation, function (err: any, result: any) {
 			if (err) {
 				if (!noLogs) console.log(`FAILED TO UPDATE : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
 				callback([], err);
