@@ -106,6 +106,9 @@ const otherArgs: Array<IArgument> = [{
 }, {
 	name: 'Action',
 	description: '`set [prefix]`: Overwrite the default or current set prefix with the specified prefix\n`reset`: Reset the bot\'s prefix to the default prefix (`$`)\n`show`: Show the current prefix of the bot for current server'
+}, {
+	name: 'Action ',
+	description: '`set`: Will set the current channel as a map feed channel\n`remove`: Disable the map feed on the current channel'
 }
 ];
 

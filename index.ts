@@ -52,7 +52,7 @@ client.on('ready', () => {
 
 	// map feed
 	setInterval(() => {
-		require('./commands/mapfeed').execute(client);
+		require('./commands/mapfeed').sendFeed(client);
 	}, mapFeedRate);
 });
 
@@ -66,26 +66,29 @@ for (let i of commandFiles) {
 
 
 client.on('message', async (msg: Message) => {
+	
+	if (msg.author.bot) return;
+	
+	if (msg.content === 'bot you alive?') {
+		msg.reply('**YES!!!**');
+	} else if (msg.content === 'good bot') {
+		msg.reply('<:heart:' + 615531857253105664 + '>');
+	} else if (msg.content.includes('osu.ppy.sh/beatmapsets') || msg.content.includes('osu.ppy.sh/b') || msg.content.includes('osu.ppy.sh/s')) {
+		require('./commands/url').beatmapCardFromLink(msg);
+	} else if (parser.userURL(msg.content).success) {
+		require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
+	} else if (msg.attachments.size > 0 && msg.attachments.first().filename.endsWith('.osr')) {
+		require('./commands/replay').execute(client, msg, msg.attachments.first().url);
+	}
+	
 	var prefix = process.env.prefix || '$';
 	database.read('servers', { serverID: msg.guild.id }, {}, (docs) => {
 		if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
-
-		if (msg.author.bot) return;
+		
 		if (msg.content == `<@!${client.user.id}>`) require('./commands/help').execute(client, msg, '', prefix);
-
-		if (msg.content === 'bot you alive?') {
-			msg.reply('**YES!!!**');
-		} else if (msg.content === 'good bot') {
-			msg.reply('<:heart:' + 615531857253105664 + '>');
-		} else if (msg.content.includes('osu.ppy.sh/beatmapsets') || msg.content.includes('osu.ppy.sh/b') || msg.content.includes('osu.ppy.sh/s')) {
-			require('./commands/url').beatmapCardFromLink(msg);
-		} else if (parser.userURL(msg.content).success) {
-			require('./commands/osu').requestData(msg, parser.userURL(msg.content).userId);
-		} else if (msg.attachments.size > 0 && msg.attachments.first().filename.endsWith('.osr')) {
-			require('./commands/replay').execute(client, msg, msg.attachments.first().url);
-		}
-
+		
 		if (!msg.content.startsWith(prefix)) return;
+		
 		let args = msg.content.slice(prefix.length).trim().split(/ +/);
 		let cmd = args.shift()!.toLowerCase();
 
@@ -130,6 +133,8 @@ client.on('message', async (msg: Message) => {
 			client.commands.get('flush').execute(msg);
 		} else if (cmd == 'invite') {
 			client.commands.get('invite').execute(msg);
+		} else if (cmd == 'mapfeed') {
+			client.commands.get('mapfeed').execute(msg, args);
 		}
 		else {
 			var commands: Array<string> = [];

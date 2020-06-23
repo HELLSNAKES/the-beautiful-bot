@@ -1,10 +1,49 @@
 import * as database from '../handlers/database';
 import * as error from '../handlers/error';
 import * as score from '../handlers/score';
+import * as argument from '../handlers/argument';
+
+import { Message } from 'discord.js';
 
 const request = require('request');
 
-function execute(client : any) {
+function execute(msg : Message, args : Array<string>) {
+
+	if (!msg.member.hasPermission('ADMINISTRATOR')) {
+		msg.channel.send(':red_circle: **User does not have administrator permissions**\nYou must have adminstrator permissions to be able to set or remove this channel\'s map feed');
+		return;
+	}
+
+	if (args[0] == 'set') {
+
+		database.read('servers', {serverID: msg.guild.id}, {}, (docs) => {
+			if (docs.length == 0 || docs[0].mapFeedChannelID == undefined) {
+				database.write('servers', { serverID: msg.guild.id, mapFeedChannelID: msg.channel.id }, {}, () => {
+					msg.channel.send(':green_circle: **The map feed has been successfully set  to this channel**');
+				});
+			} else {
+				database.update('servers', {serverID: msg.guild.id}, {mapFeedChannelID: msg.channel.id}, {}, () => {
+					msg.channel.send(':green_circle: **The map feed has been successfully updated to this channel**');
+				});
+			}
+		});
+	} else if (args[0] == 'remove') {
+		
+		database.read('servers', {serverID: msg.guild.id}, {}, (docs) => {
+			if (docs.length == 0) {
+				msg.channel.send(':yellow_circle: **The map feed cannot be removed from a channel with no map feed**');
+				return;
+			}
+			database.update('servers', {serverID: msg.guild.id}, {mapFeedChannelID: ''}, { unset: true}, () => {
+				msg.channel.send(':green_circle: **The map feed has been successfully removed from this channel**');
+			});
+		});
+	} else {
+		msg.channel.send(`:red_circle: **\`${args[0]}\` is not a valid option.**\nUse \`$help mapfeed\` to see available options`);
+	}
+}
+
+function sendFeed(client : any) {
 	database.read('utility', {}, {useCache: false, noLogs: true}, (docs : any, err : Error) => {
 		if (err) {
 			error.unexpectedError(err, 'Retriving lastChecked from the database');
@@ -69,5 +108,11 @@ function execute(client : any) {
 }
 
 module.exports = {
+	name: 'mapfeed',
+	description: 'Add or remove a map feed to the current channel',
+	group: 'osu',
+	arguments: argument.getOtherArgumentDetails(['Action ']),
+	
+	sendFeed: sendFeed,
 	execute: execute
 };
