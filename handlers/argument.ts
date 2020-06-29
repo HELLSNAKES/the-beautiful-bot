@@ -201,7 +201,8 @@ export function parseOjsama(args: string): IOjsamaOptions {
 		mods: '',
 		accuracy: 100,
 		combo: 0,
-		misses: 0
+		misses: 0,
+		ppv3: false
 	};
 	let argv = args.split(' ');
 
@@ -214,6 +215,8 @@ export function parseOjsama(args: string): IOjsamaOptions {
 			output.combo = parseInt(argv[i]);
 		} else if (argv[i].endsWith('m')) {
 			output.misses = parseInt(argv[i]);
+		} else if (argv[i] == 'ppv3') {
+			output.ppv3 = true;
 		}
 	}
 

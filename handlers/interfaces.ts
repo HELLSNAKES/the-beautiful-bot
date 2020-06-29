@@ -15,7 +15,8 @@ export interface IOjsamaOptions {
 	accuracy?: number,
 	combo?: number,
 	misses?: number,
-	mode?: number
+	mode?: number,
+	ppv3?: boolean
 }
 
 export interface IArgument {
