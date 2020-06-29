@@ -89,6 +89,11 @@ const args: Array<IArgument> = [{
 	aliases: ['passonly','pass','passes','onlypass','onlypasses','po'],
 	isSwitch: true,
 	default: false,
+}, {
+	name: 'ppv3',
+	description: 'Convert the pp values to the new calculation',
+	isSwitch: true,
+	default: false
 }];
 
 const otherArgs: Array<IArgument> = [{

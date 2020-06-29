@@ -4,6 +4,7 @@
 import { IOjsamaOptions } from './interfaces';
 
 import * as mods from './mods';
+import * as error from '../handlers/error';
 
 const ojsama = require('ojsama');
 const request = require('request');
@@ -53,7 +54,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 					pp: Math.floor(values[0].pp * 100) / 100,
 					ppFC: values[1].pp,
 				});
-			});
+			}).catch((err) => {error.unexpectedError(err, `pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
 
 		} else {
 			parser.feed(body.toString());

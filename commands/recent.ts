@@ -153,7 +153,8 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				accuracy: object.accuracy,
 				combo: parseInt(object.maxcombo),
 				misses: parseInt(object.countmiss),
-				mode: options.mode
+				mode: options.mode,
+				ppv3: options.ppv3
 			}, (json) => {
 				object.pp = object.pp || json.pp;
 				object.calculated_difficulty = json.stars;

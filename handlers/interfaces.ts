@@ -5,6 +5,7 @@ export interface IOptions {
 	relax?: boolean,
 	mods?: [boolean, number],
 	passesonly?: boolean,
+	ppv3?: boolean, 
 	error: boolean,
 	[index: string] : any
 	
