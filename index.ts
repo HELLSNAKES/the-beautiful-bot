@@ -138,7 +138,7 @@ client.on('message', async (msg: Message) => {
 		}
 		else {
 			var commands: Array<string> = [];
-			client.commands.forEach((command: any) => { if (command.name != undefined) commands.push(command.name); });
+			client.commands.forEach((command: any) => { if (command.name != undefined) commands.push(command.name); if (command.aliases != undefined) commands = commands.concat(command.aliases); });
 			var bestMatch = levenshtein.getBestMatch(commands, cmd);
 			var distanceThresholdRelative = Math.floor(cmd.length * (1 - distanceThresholdAbsolute));
 			if (bestMatch.distance <= distanceThresholdRelative) {
