@@ -18,6 +18,10 @@ export function getAccuracy(ruleset: number, n300: number | string, n100: number
 	n100 = Number(n100);
 	n50 = Number(n50);
 	nmiss = Number(nmiss);
+	
+	if (isNaN(n300) || isNaN(n100) ||isNaN(n50) || isNaN(nmiss) || isNaN(nkatu) || isNaN(ngeki)) {
+		return -1;	
+	}
 
 	if (ruleset == 0) {
 		return Math.round((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 10000) / 100;
@@ -37,6 +41,10 @@ export function getRank(ruleset: number, hidden: boolean, n300: number | string,
 	n100 = Number(n100);
 	n50 = Number(n50);
 	nmiss = Number(nmiss);
+
+	if (isNaN(n300) || isNaN(n100) ||isNaN(n50) || isNaN(nmiss)) {
+		return '-';	
+	}
 
 	var percentage300 = (n300 / (n300 + n100 + n50 + nmiss));
 	var percentage50 = (n50 / (n300 + n100 + n50 + nmiss));
@@ -63,7 +71,7 @@ export function getRank(ruleset: number, hidden: boolean, n300: number | string,
 		return 'f';
 	}
 
-	return '-1';
+	return '-';
 }
 
 export function getRuleset(ruleset: string, getIndex = false): string {
