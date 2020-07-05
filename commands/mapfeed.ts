@@ -3,7 +3,7 @@ import * as error from '../handlers/error';
 import * as score from '../handlers/score';
 import * as argument from '../handlers/argument';
 
-import { Message } from 'discord.js';
+import { Message, Emoji } from 'discord.js';
 
 const request = require('request');
 
@@ -63,7 +63,7 @@ function sendFeed(client : any) {
 			}, (err : any, res : any, body : any) => {
 				// filter plays that are older than lastChecked
 				body = body.beatmapsets.filter((x : any) => new Date(x.ranked_date).getTime() > lastChecked);
-			
+
 				// Cut down the size of the array to 5 to prevent the bot from spamming maps after going online
 				if (body.length >	 5) {
 					body = body.slice(0, 5);
@@ -74,10 +74,12 @@ function sendFeed(client : any) {
 				
 				for (var i = 0; i < docs.length; i++) {
 					for (var j = 0; j < body.length; j++) {
+						let status = client.emojis.find((emoji : Emoji) => emoji.name === 'status_' + body[j].ranked);
+						
 						const embed = {
 							'title': `${body[j].artist} - ${body[j].title}`,
 							'url': `https://osu.ppy.sh/s/${body[j].id}`,
-							'description': `${body[j].status != 'ranked' ? body[j].status != 'loved' ? ':white_check_mark: approved' : ':sparkling_heart: loved' : ':sparkles: Ranked' }\nBPM: \`${body[j].bpm}\``,
+							'description': `${status} ${body[j].status != 'ranked' ? body[j].status != 'loved' ? 'Approved' : 'Loved' : 'Ranked' }\nBPM: \`${body[j].bpm}\``,
 							'image': {
 								'url': body[j].covers['cover@2x']
 							},
