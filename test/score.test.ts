@@ -8,7 +8,7 @@ test('should test for accuracy calculation (osu ruleset)', () => {
 	expect(score.getAccuracy(0,783,15,0,5)).toBe(98.13); // A
 	expect(score.getAccuracy(0,1134,190,15,58)).toBe(85.89); // B
 	expect(score.getAccuracy(0,1769,460,125,88)).toBe(79.57); // C
-	expect(score.getAccuracy(0,2,4,4,8)).toBe(22.22); // D (Extremely Extremely low acc)
+	expect(score.getAccuracy(0,2,4,4,8)).toBe(22.22); // D (low acc)
 });
 
 test('should test for accuracy calculation (taiko ruleset)', () => {
@@ -17,7 +17,7 @@ test('should test for accuracy calculation (taiko ruleset)', () => {
 	expect(score.getAccuracy(1,7263,319,0,74)).toBe(96.95); // A
 	expect(score.getAccuracy(1,1371,144,0,21)).toBe(93.95); // B
 	expect(score.getAccuracy(1,2528,576,0,403)).toBe(80.30); // C
-	expect(score.getAccuracy(1,7,7,0,141)).toBe(6.77); // D (Extremely Extremely low acc)
+	expect(score.getAccuracy(1,7,7,0,141)).toBe(6.77); // D (low acc)
 });
 
 test('should test for accuracy calculation (catch ruleset)', () => {
@@ -29,14 +29,14 @@ test('should test for accuracy calculation (catch ruleset)', () => {
 	expect(score.getAccuracy(2,406,7,45,1772,245)).toBe(18.51); // D (low acc)
 });
 
-// test('should test for accuracy calculation (mania ruleset)', () => {
-// 	expect(score.getAccuracy(3,387,0,0,0,38,349)).toBe(100); // SS
-// 	expect(score.getAccuracy(3,691,264,48,20,0)).toBe(98.11); // S
-// 	expect(score.getAccuracy(3,690, 30, 269 ,25, 0)).toBe(94.46); // A
-// 	expect(score.getAccuracy(3,730,27,142,64, 0)).toBe(90.90); // B
-// 	expect(score.getAccuracy(3,724, 0, 207, 115, 0)).toBe(86.77); // C
-// 	expect(score.getAccuracy(3,480,46,284,156,0)).toBe(74.04); // D (low acc)
-// });
+test('should test for accuracy calculation (mania ruleset)', () => {
+	expect(score.getAccuracy(3,53,0,0,0,0,1347)).toBe(100); // SS
+	expect(score.getAccuracy(3,582,13,2,7,89, 631)).toBe(96.45); // S
+	expect(score.getAccuracy(3,1103, 56, 6 ,87, 339, 1854)).toBe(92.97); // A
+	expect(score.getAccuracy(3,850,93,14,90, 282, 1215)).toBe(89.87); // B
+	expect(score.getAccuracy(3,99, 14, 17, 30, 66, 73)).toBe(74.75); // C
+	expect(score.getAccuracy(3,513,611,119,1152,777,505)).toBe(47.85); // D (low acc)
+});
 
 test('should test for string input', () => {
 	expect(score.getAccuracy(0,'2838', 275, '43','45')).toBe(91.75);
