@@ -20,14 +20,14 @@ test('should test for accuracy calculation (taiko ruleset)', () => {
 	expect(score.getAccuracy(1,7,7,0,141)).toBe(6.77); // D (Extremely Extremely low acc)
 });
 
-// test('should test for accuracy calculation (catch ruleset)', () => {
-// 	expect(score.getAccuracy(2,233,26,116,0,0)).toBe(100); // SS
-// 	expect(score.getAccuracy(2,691,0,241,13,0)).toBe(98.11); // S
-// 	expect(score.getAccuracy(2,690, 30, 269 ,25, 0)).toBe(94.46); // A
-// 	expect(score.getAccuracy(0,730,27,142,64, 0)).toBe(90.90); // B
-// 	expect(score.getAccuracy(0,724, 0, 207, 115, 0)).toBe(86.77); // C
-// 	expect(score.getAccuracy(2,480,46,284,156,0)).toBe(74.04); // D (low acc)
-// });
+test('should test for accuracy calculation (catch ruleset)', () => {
+	expect(score.getAccuracy(2,252,38,148,0,0)).toBe(100); // SS
+	expect(score.getAccuracy(2,1089,6,196,15,9)).toBe(98.17); // S
+	expect(score.getAccuracy(2,1618, 21, 507 ,55, 44)).toBe(95.59); // A
+	expect(score.getAccuracy(2,1144,261,249,141, 22)).toBe(91.03); // B
+	expect(score.getAccuracy(2,1440, 21, 467, 233, 84)).toBe(85.88); // C
+	expect(score.getAccuracy(2,406,7,45,1772,245)).toBe(18.51); // D (low acc)
+});
 
 // test('should test for accuracy calculation (mania ruleset)', () => {
 // 	expect(score.getAccuracy(3,387,0,0,0,38,349)).toBe(100); // SS
