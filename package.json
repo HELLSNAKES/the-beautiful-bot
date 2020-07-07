@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "nodemon --ignore cache/ index.ts",
     "start": "node index.js",
-    "test": "jest"
+    "test": "jest --setupFiles dotenv/config"
   },
   "author": "Moorad",
   "license": "MIT",
@@ -33,16 +33,5 @@
     "nodemon": "^2.0.2",
     "ts-jest": "^26.1.1",
     "typescript": "^3.9.6"
-  },
-  "jest": {
-    "transform": {
-      ".(ts|tsx)": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ]
   }
 }
