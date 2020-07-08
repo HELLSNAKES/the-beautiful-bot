@@ -14,11 +14,12 @@ export function userURL(content: string): any {
 		userId: null,
 		success: true
 	};
-	var pattern = /(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\/[0-9A-Za-z_!? -\[\]]+/;
+	var pattern = /(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\/[0-9A-Za-z_!\?\-\[\]%]+/;
 	var patternWithoutDigits = /(http(s)?:\/\/)?osu.ppy.sh\/(users|u)\//;
 	if (pattern.test(content)) {
 		var extractedURL = pattern.exec(content)![0];
 		returnObject.userId = extractedURL.match(pattern)![0].replace(patternWithoutDigits, '');
+		if (returnObject.userId.includes('/')) returnObject.userId =  returnObject.userId.slice(0,returnObject.userId.indexOf('/')); 
 	} else {
 		returnObject.success = false;
 	}
