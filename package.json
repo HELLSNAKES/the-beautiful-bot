@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "nodemon --ignore cache/ index.ts",
     "start": "node index.js",
-    "test": "jest --setupFiles dotenv/config"
+    "test": "jest"
   },
   "author": "Moorad",
   "license": "MIT",
