@@ -35,7 +35,7 @@ export function beatmapURL(url : string) : any {
 		valid: false
 	};
 	var patternStart = /(http(s)?:\/\/)?osu.ppy.sh\//;
-	// var patterns = [/beatmapsets\/\d+#[a-zA-Z]+\/\d+/g, /(beatmapsets|s)\/\d+/g, /b\/\d+/g]; // Disabled because beatmapset ID is required which means the function has to become asynchronous
+	// var patterns = [/beatmapsets\/\d+#[a-zA-Z]+\/\d+/g, /(beatmapsets|s)\/\d+/g, /b\/\d+/g]; // Disabled because beatmap ID is required which means the function has to become asynchronous
 	var patterns = [/beatmapsets\/\d+#[a-zA-Z]+\/\d+/g,/b\/\d+/g];
 
 	// URL cleaning
