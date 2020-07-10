@@ -67,7 +67,7 @@ for (let i of commandFiles) {
 
 client.on('message', async (msg: Message) => {
 	
-	if (msg.author.bot) return;
+	if ((msg.author.bot && process.env.test == '0') || msg.author.id == client.user.id) return;
 	
 	if (msg.content === 'bot you alive?') {
 		msg.reply('**YES!!!**');
