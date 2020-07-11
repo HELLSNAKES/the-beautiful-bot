@@ -18,10 +18,10 @@ const lastUpdated = new Date(1591828100646);
 const distanceThresholdAbsolute = 0.5;
 
 export function preCache() {
-	database.read('users', {}, {}, (docs) => { 
+	database.read('users', {}, { noLogs: true}, (docs) => { 
 		cache.set('users', docs).then(() => {
 			console.log('PRE CACHE : USERS COLLECTION');
-			database.read('servers', {}, {}, (docs) => { 
+			database.read('servers', {}, { noLogs: true }, (docs) => { 
 				cache.set('servers', docs).then(() => {console.log('PRE CACHE : SERVERS COLLECTION');});
 			});
 		});
