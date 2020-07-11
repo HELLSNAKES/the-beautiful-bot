@@ -91,3 +91,75 @@ test('should test for random combination of mods (string → int)', () => {
 	expect(mods.toValue('No Mod')).toBe(0);
 	expect(mods.toValue('SDNCFL')).toBe(1632);
 });
+
+test('should test for .has with a single find mod (string & string)', () => {
+	expect(mods.has('HDDT', 'HD')).toBe(true);
+	expect(mods.has('NC', 'NC')).toBe(true);
+	expect(mods.has('4kEZ', '4k')).toBe(true);
+	expect(mods.has('FLHDDTHR', 'HR')).toBe(true);
+	expect(mods.has('V24kHDDT', '4k')).toBe(true);
+	expect(mods.has('NFSDNCHD', 'SD')).toBe(true);
+	expect(mods.has('NFEZTDHDHRSDDTRXHTNCFLAOSOAPPF4K5K6K7K8KFIRDCN9KCO1K3K2KV2MI', 'DT')).toBe(true);
+
+	expect(mods.has('FLHDDT', 'HR')).toBe(false);
+	expect(mods.has('NCHD', 'DT')).toBe(false);
+	expect(mods.has('HDDTHRV2', '4k')).toBe(false);
+	expect(mods.has('SDHDHRRX', 'FL')).toBe(false);
+	expect(mods.has('NC', 'HR')).toBe(false);
+	expect(mods.has('V2HDDT', 'PF')).toBe(false);
+	expect(mods.has('NFEZTDHDHRRXNCFLAOSOAPPF4K5K6K7K8KFIRDCN9KCO1K3K2KV2MI', 'HT')).toBe(false);
+});
+
+test('should test for .has with a multiple find mods (string & string)', () => {
+	expect(mods.has('HDDTHR', 'HDHR')).toBe(true);
+	expect(mods.has('FLDTHDRX', 'RXFL')).toBe(true);
+	expect(mods.has('PFHD', 'PFHD')).toBe(true);
+	expect(mods.has('FLNCV2', 'V2FL')).toBe(true);
+	expect(mods.has('V24kHDDT', '4kV2')).toBe(true);
+	expect(mods.has('DTHDFLV2SD', 'SDDTHDFL')).toBe(true);
+	expect(mods.has('NFEZTDHDHRSDDTRXHTNCFLAOSOAPPF4K5K6K7K8KFIRDCN9KCO1K3K2KV2MI', 'TDHDFLDTHRNF')).toBe(true);
+
+	expect(mods.has('HDDTHR', 'HRFL')).toBe(false);
+	expect(mods.has('DTTDFL', 'FLHD')).toBe(false);
+	expect(mods.has('V24kMIFL', '9k')).toBe(false);
+	expect(mods.has('V28kHDNC', 'HD9k')).toBe(false);
+	expect(mods.has('NC', 'HRNC')).toBe(false);
+	expect(mods.has('V2HDDT', 'PFHD')).toBe(false);
+	expect(mods.has('NFEZTDHDHRSDDTRXNCFLAOSOAPPF4K5K6K7K8KFIRDCN9KCO1K3K2KV2MI', 'HTHDEZNFPF')).toBe(false);
+});
+
+test('should test for .has with a single find mod (int & string)', () => {
+	expect(mods.has(72, 'HD')).toBe(true);
+	expect(mods.has(576, 'NC')).toBe(true);
+	expect(mods.has('32768', '4k')).toBe(true);
+	expect(mods.has(1112, 'HR')).toBe(true);
+	expect(mods.has('536903752', '4k')).toBe(true);
+	expect(mods.has(617, 'SD')).toBe(true);
+	expect(mods.has(2139094783, 'DT')).toBe(true);
+
+	expect(mods.has(1096, 'HR')).toBe(false);
+	// expect(mods.has(584, 'DT')).toBe(false); // debatable implementation but this is true for now
+	expect(mods.has('536871000', '4k')).toBe(false);
+	expect(mods.has('184', 'FL')).toBe(false);
+	expect(mods.has(576, 'HR')).toBe(false);
+	expect(mods.has('536870984', 'PF')).toBe(false);
+	expect(mods.has(2139094783, 'HT')).toBe(false);
+});
+
+test('should test for .has with a multiple find mods (int & string)', () => {
+	expect(mods.has(88, 'HDHR')).toBe(true);
+	expect(mods.has(1224, 'RXFL')).toBe(true);
+	expect(mods.has(16424, 'PFHD')).toBe(true);
+	expect(mods.has(536872512, 'V2FL')).toBe(true);
+	expect(mods.has(536903752, '4kV2')).toBe(true);
+	expect(mods.has(536872040, 'SDDTHDFL')).toBe(true);
+	expect(mods.has(2139094783, 'TDHDFLDTHRNF')).toBe(true);
+
+	expect(mods.has(88, 'HRFL')).toBe(false);
+	expect(mods.has(1092, 'FLHD')).toBe(false);
+	expect(mods.has(1610646528, '9k')).toBe(false);
+	expect(mods.has(537395784, 'HD9k')).toBe(false);
+	expect(mods.has(576, 'HRNC')).toBe(false);
+	expect(mods.has(536870984, 'PFHD')).toBe(false);
+	expect(mods.has(2139094783, 'HTHDEZNFPF')).toBe(false);
+});

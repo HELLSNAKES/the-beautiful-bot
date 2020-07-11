@@ -9,6 +9,7 @@ export function toString(number: number, returnNoMod = true): string {
 	}
 	let mods = [];
 	for (let i = 0; i < modsNames.length; i++) {
+		if (number == 0) break;
 		if (number >= modsValues[i]) {
 			number -= modsValues[i];
 			mods.push(modsNames[i]);
@@ -32,6 +33,15 @@ export function toValue(value: string): number {
 	return (output);
 }
 
+export function has(mods : string | number, find : string) {
+	if (typeof mods == 'string' && isNaN(Number(mods))) {
+		// Split "find" to a collection of two character segments and check whether every "find" segment is in "mods"
+		return find.match(/.{1,2}/g)!.every((x : string) => mods.includes(x));
+	} else {
+		// Use the AND bitwise operator to check if the bits in find are in mods and check if the value is truthy
+		return find.match(/.{1,2}/g)!.every((x) => !!(Number(mods) & toValue(x)));
+	}
+}
 
 export function getScoreMultiplier(mods: string, mode: number): number {
 	var scoreMultiplier = 1;
