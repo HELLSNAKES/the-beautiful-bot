@@ -8,7 +8,7 @@ import * as colours from '../handlers/colours';
 import * as format from '../handlers/format';
 import * as argument from '../handlers/argument';
 
-const ppjs = require('../handlers/pp.js/index.js');
+const tbbpp = require('tbbpp');
 const request = require('request');
 const Canvas = require('canvas');
 const fs = require('fs');
@@ -82,7 +82,7 @@ function generateBeatmap(msg: Message, data: any) {
 	request(`https://osu.ppy.sh/osu/${data.beatmap.id}`, {
 		encoding: null
 	}, (err: any, res: any, osuBeatmapFile: any) => {
-		var osuContent  = ppjs.processContent(osuBeatmapFile);
+		var osuContent  = tbbpp.processContent(osuBeatmapFile);
 
 		colours.getColours(url, async function (colour) {
 			let colourNumber = colours.toReadable(colours.toRGB(colour.foreground), colours.toRGB(colour.background));
@@ -94,9 +94,7 @@ function generateBeatmap(msg: Message, data: any) {
 			// Beatmap Image
 			let beatmapImage;
 			try {
-				beatmapImage = await Canvas.loadImage(url).catch((err: any) => {
-					error.unexpectedError(err, 'Message Content: '+ msg);
-				});
+				beatmapImage = await Canvas.loadImage(url);
 			} catch (err) {
 				beatmapImage = await Canvas.loadImage('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png').catch((err: any) => {
 					error.unexpectedError(err, 'Message Content: '+ msg);

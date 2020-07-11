@@ -1,27 +1,39 @@
 'use strict';
 
 import { Client, Message } from 'discord.js';
+import { IURLParserBeatmap } from './interfaces';
 
-export function getMaps(client: Client, msg: Message, callback: (client: Client, msg: Message, url: string, id: string) => void = (): void => { }): void {
+import * as parser from './parser';
+
+export function getMaps(client: Client, msg: Message, callback: (client: Client, msg: Message, parserData: IURLParserBeatmap, id: string) => void = (): void => { }): void {
 	let done = false;
-	let regex = new RegExp('https://osu.ppy.sh/beatmapsets/[0-9]+#osu/[0-9]+', 'g');
 	let count = 0;
 	msg.channel.fetchMessages()
 		.then(messages => messages.forEach((message) => {
 			if (done) return;
 
-			if (regex.test(message.content)) {
-				callback(client, msg, message.content, msg.author.id);
+			var URLData = parser.beatmapURL(message.content);
+			if (URLData.valid) {
+				callback(client, msg, URLData, msg.author.id);
 				done = true;
 				return;
 			}
 
 			if (message.embeds.length > 0) {
 				message.embeds.forEach((x) => {
-					if (x.author != null && regex.test(x.author.url)) {
-						callback(client, msg, x.author.url, msg.author.id);
-						done = true;
-						return;
+					if (x.author != null) {
+						URLData = parser.beatmapURL(x.author.url);
+						if (URLData.valid) {
+
+							if (x.author.name.startsWith('(osu)')) URLData.ruleset = 0;
+							else if (x.author.name.startsWith('(Taiko)')) URLData.ruleset = 1;
+							else if (x.author.name.startsWith('(Catch)')) URLData.ruleset = 2;
+							else if (x.author.name.startsWith('(Mania)')) URLData.ruleset = 3;
+
+							callback(client, msg, URLData, msg.author.id);
+							done = true;
+							return;
+						}
 					}
 				});
 			}

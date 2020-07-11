@@ -153,7 +153,8 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				accuracy: object.accuracy,
 				combo: parseInt(object.maxcombo),
 				misses: parseInt(object.countmiss),
-				mode: options.mode
+				mode: options.mode,
+				ppv3: options.ppv3
 			}, (json) => {
 				object.pp = object.pp || json.pp;
 				object.calculated_difficulty = json.stars;
@@ -190,6 +191,8 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	} else if (body.options.type == 2) {
 		userPictureUrl = `https://a.akatsuki.pw/${body.user_id}?${Date.now().toString()}`;
 	}
+
+	if (body.approved < 1) body.approved = 0;
 
 	let grade = client.emojis.find(emoji => emoji.name === 'rank_' + body.rank.toLowerCase());
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
@@ -243,7 +246,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 		embed
 	});
 
-	if (body.otherComparePlays.length > 0) {
+	if (body.otherComparePlays != undefined && body.otherComparePlays.length > 0) {
 		var otherPlaysString = 'A';
 
 		for (var i = 0; i < body.otherComparePlays.length; i++) {

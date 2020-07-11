@@ -8,7 +8,9 @@ import * as error from './error';
 import * as mods from './mods';
 import * as database from './database';
 import * as score from '../handlers/score';
-// For supported properties look at IArguments in ./interfaces.ts
+import * as levenshtein from '../handlers/levenshtein';
+
+const distanceThresholdAbsolute = 0.5;
 
 const args: Array<IArgument> = [{
 	name: 'previous',
@@ -89,6 +91,11 @@ const args: Array<IArgument> = [{
 	aliases: ['passonly','pass','passes','onlypass','onlypasses','po'],
 	isSwitch: true,
 	default: false,
+}, {
+	name: 'ppv3',
+	description: 'Convert the pp values to the new calculation',
+	isSwitch: true,
+	default: false
 }];
 
 const otherArgs: Array<IArgument> = [{
@@ -106,6 +113,9 @@ const otherArgs: Array<IArgument> = [{
 }, {
 	name: 'Action',
 	description: '`set [prefix]`: Overwrite the default or current set prefix with the specified prefix\n`reset`: Reset the bot\'s prefix to the default prefix (`$`)\n`show`: Show the current prefix of the bot for current server'
+}, {
+	name: 'Action ',
+	description: '`set`: Will set the current channel as a map feed channel\n`remove`: Disable the map feed on the current channel'
 }
 ];
 
@@ -164,13 +174,13 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 				}
 
 				if (i == passedArgs.length - 1 || passedArgs[i + 1].startsWith('-')) {
-					msg.channel.send(`:red_circle: \`-${args[j].name}\` must have a value after it\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
+					msg.channel.send(`:red_circle: \`-${args[j].name}\` must have a value after it`);
 					options.error = true;
 					return options;
 				}
 
 				if (args[j].validator && !args[j].validator!(passedArgs[i + 1])) {
-					msg.channel.send(`:red_circle: \`${passedArgs[i + 1]}\` is an invalid value after \`${passedArgs[i]}\`\n\`-${args[j].name}\` only accepts ${args[j].validatorText}\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
+					msg.channel.send(`:red_circle: \`${passedArgs[i + 1]}\` is an invalid value after \`${passedArgs[i]}\`\n\`-${args[j].name}\` only accepts ${args[j].validatorText}`);
 					options.error = true;
 					return options;
 				}
@@ -185,7 +195,23 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 		}
 
 		if (!found) {
-			msg.channel.send(`:red_circle: \`${passedArgs[i]}\` is an unrecognised argument\n(If you believe this is a bug or have a suggestion use \`$report [description of bug/suggestion]\`)`);
+			var string = `:red_circle: \`${passedArgs[i]}\` is an unrecognised argument\n`;
+			var argsNames: Array<string> = [];
+			for (var k = 0; k < args.length; k++) {
+				argsNames.push(args[k].name);
+				if (args[k].aliases) {
+					argsNames = argsNames.concat(args[k].aliases!);
+				}
+			}
+			
+			passedArgs[i] =  passedArgs[i].slice(1);
+
+			var bestMatch = levenshtein.getBestMatch(argsNames, passedArgs[i]);
+			var distanceThresholdRelative = Math.floor(passedArgs[i].length * (1 - distanceThresholdAbsolute));
+			if (bestMatch.distance <= distanceThresholdRelative) {
+				string += `**Did you mean \`-${bestMatch.string}\`?\n**"${passedArgs[i]}"  → "${bestMatch.string}" (${levenshtein.getPercentageFromDistance(passedArgs[i], bestMatch.distance)}% similarity)`;
+			}
+			msg.channel.send(string);
 			options.error = true;
 			return options;
 		}
@@ -198,7 +224,8 @@ export function parseOjsama(args: string): IOjsamaOptions {
 		mods: '',
 		accuracy: 100,
 		combo: 0,
-		misses: 0
+		misses: 0,
+		ppv3: false
 	};
 	let argv = args.split(' ');
 
@@ -211,6 +238,8 @@ export function parseOjsama(args: string): IOjsamaOptions {
 			output.combo = parseInt(argv[i]);
 		} else if (argv[i].endsWith('m')) {
 			output.misses = parseInt(argv[i]);
+		} else if (argv[i] == 'ppv3') {
+			output.ppv3 = true;
 		}
 	}
 
@@ -226,7 +255,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 		let discordID = args[0].slice(3, 21);
 		database.read('users', {
 			discordID: discordID
-		}, (docs: Array<IDBDocument>, err: any) => {
+		}, {}, (docs: Array<IDBDocument>, err: any) => {
 			if (err) {
 				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
 				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);
@@ -252,7 +281,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 	} else {
 		database.read('users', {
 			discordID: msg.author.id
-		}, (docs: Array<IDBDocument>, err: any) => {
+		}, {}, (docs: Array<IDBDocument>, err: any) => {
 			if (err) {
 				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
 				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);

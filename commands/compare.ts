@@ -1,7 +1,7 @@
 'use strict';
 
 import { Client, Message } from 'discord.js';
-import { IOptions } from '../handlers/interfaces';
+import { IOptions, IURLParserBeatmap } from '../handlers/interfaces';
 
 import * as argument from '../handlers/argument';
 import * as getMaps from '../handlers/getMap';
@@ -10,21 +10,22 @@ const request = require('request');
 const recent = require('./recent');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
-	getMaps.getMaps(client, msg, function (client, msg, url) {
+	getMaps.getMaps(client, msg, function (client, msg, URLData, id) {
 		argument.determineUser(msg, args, (username, options) => {
-			sendCompareEmbed(client, msg, url, username, options);
+			options.mode = URLData.ruleset;
+			sendCompareEmbed(client, msg, URLData, username, options);
 		});
 	});
 }
 
-function sendCompareEmbed(client: Client, msg: Message, url: string, username: string | undefined, options: IOptions) {
+function sendCompareEmbed(client: Client, msg: Message, URLData: IURLParserBeatmap, username: string | undefined, options: IOptions) {
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${username}&b=${url.slice(url.indexOf('#osu/') + 5)}`, (err: any, res: any, body: any) => {
+		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${username}&b=${URLData.beatmapID}&m=${options.mode}`, (err: any, res: any, body: any) => {
 			if (err) console.log(err);
 			
 			body = JSON.parse(body);
 
-			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${url.slice(url.indexOf('#osu/') + 5)}`, {
+			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${URLData.beatmapID}&a=1&m=${options.mode}`, {
 				json: true
 			}, (err: any, res: any, beatmapData: any) => {
 				if (err) console.log(err);

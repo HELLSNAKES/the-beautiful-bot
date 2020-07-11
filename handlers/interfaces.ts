@@ -5,6 +5,7 @@ export interface IOptions {
 	relax?: boolean,
 	mods?: [boolean, number],
 	passesonly?: boolean,
+	ppv3?: boolean, 
 	error: boolean,
 	[index: string] : any
 	
@@ -15,7 +16,8 @@ export interface IOjsamaOptions {
 	accuracy?: number,
 	combo?: number,
 	misses?: number,
-	mode?: number
+	mode?: number,
+	ppv3?: boolean
 }
 
 export interface IArgument {
@@ -42,7 +44,9 @@ export interface IDBDocument {
 	discordID?: string,
 	osuUsername?: string,
 	serverID?: string,
-	prefixOverwrite?: string
+	prefixOverwrite?: string,
+	lastChecked?: number,
+	mapFeedChannelID?: string
 }
 
 export interface ICommand {
@@ -139,4 +143,12 @@ export interface IAPIUser {
 	total_seconds_played: string,
 	pp_country_rank: string,
 	events?: any
+}
+
+export interface IURLParserBeatmap {
+	URL: string | undefined,
+	beatmapID: string | undefined,
+	beatmapsetID: string | undefined,
+	ruleset: number,
+	valid: boolean
 }

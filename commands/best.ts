@@ -107,9 +107,17 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 				continue;
 			}
 		}
-		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}`);
+		
+		var difficultyIncreasingMods = 0;
+		const modsString = mods.toString(parseInt(body[i].enabled_mods)); 
+		if (modsString.includes('EZ')) difficultyIncreasingMods += 2;
+		if (modsString.includes('HR')) difficultyIncreasingMods += 16;
+		if (modsString.includes('DT') || modsString.includes('NC')) difficultyIncreasingMods += 64;
+		if (modsString.includes('HT')) difficultyIncreasingMods += 256;
+
+		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`);
 		index.push(i);
-		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}`, {
+		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`, {
 			json: true
 		}, (err: any, res: any, beatmapData: any) => {
 			let j = index[urls.indexOf(res.request.href)];

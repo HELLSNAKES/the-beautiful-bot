@@ -4,9 +4,11 @@
 import { IOjsamaOptions } from './interfaces';
 
 import * as mods from './mods';
+import * as error from '../handlers/error';
 
 const ojsama = require('ojsama');
 const request = require('request');
+const tbbpp = require('tbbpp');
 
 export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback: (json: any) => void = (): void => { }): any {
 
@@ -16,81 +18,139 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 		url: `https://osu.ppy.sh/osu/${beatmapId}`,
 		encoding: null
 	}, (err: any, res: any, body: any) => {
-		parser.feed(body.toString());
+		if (options.ppv3) {
+			var osuContent = tbbpp.processContent(body);
+			
+			options.combo = (options.combo ? options.combo : osuContent.maxCombo);
 
-		var params: any = {
-			map: parser.map
-		};
-		if (options.mods) params.mods = options.mods;
-		if (options.accuracy) params.acc_percent = options.accuracy;
-		if (options.combo) params.combo = options.combo;
-		if (options.misses) params.nmiss = options.misses;
-		if (options.mode) params.mode = options.mode;
-		options.combo = (options.combo ? options.combo : parser.map.max_combo());
-		options.accuracy = (options.accuracy ? options.accuracy : 100);
-		options.mods = (options.mods ? options.mods : 0);
-		var output = ojsama.ppv2(params);
+			var ppv3Options : any = options;
+			ppv3Options.maxCombo = options.combo;
+			ppv3Options.countMiss = options.misses;
+			ppv3Options.accuracy = ppv3Options.accuracy / 100; 
 
-		params.nmiss = 0;
-		params.combo = parser.map.max_combo();
-		var FC = ojsama.ppv2(params);
+			var pp = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
 
-		var stats = new ojsama.std_beatmap_stats(parser.map);
-		stats = stats.with_mods(options.mods);
-		var stars = new ojsama.diff().calc({
-			map: parser.map,
-			mods: options.mods
-		});
+			ppv3Options.maxCombo = osuContent.maxCombo;
+			var ppFC = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
 
-		var jsonOutput = {
-			error: null,
-			beatmapId: beatmapId,
-			title: parser.map.title,
-			artist: parser.map.artist,
-			difficultyName: parser.map.version,
-			creator: parser.map.creator,
-			AR: Math.floor(stats.ar * 100) / 100,
-			OD: Math.floor(stats.od * 100) / 100,
-			CS: Math.floor(stats.cs * 100) / 100,
-			HP: Math.floor(stats.hp * 100) / 100,
-			stars: Math.round(stars.total * 100) / 100,
-			mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods),
-			combo: options.combo,
-			maxCombo: parser.map.max_combo(),
-			accuracy: options.accuracy,
-			totalHits: parser.map.objects.length,
-			pp: Math.floor(output.total * 100) / 100,
-			ppFC: FC.total,
-		};
+			Promise.all([pp, ppFC]).then((values : Array<any>) => {
+				callback({
+					error: null,
+					beatmapId: beatmapId,
+					title: osuContent.Title,
+					artist: osuContent.Artist,
+					difficultyName: osuContent.Version,
+					creator: osuContent.Creator,
+					AR: osuContent.ApproachRate,
+					OD: osuContent.OverallDifficulty,
+					CS: osuContent.CircleSize,
+					HP: osuContent.HPDrainRate,
+					stars: Math.round(values[0].attributes.StarRating * 100) /100,
+					mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods!),
+					combo: options.combo,
+					maxCombo: osuContent.maxCombo,
+					accuracy: (options.accuracy ?? 1) * 100,
+					totalHits: osuContent.hitObjects.length,
+					pp: Math.floor(values[0].pp * 100) / 100,
+					ppFC: values[1].pp,
+				});
+			}).catch((err) => {error.unexpectedError(err, `pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
 
-
-		callback(jsonOutput);
+		} else {
+			parser.feed(body.toString());
+	
+			var params: any = {
+				map: parser.map
+			};
+			if (options.mods) params.mods = options.mods;
+			if (options.accuracy) params.acc_percent = options.accuracy;
+			if (options.combo) params.combo = options.combo;
+			if (options.misses) params.nmiss = options.misses;
+			if (options.mode) params.mode = options.mode;
+			options.combo = (options.combo ? options.combo : parser.map.max_combo());
+			options.accuracy = (options.accuracy ? options.accuracy : 100);
+			options.mods = (options.mods ? options.mods : 0);
+			var output = ojsama.ppv2(params);
+	
+			params.nmiss = 0;
+			params.combo = parser.map.max_combo();
+			var FC = ojsama.ppv2(params);
+	
+			var stats = new ojsama.std_beatmap_stats(parser.map);
+			stats = stats.with_mods(options.mods);
+			var stars = new ojsama.diff().calc({
+				map: parser.map,
+				mods: options.mods
+			});
+	
+			var jsonOutput = {
+				error: null,
+				beatmapId: beatmapId,
+				title: parser.map.title,
+				artist: parser.map.artist,
+				difficultyName: parser.map.version,
+				creator: parser.map.creator,
+				AR: Math.floor(stats.ar * 100) / 100,
+				OD: Math.floor(stats.od * 100) / 100,
+				CS: Math.floor(stats.cs * 100) / 100,
+				HP: Math.floor(stats.hp * 100) / 100,
+				stars: Math.round(stars.total * 100) / 100,
+				mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods),
+				combo: options.combo,
+				maxCombo: parser.map.max_combo(),
+				accuracy: options.accuracy,
+				totalHits: parser.map.objects.length,
+				pp: Math.floor(output.total * 100) / 100,
+				ppFC: FC.total,
+			};
+	
+	
+			callback(jsonOutput);
+		}
 	});
 }
 
 export function calculateCatchpp(data: any): any {
-	var value = Math.pow(5 * Math.max(1, (data.diff_aim) / 0.0049) - 4, 2) / 100000;
-	var totalHits = parseInt(data.count300) + parseInt(data.count100) + parseInt(data.countmiss);
+	var difficultyrating = parseFloat(data.difficultyrating);
+	var diff_approach = parseFloat(data.diff_approach);
+	var max_combo = parseInt(data.max_combo);
+	var maxcombo = parseInt(data.maxcombo);
+	var count300 = parseInt(data.count300);
+	var count100 = parseInt(data.count100);
+	var countmiss = parseInt(data.countmiss);
 
-	var lengthBonus = 0.95 + 0.4 * Math.min(1, totalHits / 3000) + (totalHits > 3000 ? Math.log10(totalHits / 3000) * 0.5 : 0);
+	
+	var value = Math.pow(5 * Math.max(1, (difficultyrating) / 0.0049) - 4, 2) / 100000;
+	var totalHits = count300 + count100 + countmiss;
+
+	var lengthBonus = 0.95 + 0.3 * Math.min(1, totalHits / 2500) + (totalHits > 2500 ? Math.log10(totalHits / 2500) * 0.475 : 0);
 	value *= lengthBonus;
-	value *= Math.pow(0.97, data.countmiss);
+	value *= Math.pow(0.97, countmiss);
 
-	if (data.max_combo > 0) {
-		value *= Math.min(Math.pow(data.maxcombo, 0.8) / Math.pow(data.max_combo, 0.8), 1);
+	if (max_combo > 0) {
+		value *= Math.min(Math.pow(maxcombo, 0.8) / Math.pow(max_combo, 0.8), 1);
 	}
 
 	var approachRateFactor = 1;
-	if (data.diff_approach > 9) {
-		approachRateFactor += 0.1 * (data.diff_approach - 9);
-	} else if (data.diff_approach < 8) {
-		approachRateFactor += 0.025 * (8 - data.diff_approach);
+	if (diff_approach > 9) {
+		approachRateFactor += 0.1 * (diff_approach - 9);
+	} 
+	if (diff_approach > 10) {
+		approachRateFactor += 0.1 * (diff_approach - 10);
+	} else if (diff_approach < 8) {
+		approachRateFactor += 0.025 * (8 - diff_approach);
 	}
 
 	value *= approachRateFactor;
 	var enabled_mods = mods.toString(data.enabled_mods);
 	if (enabled_mods.includes('HD')) {
-		value *= 1.05 + 0.075 * (10 - Math.min(10, data.diff_approach));
+		value *= 1.05 + 0.075 * (10 - Math.min(10, diff_approach));
+
+		if (diff_approach <= 10) {
+			value *= 1.05 + 0.075 * (10 - diff_approach);
+		} else if (diff_approach > 10) {
+			value *= 1.01+ 0.04 * (11 - Math.min(11, diff_approach));
+		}
 	}
 
 	if (enabled_mods.includes('FL')) {

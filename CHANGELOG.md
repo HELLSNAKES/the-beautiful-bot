@@ -2,25 +2,60 @@
 
 The beautiful bot's Changelog :)
 
-## 1.4.0 26-05-20
+## 1.4.0 10-06-20
 
 ### Added
  - A completely new help system that is more condense, easier to read and more helpful
- - A new algorithm for parsing arguments as a results:
+ - A new algorithm for parsing arguments
  - Arguments are not longer case sensitive
  - Support for argument aliases e.g. you can use -mode now instead of only -m
- - Argument Errors are a lot more clearer than before
+ - Argument errors are a lot more clearer than before
+ - A wider support for command aliases (e.g. you can use $best, $bt and $top to show your top plays)
+ - Implemented a new error system that will automatically report errors and will tell the user if an unexpected error occur.
+ - Support for catch, taiko and mania in $best
+ - Implemented -taiko, -catch, -mania & -standard replacing -m [mode]
+ - Replay parsing. The bot can parse replay files and show a score embed
+ - Added a new -passesonly to $rs to show the most recent passed play (No failed plays)
+ - $c now will indicate whether other plays with other mod combinations are available.
+ - Implemented -mods [mod abbriviations] to $c to show a play with a different mod combination
+ - Added support for displaying bpm ranges in beatmap images
+ - URLs like https://osu.ppy.sh/b/1245003 and https://osu.ppy.sh/s/588018 and more can now be parsed.
+ - Custom prefixes
+ - Added a new status message
+ - $compare now supports taiko, catch and mania
+ - Implemented an algorithm to predict what command you meant to use when the command is not recognised
+ - Implemented failed requests in $ping
+ - Implemented database caching with read, write and update functionality
+ - Added a $flush command for flushing the cache
+ - A simple $invite command
+ - Added a few more countries to the country code list
+ - Implemented a rank feed and a new $mapfeed command
+ - Added a new -ppv3 argument to $pp and $rs to use the new delta algorithm for calculating pp rather than the current algorithm.
+ - Implemented unit testing to partial automate bot testing 
 
 ### Fixed
- -
+ - Bot not generating a beatmap image and throwing an error when the mapper does not have a profile picture set.
+ - Using an incorrect Gatari and Akatsuki usernames crashes the bot.
+ - Accuracy and star rating being slightly off in some cases (±0.01)
+ - Showing the incorrect status icon when using $rs for akatsuki and gatari users
+ - Fixed @ing the bot throws an error
+ - The bot will no longer allow you to set an invalid username
+ - $best will show the calculated difficulty with mods rather than the base difficulty
+ 
 ### Changed
- - Argument space spliting, now extra spaces are ignored e.g. "$osu -m 0  Moorad"
- - Refactored a lot of code
+ - The entire codebase has been rewritten from JavaScript to TypeScript
+ - Argument space spliting, now extra spaces are ignored e.g. "$osu -m 0    Moorad"
  - Renamed $osuset to $set, $osuset is now an alias
+ - Implemented new normalisers for gatari and akatsuki
+ - Refactored a lot of code
+ - Implemented database options to database handlers. This will allow things like disable logging, unset document properties and disable caching.
 
 ### Removed
+ - Removed pp.js submodule and used tbbpp instead
 
 ### Security
+ - Enabled strict mode on all files
+ - Fixed 7 low severity vulnerabilities in the project dependencies
 
 ## 1.3.5.2 03-04-2020
 

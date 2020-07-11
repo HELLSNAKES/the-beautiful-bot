@@ -14,7 +14,7 @@ function execute(msg: Message, args: any) {
 	args = parseInt(args[0]);
 	database.read('users', {
 		discordID: msg.author.id
-	}, (docs, err) => {
+	}, {},(docs, err) => {
 		if (err) console.log(err);
 		if (docs.length == 0) {
 			msg.channel.send(`:red_circle: **\`@${msg.member.displayName}\` does not have an osu account linked**\nIn order to use $modeset, you must link your osu username to the bot first by using \`$set [username]\``);
@@ -28,7 +28,7 @@ function execute(msg: Message, args: any) {
 			discordID: msg.author.id
 		}, {
 			mode: args
-		}, (res, err) => {
+		}, {},(res, err) => {
 			if (err) {
 				console.log(err);
 				return;
