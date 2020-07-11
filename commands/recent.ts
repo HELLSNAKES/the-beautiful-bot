@@ -121,15 +121,15 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 function processData(client: Client, msg: Message, object: any, options: IOptions) {
 
 	// Will be reimplemented soon
+	
+	let modsString = mods.toString(object.enabled_mods);
+	let enabled_mods = 0;
+	if (modsString.includes('DT') || modsString.includes('NC')) enabled_mods += 64;
+	if (modsString.includes('HT')) enabled_mods += 256;
+	if (modsString.includes('HR')) enabled_mods += 16;
+	if (modsString.includes('EZ')) enabled_mods += 2;
 
-	// let modsString = mods.toString(object.enabled_mods);
-	// let enabled_mods = 0;
-	// if (modsString.includes('DT') || modsString.includes('NC')) enabled_mods += 64;
-	// if (modsString.includes('HT')) enabled_mods += 256;
-	// if (modsString.includes('HR')) enabled_mods += 16;
-	// if (modsString.includes('EZ')) enabled_mods += 2;
-
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1`, {
+	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1${options.mode != 0 ? `&mods=${enabled_mods}` : ''}`, {
 		json: true
 	}, (err: any, res: any, body: any) => {
 		if (body.length == 0) {
@@ -163,7 +163,10 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				generateRecent(client, msg, object);
 			});
 		} else if (options.mode == 1) {
-			object.pp = '-';
+			outputObject = pp.calculateTaikopp(object);
+			object.accuracy = outputObject.accuracy;
+			object.totalHits = outputObject.totalHits;
+			object.pp = outputObject.pp;
 			generateRecent(client, msg, object);
 		} else if (options.mode == 2) {
 			object.diff_approach *= 1.5;

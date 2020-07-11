@@ -264,7 +264,7 @@ export function calculateManiapp(data: any): any {
 export function calculateTaikopp(data : any) : any {
 	data.difficultyrating = parseFloat(data.difficultyrating);
 	data.diff_overall = parseFloat(data.diff_overall);
-	// data.maxcombo = parseInt(data.maxcombo);
+	data.maxcombo = parseInt(data.maxcombo);
 	// data.score = parseInt(data.score);
 	data.accuracy = parseFloat(data.accuracy) / 100;
 	// data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
@@ -274,8 +274,6 @@ export function calculateTaikopp(data : any) : any {
 	var countMeh = parseInt(data.count50);
 	var countMiss = parseInt(data.countmiss);
 	var totalHits = countGreat + countGood + countMeh + countMiss;
-
-	console.log(data);
 
 	var multiplier = 1.1;
 
@@ -288,6 +286,8 @@ export function calculateTaikopp(data : any) : any {
 	strainValue *= lengthBonus;
 	strainValue *= Math.pow(0.985, countMiss);
 
+	if (totalHits > 0) strainValue *= Math.min(Math.pow(data.maxcombo, 0.5) / Math.pow(totalHits, 0.5), 1);
+	
 	if (enabled_mods.includes('HD')) strainValue *= 1.025;
 
 	if (enabled_mods.includes('FL')) strainValue *= 1.05 * lengthBonus;
@@ -297,6 +297,9 @@ export function calculateTaikopp(data : any) : any {
 	var accuracyValue = 0;
 
 	// Hitwindows
+	var clockRate = 1;
+	if (enabled_mods.includes('DT') || enabled_mods.includes('NC')) clockRate = 1.5;
+	if (enabled_mods.includes('HT')) clockRate = 0.75;
 	var hitWindow300Range = [50, 35, 20];
 	
 	if (data.diff_overall > 5) {
@@ -307,6 +310,8 @@ export function calculateTaikopp(data : any) : any {
 		hitWindow300 = hitWindow300Range[1];
 	}
 
+	hitWindow300 /= clockRate;
+	
 	if (hitWindow300 <= 0) {
 		accuracyValue = 0;
 		return;
@@ -326,8 +331,8 @@ export function calculateTaikopp(data : any) : any {
 		OD: data.diff_overall,
 		stars: data.difficultyrating,
 		mods: enabled_mods,
-		totalHits: data.totalHits,
-		accuracy: data.accuracy * 100,
+		totalHits: totalHits,
+		accuracy: Math.floor(data.accuracy * 10000) / 100,
 		pp: Math.floor(totalValue * 100) / 100
 	};
 }
