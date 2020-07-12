@@ -52,9 +52,9 @@ export function getScoreMultiplier(mods: string, mode: number): number {
 	} else if (mode == 3) {
 		return 1;
 	} else if (mode == 4) {
-		if (mods.includes('EZ')) scoreMultiplier *= 0.5;
-		if (mods.includes('NF')) scoreMultiplier *= 0.5;
-		if (mods.includes('HT')) scoreMultiplier *= 0.5;
+		if (has(mods, 'EZ')) scoreMultiplier *= 0.5;
+		if (has(mods, 'NF')) scoreMultiplier *= 0.5;
+		if (has(mods, 'HT')) scoreMultiplier *= 0.5;
 		return scoreMultiplier;
 	}
 

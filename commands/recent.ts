@@ -198,7 +198,6 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
 	let date = format.time(new Date(body.date + (body.options.type == 0 ? ' UTC' : '')).getTime());
 	body.difficultyrating = Math.round(body.difficultyrating * 100) / 100;
-	let selectedMods = mods.toString(body.enabled_mods);
 	var colour = 0;
 	if (body.rank.toLowerCase() == 'f' || body.rank.toLowerCase() == 'd') colour = 15158332;
 	else if (body.rank.toLowerCase() == 'c') colour = 10181046;
@@ -217,7 +216,8 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	}
 
 	var withMods = false;
-	if (selectedMods.includes('DT') || selectedMods.includes('HR') || selectedMods.includes('EZ') || selectedMods.includes('HT') || selectedMods.includes('NC')) {
+	if (mods.has(body.enabled_mods ,'DT') || mods.has(body.enabled_mods ,'HR') 
+		|| mods.has(body.enabled_mods ,'EZ') || mods.has(body.enabled_mods ,'HT')) {
 		withMods = true;
 	}
 	var ppFC = '';
@@ -237,7 +237,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 			'url': `https://assets.ppy.sh/beatmaps/${body.beatmapset_id}/covers/cover.jpg`
 		},
 		'author': {
-			'name': `(${body.modeName}) ${body.title} [${body.version}] +${selectedMods}`,
+			'name': `(${body.modeName}) ${body.title} [${body.version}] +${mods.toString(body.enabled_mods)}`,
 			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapset_id}#osu/${body.beatmap_id}`,
 			'icon_url': userPictureUrl
 		}

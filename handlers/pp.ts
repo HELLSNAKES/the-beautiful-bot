@@ -142,8 +142,8 @@ export function calculateCatchpp(data: any): any {
 	}
 
 	value *= approachRateFactor;
-	var enabled_mods = mods.toString(data.enabled_mods);
-	if (enabled_mods.includes('HD')) {
+
+	if (mods.has(data.enabled_mods, 'HD')) {
 		value *= 1.05 + 0.075 * (10 - Math.min(10, diff_approach));
 
 		if (diff_approach <= 10) {
@@ -153,17 +153,17 @@ export function calculateCatchpp(data: any): any {
 		}
 	}
 
-	if (enabled_mods.includes('FL')) {
+	if (mods.has(data.enabled_mods, 'FL')) {
 		value *= 1.35 * lengthBonus;
 	}
 
 	value *= Math.pow(data.accuracy / 100, 5.5);
 
-	if (enabled_mods.includes('NF')) {
+	if (mods.has(data.enabled_mods, 'NF')) {
 		value *= 0.9;
 	}
 
-	if (enabled_mods.includes('SO')) {
+	if (mods.has(data.enabled_mods, 'SO')) {
 		value *= 0.95;
 	}
 
@@ -177,7 +177,7 @@ export function calculateCatchpp(data: any): any {
 		CS: data.diff_size,
 		HP: data.diff_drain,
 		stars: data.difficultyrating,
-		mods: enabled_mods,
+		mods: mods.toString(data.enabled_mods),
 		combo: data.maxcombo + '/' + data.max_combo + 'x',
 		accuracy: data.accuracy,
 		pp: Math.floor(value * 100) / 100
@@ -191,10 +191,9 @@ export function calculateManiapp(data: any): any {
 	data.score = parseInt(data.score);
 	data.accuracy = parseFloat(data.accuracy);
 	data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
-	var enabled_mods = mods.toString(data.enabled_mods).replace('No Mod', '');
 
 	// Strain
-	var scoreMultiplier = mods.getScoreMultiplier(enabled_mods, 3);
+	var scoreMultiplier = mods.getScoreMultiplier(data.enabled_mods, 3);
 	var strainValue = 0;
 	if (scoreMultiplier <= 0) {
 		return;
@@ -233,15 +232,15 @@ export function calculateManiapp(data: any): any {
 	// Total
 	var modMultiplier = 0.8;
 
-	if (enabled_mods.includes('NF')) {
+	if (mods.has(data.enabled_mods, 'NF')) {
 		modMultiplier *= 0.90;
 	}
 
-	if (enabled_mods.includes('SO')) {
+	if (mods.has(data.enabled_mods, 'SO')) {
 		modMultiplier *= 0.95;
 	}
 
-	if (enabled_mods.includes('EZ')) {
+	if (mods.has(data.enabled_mods, 'EZ')) {
 		modMultiplier *= 0.50;
 	}
 
@@ -254,7 +253,7 @@ export function calculateManiapp(data: any): any {
 		creator: data.creator,
 		OD: data.diff_overall,
 		stars: data.difficultyrating,
-		mods: enabled_mods,
+		mods: mods.toString(data.enabled_mods),
 		totalHits: data.totalHits,
 		accuracy: data.accuracy,
 		pp: Math.floor(value * 100) / 100

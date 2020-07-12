@@ -33,7 +33,7 @@ function execute(client: Client, msg: Message, replayFileURL: string) {
 			data = utility.renameKey(data, 'playerName', 'username');
 
 
-			var hidden = mods.toString(data.mods).includes('HD') || mods.toString(data.mods).includes('FL');
+			var hidden = mods.has(data.mods, 'HD') || mods.has(data.mods, 'FL');
 			data.rank = score.getRank(options.mode!, hidden, data.count300, data.count100, data.count50, data.countmiss);
 			
 			recent.processData(client, msg, data, options);

@@ -3,7 +3,7 @@ export interface IOptions {
 	mode?: number | undefined,
 	type?: number,
 	relax?: boolean,
-	mods?: [boolean, number],
+	mods?: [boolean, string],
 	passesonly?: boolean,
 	ppv3?: boolean, 
 	error: boolean,
