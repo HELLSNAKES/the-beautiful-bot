@@ -28,12 +28,12 @@ function execute(client: Client, msg: Message, replayFileURL: string) {
 			data = utility.renameKey(data, 'katus', 'countkatu');
 			data = utility.renameKey(data, 'gekis', 'countgeki');
 			data = utility.renameKey(data, 'max_combo', 'maxcombo');
-			data = utility.renameKey(data, 'timestamp', 'date');
+			// data = utility.renameKey(data, 'timestamp', 'date');
 			data = utility.renameKey(data, 'mods', 'enabled_mods');
 			data = utility.renameKey(data, 'playerName', 'username');
 
-
-			var hidden = mods.has(data.mods, 'HD') || mods.has(data.mods, 'FL');
+			// options.type = 1;
+			var hidden = mods.has(data.enabled_mods, 'HD') || mods.has(data.enabled_mods, 'FL');
 			data.rank = score.getRank(options.mode!, hidden, data.count300, data.count100, data.count50, data.countmiss);
 			
 			recent.processData(client, msg, data, options);
