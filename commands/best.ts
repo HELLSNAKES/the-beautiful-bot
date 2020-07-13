@@ -98,22 +98,21 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 	};
 
 	for (let i = 0; i < body.length && plays.length != 5; i++) {
-		if (options.mods![1] != -1) {
+		if (options.mods![1] != '-1') {
 			if (options.mods![0]) {
-				if (!mods.toString(parseInt(body[i].enabled_mods)).includes(mods.toString(options.mods![1]))) {
+				if (!mods.has(body[i].enabled_mods, options.mods![1])) {
 					continue;
 				}
-			} else if (options.mods![1] != parseInt(body[i].enabled_mods)) {
+			} else if (options.mods![1] != mods.toString(parseInt(body[i].enabled_mods))) {
 				continue;
 			}
 		}
 		
 		var difficultyIncreasingMods = 0;
-		const modsString = mods.toString(parseInt(body[i].enabled_mods)); 
-		if (modsString.includes('EZ')) difficultyIncreasingMods += 2;
-		if (modsString.includes('HR')) difficultyIncreasingMods += 16;
-		if (modsString.includes('DT') || modsString.includes('NC')) difficultyIncreasingMods += 64;
-		if (modsString.includes('HT')) difficultyIncreasingMods += 256;
+		if (mods.has(body[i].enabled_mods, 'EZ')) difficultyIncreasingMods += 2;
+		if (mods.has(body[i].enabled_mods, 'HR')) difficultyIncreasingMods += 16;
+		if (mods.has(body[i].enabled_mods, 'DT')) difficultyIncreasingMods += 64;
+		if (mods.has(body[i].enabled_mods, 'HT')) difficultyIncreasingMods += 256;
 
 		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`);
 		index.push(i);

@@ -201,7 +201,6 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	let status = client.emojis.find(emoji => emoji.name === 'status_' + body.approved);
 	let date = format.time(new Date(body.date + (body.options.type == 0 ? ' UTC' : '')).getTime());
 	body.difficultyrating = Math.round(body.difficultyrating * 100) / 100;
-	let selectedMods = mods.toString(body.enabled_mods);
 	var colour = 0;
 	if (body.rank.toLowerCase() == 'f' || body.rank.toLowerCase() == 'd') colour = 15158332;
 	else if (body.rank.toLowerCase() == 'c') colour = 10181046;
@@ -220,7 +219,8 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	}
 
 	var withMods = false;
-	if (selectedMods.includes('DT') || selectedMods.includes('HR') || selectedMods.includes('EZ') || selectedMods.includes('HT') || selectedMods.includes('NC')) {
+	if (mods.has(body.enabled_mods ,'DT') || mods.has(body.enabled_mods ,'HR') 
+		|| mods.has(body.enabled_mods ,'EZ') || mods.has(body.enabled_mods ,'HT')) {
 		withMods = true;
 	}
 	var ppFC = '';
@@ -233,14 +233,14 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	if (body.options.mode == 2) body.modeName = 'Catch';
 	if (body.options.mode == 3) body.modeName = 'Mania';
 	const embed = {
-		'description': `| ${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.round(body.difficultyrating))} **[${body.difficultyrating}★]${withMods && body.options.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| (**${format.number(body.maxcombo)}x${body.max_combo ? '**/**' + format.number(body.max_combo) + 'x' : ''}**) - ${format.number(body.score)} - [${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]\n| ${body.rank.toLowerCase() == 'f' && body.max_combo ? `Completed: **${completion}%**  - ` : ''}Achieved: **${date}**${(body.replay_available == 1 ? `\n| [${client.emojis.find(emoji => emoji.name === 'icon_3_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} Replay is Available](https://osu.ppy.sh/scores/osu/${body.score_id}/download)` : '')}\n| ${client.emojis.find(emoji => emoji.name === 'icon_0_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
+		'description': `| ${status} - ${grade} - **${body.pp}pp** - ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' - __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.round(body.difficultyrating))} **[${body.difficultyrating}★]${withMods && body.options.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| (**${format.number(body.maxcombo)}x${body.max_combo ? '**/**' + format.number(body.max_combo) + 'x' : ''}**) - ${format.number(body.score)} - [${body.count300}/${body.count100}/${body.count50}/${body.countmiss}]${body.rank.toLowerCase() == 'f' && body.max_combo && body.date ? '\n|' : ''} ${body.rank.toLowerCase() == 'f' && body.max_combo ? `Completed: **${completion}%**  - ` : ''}${body.date ? `Achieved: **${date}**` : ''}${(body.replay_available == 1 ? `\n| [${client.emojis.find(emoji => emoji.name === 'icon_3_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} Replay is Available](https://osu.ppy.sh/scores/osu/${body.score_id}/download)` : '')}\n| ${client.emojis.find(emoji => emoji.name === 'icon_0_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',
 		'color': colour,
 		'image': {
 			'url': `https://assets.ppy.sh/beatmaps/${body.beatmapset_id}/covers/cover.jpg`
 		},
 		'author': {
-			'name': `(${body.modeName}) ${body.title} [${body.version}] +${selectedMods}`,
+			'name': `(${body.modeName}) ${body.title} [${body.version}] +${mods.toString(body.enabled_mods)}`,
 			'url': `https://osu.ppy.sh/beatmapsets/${body.beatmapset_id}#osu/${body.beatmap_id}`,
 			'icon_url': userPictureUrl
 		}

@@ -36,18 +36,19 @@ export function getAccuracy(ruleset: number, n300: number | string, n100: number
 	return -1;
 }
 
-export function getRank(ruleset: number, hidden: boolean, n300: number | string, n100: number | string, n50: number | string, nmiss: number | string): string {
+export function getRank(ruleset: number, hidden: boolean, n300: number | string, n100: number | string, n50: number | string, nmiss: number | string, nkatu?: number | string, ngeki?: number | string): string {
 	n300 = Number(n300);
 	n100 = Number(n100);
 	n50 = Number(n50);
 	nmiss = Number(nmiss);
-
+	
 	if (isNaN(n300) || isNaN(n100) ||isNaN(n50) || isNaN(nmiss)) {
 		return '-';	
 	}
-
-	var percentage300 = (n300 / (n300 + n100 + n50 + nmiss));
-	var percentage50 = (n50 / (n300 + n100 + n50 + nmiss));
+	
+	const percentage300 = (n300 / (n300 + n100 + n50 + nmiss));
+	const percentage50 = (n50 / (n300 + n100 + n50 + nmiss));
+	const accuracy = getAccuracy(ruleset, n300, n100, n50, nmiss, nkatu, ngeki);
 
 	if (ruleset == 0) {
 		if (percentage300 == 1) {
@@ -66,9 +67,33 @@ export function getRank(ruleset: number, hidden: boolean, n300: number | string,
 	} else if (ruleset == 1) {
 		return 'f';
 	} else if (ruleset == 2) {
-		return 'f';
+		if (accuracy == 100) {
+			return (hidden ? 'xh' : 'x');
+		} else if (accuracy < 100 && accuracy > 98) {
+			return (hidden ? 'sh' : 's');
+		} else if (accuracy <= 98 && accuracy > 94) {
+			return 'a';
+		} else if (accuracy <= 94 && accuracy > 90) {
+			return 'b';
+		} else if (accuracy <= 90 && accuracy > 85) {
+			return 'c';
+		}
+
+		return 'd';
 	} else if (ruleset == 3) {
-		return 'f';
+		if (accuracy == 100) {
+			return (hidden ? 'xh' : 'x');
+		} else if (accuracy > 95) {
+			return (hidden ? 'sh' : 's');
+		} else if (accuracy > 90) {
+			return 'a';
+		} else if (accuracy > 80) {
+			return 'b';
+		} else if (accuracy > 70) {
+			return 'c';
+		}
+
+		return 'd';
 	}
 
 	return '-';

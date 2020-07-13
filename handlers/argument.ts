@@ -3,7 +3,6 @@
 import { IArgument, IOptions, IOjsamaOptions, IDBDocument } from './interfaces';
 import { Message } from 'discord.js';
 
-const ojsama = require('ojsama');
 import * as error from './error';
 import * as mods from './mods';
 import * as database from './database';
@@ -58,8 +57,8 @@ const args: Array<IArgument> = [{
 	name: 'mods',
 	description: 'Filter plays by mods',
 	allowedValues: '\n`mod abbreviations` : only show plays with the exact mod combination e.g. `HDDT`\nadding a `!` at the start will show any play with the mod combination + any other mods e.g. `!HDDT`',
-	process: (x) => [x.startsWith('!'), mods.toValue(x.replace('!', ''))],
-	default: [false, -1]
+	process: (x) => [x.startsWith('!'), x.replace('!', '')],
+	default: [false, '-1']
 }, {
 	name: 'standard',
 	aliases: score.modes['0'].filter(x => x != 'standard'),
@@ -231,7 +230,7 @@ export function parseOjsama(args: string): IOjsamaOptions {
 
 	for (let i = 0; i < argv.length; ++i) {
 		if (argv[i].startsWith('+')) {
-			output.mods = ojsama.modbits.from_string(argv[i].slice(1) || '');
+			output.mods = mods.toValue(argv[i].slice(1) || '');
 		} else if (argv[i].endsWith('%')) {
 			output.accuracy = parseFloat(argv[i]);
 		} else if (argv[i].endsWith('x')) {
