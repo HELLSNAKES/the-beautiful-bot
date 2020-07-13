@@ -8,13 +8,13 @@ The beautiful bot's Changelog :)
  - A completely new help system that is more condense, easier to read and more helpful
  - A new algorithm for parsing arguments
  - Arguments are not longer case sensitive
- - Support for argument aliases e.g. you can use -mode now instead of only -m
+ - Support for argument aliases e.g. you can use -previous now instead of only -p
  - Argument errors are a lot more clearer than before
  - A wider support for command aliases (e.g. you can use $best, $bt and $top to show your top plays)
- - Implemented a new error system that will automatically report errors and will tell the user if an unexpected error occur.
+ - A new error system that will automatically report errors and will tell the user if an unexpected error occur.
  - Support for catch, taiko and mania in $best
  - Implemented -taiko, -catch, -mania & -standard replacing -m [mode]
- - Replay parsing. The bot can parse replay files and show a score embed
+ - Replay parsing. The bot can parse osu standard, catch and mania replay files and show a score embed
  - Added a new -passesonly to $rs to show the most recent passed play (No failed plays)
  - $c now will indicate whether other plays with other mod combinations are available.
  - Implemented -mods [mod abbriviations] to $c to show a play with a different mod combination
@@ -41,6 +41,7 @@ The beautiful bot's Changelog :)
  - Fixed @ing the bot throws an error
  - The bot will no longer allow you to set an invalid username
  - $best will show the calculated difficulty with mods rather than the base difficulty
+ - using NC breaks mods displayed on $pp
  
 ### Changed
  - The entire codebase has been rewritten from JavaScript to TypeScript
