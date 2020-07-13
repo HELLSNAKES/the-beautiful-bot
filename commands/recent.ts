@@ -166,7 +166,7 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 			outputObject = pp.calculateTaikopp(object);
 			object.accuracy = outputObject.accuracy;
 			object.totalHits = outputObject.totalHits;
-			object.pp = outputObject.pp;
+			object.pp = Math.round(outputObject.pp * 100) / 100;
 			generateRecent(client, msg, object);
 		} else if (options.mode == 2) {
 			object.diff_approach *= 1.5;

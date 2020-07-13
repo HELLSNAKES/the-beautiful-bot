@@ -11,7 +11,7 @@ export const servers = {
 	'2': ['akatsuki']
 };
 
-export function getAccuracy(ruleset: number, n300: number | string, n100: number | string, n50: number | string, nmiss: number | string, nkatu: number | string = 0, ngeki: number | string = 0): number {
+export function getAccuracy(ruleset: number, n300: number | string, n100: number | string, n50: number | string, nmiss: number | string, nkatu: number | string = 0, ngeki: number | string = 0, round = true ): number {
 	n300 = Number(n300);
 	nkatu = Number(nkatu);
 	ngeki = Number(ngeki);
@@ -24,13 +24,17 @@ export function getAccuracy(ruleset: number, n300: number | string, n100: number
 	}
 
 	if (ruleset == 0) {
-		return Math.round((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 10000) / 100;
+		const accuracy = ((50 * n50 + 100 * n100 + 300 * n300) / (300 * (n50 + n100 + n300 + nmiss)) * 100);
+		return round ? Math.round(accuracy * 100) / 100 : accuracy;
 	} else if (ruleset == 1) {
-		return Math.round(Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 10000) / 100;
+		const accuracy = (Math.max(0, Math.min(1, (n100 * 150 + n300 * 300) / ((n300 + n100 + n50 + nmiss) * 300))) * 100);
+		return round ? Math.round(accuracy * 100) / 100 : accuracy;
 	} else if (ruleset == 2) {
-		return Math.round(Math.max(0, Math.min(1, (n50 + n100 + n300) / (n50 + n100 + n300 + nmiss + nkatu))) * 10000) / 100;
+		const accuracy = (Math.max(0, Math.min(1, (n50 + n100 + n300) / (n50 + n100 + n300 + nmiss + nkatu))) * 100);
+		return round ? Math.round(accuracy * 100) / 100 : accuracy;
 	} else if (ruleset == 3) {
-		return Math.round(Math.max(0, Math.min(1, (n50 * 50 + n100 * 100 + nkatu * 200 + (ngeki + n300) * 300) / ((n50 + n100 + n300 + nmiss + ngeki + nkatu) * 300))) * 10000) / 100;
+		const accuracy = (Math.max(0, Math.min(1, (n50 * 50 + n100 * 100 + nkatu * 200 + (ngeki + n300) * 300) / ((n50 + n100 + n300 + nmiss + ngeki + nkatu) * 300))) * 100);
+		return round ? Math.round(accuracy * 100) / 100 : accuracy;
 	}
 
 	return -1;

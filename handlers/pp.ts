@@ -5,6 +5,7 @@ import { IOjsamaOptions } from './interfaces';
 
 import * as mods from './mods';
 import * as error from '../handlers/error';
+import * as score from '../handlers/score';
 
 const ojsama = require('ojsama');
 const request = require('request');
@@ -264,52 +265,59 @@ export function calculateTaikopp(data : any) : any {
 	data.difficultyrating = parseFloat(data.difficultyrating);
 	data.diff_overall = parseFloat(data.diff_overall);
 	data.maxcombo = parseInt(data.maxcombo);
-	// data.score = parseInt(data.score);
-	data.accuracy = parseFloat(data.accuracy) / 100;
-	// data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
-	var enabled_mods = mods.toString(data.enabled_mods).replace('No Mod', '');
-	var countGreat = parseInt(data.count300);
-	var countGood = parseInt(data.count100);
-	var countMeh = parseInt(data.count50);
-	var countMiss = parseInt(data.countmiss);
+	const countGreat = parseInt(data.count300);
+	const countGood = parseInt(data.count100);
+	const countMeh = parseInt(data.count50);
+	const countMiss = parseInt(data.countmiss);
+	const countKatu = parseInt(data.countkatu);
+	const countGeki = parseInt(data.countgeki);
+	data.accuracy = score.getAccuracy(1, countGreat, countGood, countMeh, countMiss,countKatu, countGeki, false) / 100;
 	var totalHits = countGreat + countGood + countMeh + countMiss;
-
 	var multiplier = 1.1;
-
-	if (enabled_mods.includes('NF')) multiplier *= 0.9;
-
-	if (enabled_mods.includes('HD')) multiplier *= 1.1;
-
+	
+	if (mods.has(data.enabled_mods, 'NF')) multiplier *= 0.9;
+	
+	if (mods.has(data.enabled_mods, 'HD')) multiplier *= 1.1;
+	
 	var strainValue =  Math.pow(5 * Math.max(1, data.difficultyrating / 0.0075) - 4, 2) / 100000;
 	var lengthBonus = 1 + 0.1 * Math.min(1, totalHits / 1500);
 	strainValue *= lengthBonus;
 	strainValue *= Math.pow(0.985, countMiss);
-
+	
 	if (totalHits > 0) strainValue *= Math.min(Math.pow(data.maxcombo, 0.5) / Math.pow(totalHits, 0.5), 1);
 	
-	if (enabled_mods.includes('HD')) strainValue *= 1.025;
-
-	if (enabled_mods.includes('FL')) strainValue *= 1.05 * lengthBonus;
-
-	strainValue = strainValue * data.accuracy;
-
-	var accuracyValue = 0;
-
-	// Hitwindows
-	var clockRate = 1;
-	if (enabled_mods.includes('DT') || enabled_mods.includes('NC')) clockRate = 1.5;
-	if (enabled_mods.includes('HT')) clockRate = 0.75;
-	var hitWindow300Range = [50, 35, 20];
+	if (mods.has(data.enabled_mods, 'HD')) strainValue *= 1.025;
 	
-	if (data.diff_overall > 5) {
-		var hitWindow300 = hitWindow300Range[1] + (hitWindow300Range[2] - hitWindow300Range[1]) * (data.diff_overall - 5) / 5;
-	} else if (data.diff_overall < 5) {
-		hitWindow300 = hitWindow300Range[1] - (hitWindow300Range[1] - hitWindow300Range[0]) * (5 - data.diff_overall) / 5;
-	} else {
-		hitWindow300 = hitWindow300Range[1];
+	if (mods.has(data.enabled_mods, 'FL')) strainValue *= 1.05 * lengthBonus;
+	
+	strainValue = strainValue * data.accuracy;
+	
+	var accuracyValue = 0;
+	
+	// Scale OD
+	if (mods.has(data.enabled_mods, 'EZ')) {
+		data.diff_overall /= 2;
+	}
+	
+	if (mods.has(data.enabled_mods, 'HR')) {
+		data.diff_overall *= 1.4;
 	}
 
-	hitWindow300 /= clockRate;
+	data.diff_overall = Math.max(Math.min(data.diff_overall, 10), 0);
+
+	// Hitwindows
+	const max = 20;
+	const min = 50;
+	var hitWindow300 = min + (max - min) * data.diff_overall / 10;
+	
+	hitWindow300 = Math.floor(hitWindow300);
+
+	if (mods.has(data.enabled_mods, 'HT')){
+		hitWindow300 /= 0.75;
+	}
+	if (mods.has(data.enabled_mods, 'DT')) {
+		hitWindow300 /= 1.5;
+	}
 	
 	if (hitWindow300 <= 0) {
 		accuracyValue = 0;
@@ -329,9 +337,9 @@ export function calculateTaikopp(data : any) : any {
 		creator: data.creator,
 		OD: data.diff_overall,
 		stars: data.difficultyrating,
-		mods: enabled_mods,
+		mods: mods.toString(data.enabled_mods),
 		totalHits: totalHits,
-		accuracy: Math.floor(data.accuracy * 10000) / 100,
-		pp: Math.floor(totalValue * 100) / 100
+		accuracy: Math.round(data.accuracy * 10000) / 100,
+		pp: totalValue
 	};
 }
