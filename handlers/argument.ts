@@ -271,8 +271,8 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 			for (var i = 0; i < modes.length; i++) {
 				if (argsString.includes('-m') || argsString.includes(modes[i])) found = true;
 			}
-			if (!found) options.mode = docs[0].mode;
-			options.type = docs[0].type;
+			if (!found) options.mode = docs[0].mode || 0;
+			options.type = docs[0].type || 0;
 			callback(docs[0].osuUsername, options);
 		});
 	} else if (args.length != 0) {
