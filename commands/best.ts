@@ -9,9 +9,9 @@ import * as argument from '../handlers/argument';
 import * as format from '../handlers/format';
 import * as gatari from '../handlers/gatari';
 import * as akatsuki from '../handlers/akatsuki';
+import * as error from '../handlers/error';
 
-const request = require('request');
-const requestPromiseNative = require('request-promise-native');
+const axios = require('axios');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
 	argument.determineUser(msg, args, (username, options) => {
@@ -21,59 +21,52 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 
 function sendRequest(client: Client, msg: Message, user: string | undefined, options: IOptions) {
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=100&m=${options.mode}`, {
-			json: true
-		}, (err: any, res: any, body: Array<IAPIBest>) => {
+		axios.get(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=100&m=${options.mode}`)
+			.then((res: any) => {
 
-			if (body.length == 0) {
-				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
-				return;
-			}
+				if (res.data.length == 0) {
+					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
+					return;
+				}
 
-			sendBest(client, msg, user, body, options);
-		});
+				sendBest(client, msg, user, res.data, options);
+			}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
 	} else if (options.type == 1) {
-		request(`https://api.gatari.pw/users/get?u=${user}`, {
-			json: true
-		}, (err: any, res: any, info: any) => {
-			
-			if (info.users.length == 0) {
-				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
-				return;
-			}
+		axios.get(`https://api.gatari.pw/users/get?u=${user}`)
+			.then((res: any) => {
 
-			request(`https://api.gatari.pw/user/scores/best?id=${info.users[0].id}&l=100`, {
-				json: true
-			}, (err: any, res: any, body: any) => {
-				sendBest(client, msg, user, gatari.best(info, body), options);
-			});
-		});
+				if (res.data.users.length == 0) {
+					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
+					return;
+				}
+
+				axios.get(`https://api.gatari.pw/user/scores/best?id=${res.data.users[0].id}&l=100`)
+					.then((resScore: any) => {
+						sendBest(client, msg, user, gatari.best(res.data, resScore.data), options);
+					}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
+
+			}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
 	} else if (options.type == 2) {
-		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
-			json: true
-		}, (err: any, res: any, info: any) => {
+		axios.get(`https://akatsuki.pw/api/v1/users?name=${user}`)
+			.then((res: any) => {
+				if (res.data.code == 404) {
+					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
+					return;
+				}
 
-			if (info.code == 404) {
-				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
-				return;
-			}
 
-			request(`https://akatsuki.pw/api/v1/users/scores/best?name=${user}&rx=${options.relax ? 1 : 0 }&l=100`, {
-				json: true
-			}, (err: any, res: any, body: any) => {
-				sendBest(client, msg, user, akatsuki.best(info, body), options);
-			});
-		});
+				axios.get(`https://akatsuki.pw/api/v1/users/scores/best?name=${user}&rx=${options.relax ? 1 : 0}&l=100`)
+					.then((resScore: any) => {
+						sendBest(client, msg, user, akatsuki.best(res.data, resScore.data), options);
+					}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
+			}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
 	}
 }
 
 function sendBest(client: Client, msg: Message, user: string | undefined, body: Array<IAPIBest>, options: IOptions) {
+	let scores: any = [];
+	let beatmaps: any = [];
 
-	let plays = [];
-	let playString: Array<string> = [];
-	let playpp: Array<number> = [];
-	let urls: Array<string> = [];
-	let index: Array<number> = [];
 	let userPictureUrl = `https://a.ppy.sh/${body[0].user_id}?${Date.now().toString()}`;
 	let userUrl = `https://osu.ppy.sh/users/${body[0].user_id}`;
 
@@ -97,7 +90,7 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 		}
 	};
 
-	for (let i = 0; i < body.length && plays.length != 5; i++) {
+	for (let i = 0; i < body.length && scores.length != 5; i++) {
 		if (options.mods![1] != '-1') {
 			if (options.mods![0]) {
 				if (!mods.has(body[i].enabled_mods, options.mods![1])) {
@@ -114,36 +107,27 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 		if (mods.has(body[i].enabled_mods, 'DT')) difficultyIncreasingMods += 64;
 		if (mods.has(body[i].enabled_mods, 'HT')) difficultyIncreasingMods += 256;
 
-		urls.push(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`);
-		index.push(i);
-		plays.push(requestPromiseNative(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`, {
-			json: true
-		}, (err: any, res: any, beatmapData: any) => {
-			let j = index[urls.indexOf(res.request.href)];
-			let grade = client.emojis.find((emoji: Emoji) => emoji.name === 'rank_' + body[j].rank.toLowerCase());
-			let pp = Math.floor(parseFloat(body[j].pp) * 100) / 100;
-			let accuracy = score.getAccuracy(options.mode!, body[j].count300, body[j].count100, body[j].count50, body[j].countmiss, body[j].countkatu, body[j].countgeki);
-			playString.push(`**[${beatmapData[0].title} [${beatmapData[0].version}]](${`https://osu.ppy.sh/beatmapsets/${beatmapData[0].beatmapset_id}#osu/${beatmapData[0].beatmap_id}`}) +${mods.toString(parseInt(body[j].enabled_mods))}**\n| ${grade} • **${pp}pp** • ${accuracy}% • [${Math.round(beatmapData[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(body[j].maxcombo))}x${beatmapData[0].max_combo ? '**/**' + format.number(beatmapData[0].max_combo) + 'x' : ''}**) • **${format.number(parseInt(body[j].score))}** • [${body[j].count300}/${body[j].count100}/${body[j].count50}/${body[j].countmiss}]\n| Achieved: **${format.time(Date.parse(body[j].date + (options.type == 0 ? ' UTC' : '')))}**\n`);
-			playpp.push(pp);
-		}));
+		scores.push(body[i]);
+		beatmaps.push(axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`));
 	}
-	Promise.all(plays).then(() => {
-		let sortedpp = playpp.slice(0).sort((a, b) => {
-			embed.author.name = `Here is ${user}'s top ${urls.length} osu! ${score.getRuleset(options.mode?.toString() ?? '0')} plays:`;
-			return (b - a);
+
+	Promise.all(beatmaps).then((values: Array<any>) => {
+		const scoresToString: Array<string> = [];
+		scores.map((x: any, i: number) => {
+			const grade = client.emojis.find((emoji: Emoji) => emoji.name === 'rank_' + x.rank.toLowerCase());
+			const pp = Math.floor(parseFloat(x.pp) * 100) / 100;
+			const accuracy = score.getAccuracy(options.mode!, x.count300, x.count100, x.count50, x.countmiss, x.countkatu, x.countgeki);
+			scoresToString.push(`**[${values[i].data[0].title} [${values[i].data[0].version}]](${`https://osu.ppy.sh/beatmapsets/${values[i].data[0].beatmapset_id}#osu/${values[i].data[0].beatmap_id}`}) +${mods.toString(parseInt(x.enabled_mods))}**\n| ${grade} • **${pp}pp** • ${accuracy}% • [${Math.round(values[i].data[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(x.maxcombo))}x${values[i].data[0].max_combo ? '**/**' + format.number(values[i].data[0].max_combo) + 'x' : ''}**) • **${format.number(parseInt(x.score))}** • [${x.count300}/${x.count100}/${x.count50}/${x.countmiss}]\n| Achieved: **${format.time(Date.parse(x.date + (options.type == 0 ? ' UTC' : '')))}**\n`);
 		});
-		let sortedString = [];
-		for (let i = 0; i < sortedpp.length; i++) {
-			sortedString.push(playString[playpp.indexOf(sortedpp[i])]);
-		}
-		if (sortedpp.length != 0) {
-			embed.description = sortedString.join(' ');
-		}
+
+		embed.author.name = `Here is ${user}'s top ${scores.length} osu! ${score.getRuleset(options.mode?.toString() ?? '0')} plays:`;
+		embed.description = scoresToString.join(' ');
+
 		msg.channel.send({
 			embed
 		});
 		console.log(`BEST : ${msg.author.id} : https://osu.ppy.sh/users/${body[0].user_id}`);
-	});
+	}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
 }
 
 module.exports = {
@@ -151,7 +135,7 @@ module.exports = {
 	description: 'Displays the top 5 plays of a user',
 	aliases: ['top', 'bt'],
 	group: 'osu',
-	options: argument.getArgumentDetails(['mods','standard', 'taiko', 'catch', 'mania', 'type']),
+	options: argument.getArgumentDetails(['mods', 'standard', 'taiko', 'catch', 'mania', 'type']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
 	example: 'https://i.imgur.com/GkL4mJV.jpg',
 	execute: execute
