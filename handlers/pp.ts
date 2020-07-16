@@ -30,15 +30,15 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 				options.combo = (options.combo ? options.combo : osuContent.maxCombo);
 
 				var ppv3Options : any = options;
-				ppv3Options.maxCombo = options.combo;
-				ppv3Options.countMiss = options.misses;
+				ppv3Options.combo = options.combo;
+				ppv3Options.misses = options.misses;
 				ppv3Options.accuracy = ppv3Options.accuracy / 100; 
+				ppv3Options.mods = mods.toString(Number(options.mods));
 
 				var pp = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
 
-				ppv3Options.maxCombo = osuContent.maxCombo;
+				ppv3Options.combo = osuContent.maxCombo;
 				var ppFC = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
-
 				Promise.all([pp, ppFC]).then((values : Array<any>) => {
 					callback({
 						error: null,
@@ -51,7 +51,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 						OD: osuContent.OverallDifficulty,
 						CS: osuContent.CircleSize,
 						HP: osuContent.HPDrainRate,
-						stars: Math.round(values[0].attributes.StarRating * 100) /100,
+						stars: Math.round(values[0].attributes.SR * 100) /100,
 						mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods!),
 						combo: options.combo,
 						maxCombo: osuContent.maxCombo,
