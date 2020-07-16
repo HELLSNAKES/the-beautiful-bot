@@ -6,12 +6,13 @@ import { IOptions, IURLParserBeatmap } from '../handlers/interfaces';
 import * as argument from '../handlers/argument';
 import * as getMaps from '../handlers/getMap';
 import * as error from '../handlers/error';
+import * as mods from '../handlers/mods';
 
 const axios = require('axios');
 const recent = require('./recent');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
-	getMaps.getMaps(client, msg, function (client, msg, URLData, id) {
+	getMaps.getMaps(client, msg, function (client, msg, URLData) {
 		argument.determineUser(msg, args, (username, options) => {
 			options.mode = URLData.ruleset;
 			sendCompareEmbed(client, msg, URLData, username, options);
@@ -33,10 +34,10 @@ function sendCompareEmbed(client: Client, msg: Message, URLData: IURLParserBeatm
 						}
 				
 						var index = 0;
-				
+
 						if (options!.mods != undefined) {
 							for (var i = 0; i < res.data.length; i++) {
-								if (res.data[i].enabled_mods == options!.mods![1]) {
+								if (mods.toString(res.data[i].enabled_mods) == options!.mods![1]) {
 									index = i;
 									break;
 								}
