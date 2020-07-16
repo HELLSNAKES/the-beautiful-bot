@@ -8,107 +8,105 @@ import * as error from '../handlers/error';
 import * as score from '../handlers/score';
 
 const ojsama = require('ojsama');
-const request = require('request');
+const axios = require('axios');
 const tbbpp = require('tbbpp');
 
 export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback: (json: any) => void = (): void => { }): any {
 
 	var parser = new ojsama.parser();
 
-	request({
-		url: `https://osu.ppy.sh/osu/${beatmapId}`,
-		encoding: null
-	}, (err: any, res: any, body: any) => {
-		if (options.ppv3) {
-			var osuContent = tbbpp.processContent(body);
-			
-			options.combo = (options.combo ? options.combo : osuContent.maxCombo);
+	axios.get(`https://osu.ppy.sh/osu/${beatmapId}`)
+		.then((res: any) => {
+			if (options.ppv3) {
+				var osuContent = tbbpp.processContent(res.data);
+				
+				options.combo = (options.combo ? options.combo : osuContent.maxCombo);
 
-			var ppv3Options : any = options;
-			ppv3Options.maxCombo = options.combo;
-			ppv3Options.countMiss = options.misses;
-			ppv3Options.accuracy = ppv3Options.accuracy / 100; 
+				var ppv3Options : any = options;
+				ppv3Options.maxCombo = options.combo;
+				ppv3Options.countMiss = options.misses;
+				ppv3Options.accuracy = ppv3Options.accuracy / 100; 
 
-			var pp = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
+				var pp = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
 
-			ppv3Options.maxCombo = osuContent.maxCombo;
-			var ppFC = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
+				ppv3Options.maxCombo = osuContent.maxCombo;
+				var ppFC = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
 
-			Promise.all([pp, ppFC]).then((values : Array<any>) => {
-				callback({
+				Promise.all([pp, ppFC]).then((values : Array<any>) => {
+					callback({
+						error: null,
+						beatmapId: beatmapId,
+						title: osuContent.Title,
+						artist: osuContent.Artist,
+						difficultyName: osuContent.Version,
+						creator: osuContent.Creator,
+						AR: osuContent.ApproachRate,
+						OD: osuContent.OverallDifficulty,
+						CS: osuContent.CircleSize,
+						HP: osuContent.HPDrainRate,
+						stars: Math.round(values[0].attributes.StarRating * 100) /100,
+						mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods!),
+						combo: options.combo,
+						maxCombo: osuContent.maxCombo,
+						accuracy: (options.accuracy ?? 1) * 100,
+						totalHits: osuContent.hitObjects.length,
+						pp: Math.floor(values[0].pp * 100) / 100,
+						ppFC: values[1].pp,
+					});
+				}).catch((err) => {error.unexpectedError(err, `pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
+
+			} else {
+				parser.feed(res.data.toString());
+		
+				var params: any = {
+					map: parser.map
+				};
+				if (options.mods) params.mods = options.mods;
+				if (options.accuracy) params.acc_percent = options.accuracy;
+				if (options.combo) params.combo = options.combo;
+				if (options.misses) params.nmiss = options.misses;
+				if (options.mode) params.mode = options.mode;
+				options.combo = (options.combo ? options.combo : parser.map.max_combo());
+				options.accuracy = (options.accuracy ? options.accuracy : 100);
+				options.mods = (options.mods ? options.mods : 0);
+				var output = ojsama.ppv2(params);
+		
+				params.nmiss = 0;
+				params.combo = parser.map.max_combo();
+				var FC = ojsama.ppv2(params);
+		
+				var stats = new ojsama.std_beatmap_stats(parser.map);
+				stats = stats.with_mods(options.mods);
+				var stars = new ojsama.diff().calc({
+					map: parser.map,
+					mods: options.mods
+				});
+		
+				var jsonOutput = {
 					error: null,
 					beatmapId: beatmapId,
-					title: osuContent.Title,
-					artist: osuContent.Artist,
-					difficultyName: osuContent.Version,
-					creator: osuContent.Creator,
-					AR: osuContent.ApproachRate,
-					OD: osuContent.OverallDifficulty,
-					CS: osuContent.CircleSize,
-					HP: osuContent.HPDrainRate,
-					stars: Math.round(values[0].attributes.StarRating * 100) /100,
-					mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods!),
+					title: parser.map.title,
+					artist: parser.map.artist,
+					difficultyName: parser.map.version,
+					creator: parser.map.creator,
+					AR: Math.floor(stats.ar * 100) / 100,
+					OD: Math.floor(stats.od * 100) / 100,
+					CS: Math.floor(stats.cs * 100) / 100,
+					HP: Math.floor(stats.hp * 100) / 100,
+					stars: Math.round(stars.total * 100) / 100,
+					mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods),
 					combo: options.combo,
-					maxCombo: osuContent.maxCombo,
-					accuracy: (options.accuracy ?? 1) * 100,
-					totalHits: osuContent.hitObjects.length,
-					pp: Math.floor(values[0].pp * 100) / 100,
-					ppFC: values[1].pp,
-				});
-			}).catch((err) => {error.unexpectedError(err, `pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
-
-		} else {
-			parser.feed(body.toString());
-	
-			var params: any = {
-				map: parser.map
-			};
-			if (options.mods) params.mods = options.mods;
-			if (options.accuracy) params.acc_percent = options.accuracy;
-			if (options.combo) params.combo = options.combo;
-			if (options.misses) params.nmiss = options.misses;
-			if (options.mode) params.mode = options.mode;
-			options.combo = (options.combo ? options.combo : parser.map.max_combo());
-			options.accuracy = (options.accuracy ? options.accuracy : 100);
-			options.mods = (options.mods ? options.mods : 0);
-			var output = ojsama.ppv2(params);
-	
-			params.nmiss = 0;
-			params.combo = parser.map.max_combo();
-			var FC = ojsama.ppv2(params);
-	
-			var stats = new ojsama.std_beatmap_stats(parser.map);
-			stats = stats.with_mods(options.mods);
-			var stars = new ojsama.diff().calc({
-				map: parser.map,
-				mods: options.mods
-			});
-	
-			var jsonOutput = {
-				error: null,
-				beatmapId: beatmapId,
-				title: parser.map.title,
-				artist: parser.map.artist,
-				difficultyName: parser.map.version,
-				creator: parser.map.creator,
-				AR: Math.floor(stats.ar * 100) / 100,
-				OD: Math.floor(stats.od * 100) / 100,
-				CS: Math.floor(stats.cs * 100) / 100,
-				HP: Math.floor(stats.hp * 100) / 100,
-				stars: Math.round(stars.total * 100) / 100,
-				mods: mods.toString(typeof options.mods == 'string' ? 0 : options.mods),
-				combo: options.combo,
-				maxCombo: parser.map.max_combo(),
-				accuracy: options.accuracy,
-				totalHits: parser.map.objects.length,
-				pp: Math.floor(output.total * 100) / 100,
-				ppFC: FC.total,
-			};
-	
-	
-			callback(jsonOutput);
-		}
-	});
+					maxCombo: parser.map.max_combo(),
+					accuracy: options.accuracy,
+					totalHits: parser.map.objects.length,
+					pp: Math.floor(output.total * 100) / 100,
+					ppFC: FC.total,
+				};
+		
+		
+				callback(jsonOutput);
+			}
+		}).catch((err : Error) => {error.unexpectedError(err, `While trying to request .osu file for pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
 }
 
 export function calculateCatchpp(data: any): any {

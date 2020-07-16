@@ -5,8 +5,9 @@ import { IOptions, IURLParserBeatmap } from '../handlers/interfaces';
 
 import * as argument from '../handlers/argument';
 import * as getMaps from '../handlers/getMap';
+import * as error from '../handlers/error';
 
-const request = require('request');
+const axios = require('axios');
 const recent = require('./recent');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
@@ -20,47 +21,43 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 
 function sendCompareEmbed(client: Client, msg: Message, URLData: IURLParserBeatmap, username: string | undefined, options: IOptions) {
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${username}&b=${URLData.beatmapID}&m=${options.mode}`, (err: any, res: any, body: any) => {
-			if (err) console.log(err);
-			
-			body = JSON.parse(body);
+		axios.get(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${username}&b=${URLData.beatmapID}&m=${options.mode}`)
+			.then((res: any) => {
 
-			request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${URLData.beatmapID}&a=1&m=${options.mode}`, {
-				json: true
-			}, (err: any, res: any, beatmapData: any) => {
-				if (err) console.log(err);
+				axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${URLData.beatmapID}&a=1&m=${options.mode}`)
+					.then((resBeatmap : any) => {
 
-				if (body.length == 0) {
-					msg.channel.send(`:yellow_circle: **\`${username}\` does not have any submitted scores on \`${beatmapData[0].artist} - ${beatmapData[0].title} [${beatmapData[0].version}]\`**`);
-					return;
-				}
-				
-				var index = 0;
-				
-				if (options!.mods != undefined) {
-					for (var i = 0; i < body.length; i++) {
-						if (body[i].enabled_mods == options!.mods![1]) {
-							index = i;
-							break;
+						if (res.data.length == 0) {
+							msg.channel.send(`:yellow_circle: **\`${username}\` does not have any submitted scores on \`${resBeatmap.data[0].artist} - ${resBeatmap.data[0].title} [${resBeatmap.data[0].version}]\`**`);
+							return;
 						}
-					}
-				}
 				
-				body[index].otherComparePlays = body.filter((x : any) => x.enabled_mods != body[index].enabled_mods).map((x : any) => x.enabled_mods);
-
-				body = {
-					...body[index],
-					...beatmapData[0]
-				};
+						var index = 0;
 				
-				body.pp = Math.floor(body.pp * 100) / 100;
+						if (options!.mods != undefined) {
+							for (var i = 0; i < res.data.length; i++) {
+								if (res.data[i].enabled_mods == options!.mods![1]) {
+									index = i;
+									break;
+								}
+							}
+						}
+				
+						res.data[index].otherComparePlays = res.data.filter((x : any) => x.enabled_mods != res.data[index].enabled_mods).map((x : any) => x.enabled_mods);
 
-				options.mode = body.mode;
+						res.data = {
+							...res.data[index],
+							...resBeatmap.data[0]
+						};
+						
+						res.data.pp = Math.floor(res.data.pp * 100) / 100;
 
-				recent.processData(client, msg, body, options);
-				console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${body.user_id}`);
-			});
-		});
+						options.mode = res.data.mode;
+
+						recent.processData(client, msg, res.data, options);
+						console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${res.data.user_id}`);
+					}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	} else {
 		msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
 	}

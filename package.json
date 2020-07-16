@@ -12,6 +12,7 @@
   "author": "Moorad",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.19.2",
     "canvas": "^2.6.1",
     "color-thief": "^2.2.5",
     "discord.js": "^11.5.1",
@@ -20,8 +21,6 @@
     "node-osr": "^1.2.1",
     "node-vibrant": "^3.1.5",
     "ojsama": "^1.2.5",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.8",
     "tbbpp": "^1.0.7",
     "ts-node": "^8.10.2"
   },

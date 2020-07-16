@@ -5,7 +5,7 @@ import * as argument from '../handlers/argument';
 
 import { Message, Emoji } from 'discord.js';
 
-const request = require('request');
+const axios = require('axios');
 
 function execute(msg : Message, args : Array<string>) {
 
@@ -58,55 +58,53 @@ function sendFeed(client : any) {
 
 			docs = docs.filter((x : any) => x.mapFeedChannelID != undefined);
 
-			request('https://osu.ppy.sh/beatmapsets/search', {
-				json: true
-			}, (err : any, res : any, body : any) => {
+			axios.get('https://osu.ppy.sh/beatmapsets/search')
+				.then((res : any) => {
 				// filter plays that are older than lastChecked
-				body = body.beatmapsets.filter((x : any) => new Date(x.ranked_date).getTime() > lastChecked);
+					res.data = res.data.beatmapsets.filter((x : any) => new Date(x.ranked_date).getTime() > lastChecked);
 
-				// Cut down the size of the array to 5 to prevent the bot from spamming maps after going online
-				if (body.length >	 5) {
-					body = body.slice(0, 5);
-				}
-
-				// The body at this point is from newest to oldest. We want to reverse that to oldest to newest
-				body.reverse();
-				
-				for (var i = 0; i < docs.length; i++) {
-					for (var j = 0; j < body.length; j++) {
-						let status = client.emojis.find((emoji : Emoji) => emoji.name === 'status_' + body[j].ranked);
-						
-						const embed = {
-							'title': `${body[j].artist} - ${body[j].title}`,
-							'url': `https://osu.ppy.sh/s/${body[j].id}`,
-							'description': `${status} ${body[j].status != 'ranked' ? body[j].status != 'loved' ? 'Approved' : 'Loved' : 'Ranked' }\nBPM: \`${body[j].bpm}\``,
-							'image': {
-								'url': body[j].covers['cover@2x']
-							},
-							'author': {
-								'name': `Mapped by ${body[j].creator}`,
-								'url': `https://osu.ppy.sh/u/${body[j].user_id}`,
-								'icon_url': `https://a.ppy.sh/${body[j].user_id}?${Date.now().toString()}.png`
-							}
-						};
-						embed.description += ' | Length: `' + (Math.floor(body[j].beatmaps[0].total_length / 60) + ':' + (body[j].beatmaps[0].total_length % 60 < 10 ? '0' + (body[j].beatmaps[0].total_length % 60) : body[j].beatmaps[0].total_length % 60)) + '`\n';
-						body[j].beatmaps.sort((a : any, b : any) => a.difficulty_rating - b.difficulty_rating);
-						embed.description += `[${body[j].beatmaps[body[j].beatmaps.length - 1].version}] ★: \`${body[j].beatmaps[body[j].beatmaps.length - 1].difficulty_rating}\`${body[j].beatmaps[body[j].beatmaps.length - 1].max_combo ? ' | combo: `' + body[j].beatmaps[body[j].beatmaps.length - 1].max_combo + 'x`' : ''}\n`;
-						for (var k = 0 ; k < body[j].beatmaps.length; k++) {
-							const diffIcon = client.emojis.find((emoji : any) => emoji.name === score.getDifficultyName(0, body[j].beatmaps[k].difficulty_rating) + '_' + body[j].beatmaps[k].mode);
-							embed.description += diffIcon + ' ';
-						}
-						client.channels.get(docs[i].mapFeedChannelID).send({embed});
+					// Cut down the size of the array to 5 to prevent the bot from spamming maps after going online
+					if (res.data.length >	 5) {
+						res.data = res.data.slice(0, 5);
 					}
-				}
 
-				database.update('utility', {lastChecked: lastChecked}, {
-					lastChecked: new Date(Date.now()).getTime()
-				}, {useCache: false, noLogs: true},(docs, err) => {if (err) throw err;});
-			});
+					// The body at this point is from newest to oldest. We want to reverse that to oldest to newest
+					res.data.reverse();
+					
+					for (var i = 0; i < docs.length; i++) {
+						for (var j = 0; j < res.data.length; j++) {
+							let status = client.emojis.find((emoji : Emoji) => emoji.name === 'status_' + res.data[j].ranked);
+							
+							const embed = {
+								'title': `${res.data[j].artist} - ${res.data[j].title}`,
+								'url': `https://osu.ppy.sh/s/${res.data[j].id}`,
+								'description': `${status} ${res.data[j].status != 'ranked' ? res.data[j].status != 'loved' ? 'Approved' : 'Loved' : 'Ranked' }\nBPM: \`${res.data[j].bpm}\``,
+								'image': {
+									'url': res.data[j].covers['cover@2x']
+								},
+								'author': {
+									'name': `Mapped by ${res.data[j].creator}`,
+									'url': `https://osu.ppy.sh/u/${res.data[j].user_id}`,
+									'icon_url': `https://a.ppy.sh/${res.data[j].user_id}?${Date.now().toString()}.png`
+								}
+							};
+							embed.description += ' | Length: `' + (Math.floor(res.data[j].beatmaps[0].total_length / 60) + ':' + (res.data[j].beatmaps[0].total_length % 60 < 10 ? '0' + (res.data[j].beatmaps[0].total_length % 60) : res.data[j].beatmaps[0].total_length % 60)) + '`\n';
+							res.data[j].beatmaps.sort((a : any, b : any) => a.difficulty_rating - b.difficulty_rating);
+							embed.description += `[${res.data[j].beatmaps[res.data[j].beatmaps.length - 1].version}] ★: \`${res.data[j].beatmaps[res.data[j].beatmaps.length - 1].difficulty_rating}\`${res.data[j].beatmaps[res.data[j].beatmaps.length - 1].max_combo ? ' | combo: `' + res.data[j].beatmaps[res.data[j].beatmaps.length - 1].max_combo + 'x`' : ''}\n`;
+							for (var k = 0 ; k < res.data[j].beatmaps.length; k++) {
+								const diffIcon = client.emojis.find((emoji : any) => emoji.name === score.getDifficultyName(0, res.data[j].beatmaps[k].difficulty_rating) + '_' + res.data[j].beatmaps[k].mode);
+								embed.description += diffIcon + ' ';
+							}
+							client.channels.get(docs[i].mapFeedChannelID).send({embed});
+						}
+					}
+
+					database.update('utility', {lastChecked: lastChecked}, {
+						lastChecked: new Date(Date.now()).getTime()
+					}, {useCache: false, noLogs: true},(docs, err) => {if (err) throw err;});
+				}).catch((err : Error) => {error.unexpectedError(err, 'Attempted to request maps from osu for map feed');});
 		});
 	});
-	// request(`https://osu.ppy.sh/beatmapsets/search`)
 }
 
 module.exports = {

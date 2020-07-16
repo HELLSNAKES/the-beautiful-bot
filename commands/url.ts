@@ -5,7 +5,7 @@ import { Message } from 'discord.js';
 
 import * as error from '../handlers/error';
 
-const request = require('request');
+const axios = require('axios');
 const map = require('./map');
 
 function beatmapCardFromLink(msg: any) {
@@ -21,90 +21,83 @@ function beatmapCardFromLink(msg: any) {
 }
 
 function getBeatmapsetData(msg: Message, beatmapsetid: string | undefined, beatmapid: string | undefined) {
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`, {
-		json: true
-	}, (err: any, res: any, body: any) => {
+	axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`)
+		.then((res: any) => {
 
-		if (err) {
-			error.sendUnexpectedError(err, msg);
-			return;
-		}
-
-		if (body == undefined || body.length == 0) {
-			error.unexpectedError(new Error('Unexpected empty or undefined response body'), `https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`);
-			return;
-		}
-		
-		// If no beatmap is specified, set beatmap id to the hardest difficulty 
-		// Cannot use the last index because osu's API seems to return beatmap difficulties in a random order
-		if (beatmapid == undefined) {
-			var highestIndex = 0;
-			for (var i = 0; i < body.length; i++) {
-				if (body[i].difficultyrating > body[highestIndex].difficultyrating) highestIndex = i;
+			if (res.data == undefined || res.data.length == 0) {
+				error.unexpectedError(new Error('Unexpected empty or undefined response body'), `https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&s=${beatmapsetid}`);
+				return;
 			}
-			beatmapid = body[highestIndex].beatmap_id;
-		}
-
-		var data: any = {};
-		data.beatmaps = [];
-		var modes = ['osu', 'taiko', 'fruits', 'mania'];
-		for (i = 0; i < body.length; i++) {
-
-			body[i].mode = modes[body[i].mode];
-			body[i].difficulty_rating = body[i].difficultyrating;
-			data.beatmaps.push(body[i]);
-			if (body[i].beatmap_id == beatmapid) {
-				data = {
-					...body[i],
-					...data
-				};
+			
+			// If no beatmap is specified, set beatmap id to the hardest difficulty 
+			// Cannot use the last index because osu's API seems to return beatmap difficulties in a random order
+			if (beatmapid == undefined) {
+				var highestIndex = 0;
+				for (var i = 0; i < res.data.length; i++) {
+					if (res.data[i].difficultyrating > res.data[highestIndex].difficultyrating) highestIndex = i;
+				}
+				beatmapid = res.data[highestIndex].beatmap_id;
 			}
-		}
 
-		var approved;
-		if (data.approved == -2) approved = 'graveyard';
-		else if (data.approved == -1) approved = 'WIP';
-		else if (data.approved == 0) approved = 'pending';
-		else if (data.approved == 1) approved = 'ranked';
-		else if (data.approved == 2) approved = 'approved';
-		else if (data.approved == 3) approved = 'qualified';
-		else if (data.approved == 4) approved = 'loved';
+			var data: any = {};
+			data.beatmaps = [];
+			var modes = ['osu', 'taiko', 'fruits', 'mania'];
+			for (i = 0; i < res.data.length; i++) {
 
-		data = {
-			...data,
-			id: data.beatmapset_id,
-			user_id: data.creator_id,
-			url: 'https://osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid,
-			status: approved,
-			beatmap: {
-				id: data.beatmap_id,
-				difficulty_rating: data.difficultyrating,
-				cs: data.diff_size,
-				ar: data.diff_approach,
-				drain: data.diff_drain,
-				accuracy: data.diff_overall,
-				max_combo: data.max_combo,
-				total_length: data.total_length,
-				version: data.version
+				res.data[i].mode = modes[res.data[i].mode];
+				res.data[i].difficulty_rating = res.data[i].difficultyrating;
+				data.beatmaps.push(res.data[i]);
+				if (res.data[i].beatmap_id == beatmapid) {
+					data = {
+						...res.data[i],
+						...data
+					};
+				}
 			}
-		};
 
-		console.log(`BEATMAP DATA : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`);
-		if (msg) {
-			map.generateBeatmap(msg, data);
-		} else {
-			return (data);
-		}
+			var approved;
+			if (data.approved == -2) approved = 'graveyard';
+			else if (data.approved == -1) approved = 'WIP';
+			else if (data.approved == 0) approved = 'pending';
+			else if (data.approved == 1) approved = 'ranked';
+			else if (data.approved == 2) approved = 'approved';
+			else if (data.approved == 3) approved = 'qualified';
+			else if (data.approved == 4) approved = 'loved';
 
-	});
+			data = {
+				...data,
+				id: data.beatmapset_id,
+				user_id: data.creator_id,
+				url: 'https://osu.ppy.sh/beatmapsets/' + beatmapsetid + '#osu/' + beatmapid,
+				status: approved,
+				beatmap: {
+					id: data.beatmap_id,
+					difficulty_rating: data.difficultyrating,
+					cs: data.diff_size,
+					ar: data.diff_approach,
+					drain: data.diff_drain,
+					accuracy: data.diff_overall,
+					max_combo: data.max_combo,
+					total_length: data.total_length,
+					version: data.version
+				}
+			};
+
+			console.log(`BEATMAP DATA : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${beatmapsetid}#osu/${beatmapid}`);
+			if (msg) {
+				map.generateBeatmap(msg, data);
+			} else {
+				return (data);
+			}
+
+		}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 }
 
 function getBeatmapData(msg: Message, beatmapid: string | undefined) {
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${beatmapid}`, {
-		json: true
-	}, (err: any, res: any, body: any) => {
-		getBeatmapsetData(msg, body[0].beatmapset_id, beatmapid);
-	});
+	axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${beatmapid}`)
+		.then((res: any) => {
+			getBeatmapsetData(msg, res.data[0].beatmapset_id, beatmapid);
+		}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 }
 
 module.exports = {

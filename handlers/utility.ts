@@ -1,34 +1,31 @@
 'use strict';
 
-import { IAPIUser } from './interfaces';
+import * as error from '../handlers/error';
 
-const request = require('request');
+const axios = require('axios');
 
 export function checkUser(user : string, serverType = 0): Promise<void> {
 	return new Promise<void>((resolve, reject) => {
 		if (serverType == 0) {
-			request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${user}`, {
-				json: true
-			}, (err: any, res: any, body: Array<IAPIUser>) => {
+			axios.get(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${user}`)
+				.then((res: any) => {
 				// console.log(res.statusCode)
-				if (res.statusCode == 401) reject(new Error('Unauthorised error. possibly: No valid API key was provided'));
-				if (body.length == 0) reject(new Error( 'No user with the specified username/user id was found'));
-				else resolve();
-			});
+					if (res.statusCode == 401) reject(new Error('Unauthorised error. possibly: No valid API key was provided'));
+					if (res.data.length == 0) reject(new Error( 'No user with the specified username/user id was found'));
+					else resolve();
+				}).catch((err : Error) => {error.unexpectedError(err, `While running checkUser() : ${user} : ${serverType}`);});
 		} else if (serverType == 1) {
-			request(`https://api.gatari.pw/users/get?u=${user}`, {
-				json: true
-			}, (err: any, res: any, body: any) => {
-				if (body.users.length == 0) reject(new Error( 'No user with the specified username/user id was found'));
-				else resolve();
-			});
+			axios.get(`https://api.gatari.pw/users/get?u=${user}`)
+				.then((res: any) => {
+					if (res.data.users.length == 0) reject(new Error( 'No user with the specified username/user id was found'));
+					else resolve();
+				}).catch((err : Error) => {error.unexpectedError(err, `While running checkUser() : ${user} : ${serverType}`);});
 		} else if (serverType == 2) {
-			request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
-				json: true
-			}, (err: any, res: any, body: any) => {
-				if (body.code == 404) reject(new Error( 'No user with the specified username/user id was found'));
-				else resolve();
-			});
+			axios.get(`https://akatsuki.pw/api/v1/users?name=${user}`)
+				.then((res: any) => {
+					if (res.data.code == 404) reject(new Error( 'No user with the specified username/user id was found'));
+					else resolve();
+				}).catch((err : Error) => {error.unexpectedError(err, `While running checkUser() : ${user} : ${serverType}`);});
 		} else {
 			reject(new Error('Invalid server type'));
 		}
@@ -44,4 +41,21 @@ export function renameKey(object : any, oldKey : string, newKey : string) {
 	}
 
 	return object;
+}
+
+export function arrayBasedSorting(array : Array<any>, order : Array<any>, key : string) {
+
+	array.sort((a : any, b : any) => {
+		var A = a[key];
+		var B = b[key];
+
+		if (order.indexOf(A) > order.indexOf(B)) {
+			return 1;
+		} else {
+			return -1;
+		}
+	});
+
+	return array;
+	
 }

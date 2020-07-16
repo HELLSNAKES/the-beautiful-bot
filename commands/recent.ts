@@ -13,7 +13,7 @@ import * as akatsuki from '../handlers/akatsuki';
 import * as score from '../handlers/score';
 import * as utility from '../handlers/utility';
 
-const request = require('request');
+const axios = require('axios');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
 	argument.determineUser(msg, args, (user, options) => {
@@ -23,98 +23,91 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 
 function sendRecent(client: Client, msg: Message, user: string | undefined, options: IOptions) {
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=50&m=${options.mode}`, {
-			json: true
-		}, (err: any, res: any, body: any) => {
+		axios.get(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${user}&limit=50&m=${options.mode}`)
+			.then((res: any,) => {
 
-			if (options.passesonly) {
-				body = body.filter((x : any) => x.rank != 'F');
-			}
+				if (options.passesonly) {
+					res.data = res.data.filter((x : any) => x.rank != 'F');
+				}
 
-			if (body.length == 0) {
-				utility.checkUser(user!).then(() => {
-					msg.channel.send(`:red_circle: **\`${user}\` does not have any recent plays**\nNo submitted plays were achieved in the past 24 hours by \`${user}\` on osu! \`${score.getRuleset(String(options.mode) ?? '0')}\`.`);
-				}).catch(() => {
-					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);	
-				});
-				return;
-			}
+				if (res.data.length == 0) {
+					utility.checkUser(user!).then(() => {
+						msg.channel.send(`:red_circle: **\`${user}\` does not have any recent plays**\nNo submitted plays were achieved in the past 24 hours by \`${user}\` on osu! \`${score.getRuleset(String(options.mode) ?? '0')}\`.`);
+					}).catch(() => {
+						msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);	
+					});
+					return;
+				}
 
-			if (body.length < options.previous! + 1) {
-				msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${body.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);	
-				return;
-				
-			}
+				if (res.data.length < options.previous! + 1) {
+					msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${res.data.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);	
+					return;
+					
+				}
 
-			processData(client, msg, body[options.previous!], options);
-		});
+				processData(client, msg, res.data[options.previous!], options);
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	} else if (options.type == 1) {
 		if (options.mode != 0) {
 			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
 			return;
 		}
-		request(`https://api.gatari.pw/users/get?u=${user}`, {
-			json: true
-		}, (err: any, res: any, bodyInfo: any) => {
+		axios.get(`https://api.gatari.pw/users/get?u=${user}`)
+			.then((res: any) => {
 
-			if (bodyInfo.users.length == 0) {
-				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
-				return;
-			}
-
-			request(`https://api.gatari.pw/user/scores/recent?id=${bodyInfo.users[0].id}&l=100&mode=${options.mode}&f=1`, {
-				json: true
-			}, (err: any, res: any, body: any) => {
-
-				body = gatari.recent(bodyInfo, body);
-
-				if (options.passesonly) {
-					body = body.filter((x : any) => x.rank != 'F') ?? [];
-				}
-
-				if (body.length < options.previous! + 1) {
-					msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${body.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);
+				if (res.data.users.length == 0) {
+					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
 					return;
 				}
-	
 
-				processData(client, msg, body[options.previous!] ?? [], options);
+				axios.get(`https://api.gatari.pw/user/scores/recent?id=${res.data.users[0].id}&l=100&mode=${options.mode}&f=1`)
+					.then((resRecent: any) => {
 
-			});
-		});
+						resRecent.data = gatari.recent(res.data, resRecent.data);
+
+						if (options.passesonly) {
+							resRecent.data = resRecent.data.filter((x : any) => x.rank != 'F') ?? [];
+						}
+
+						if (resRecent.data.length < options.previous! + 1) {
+							msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${resRecent.data.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);
+							return;
+						}
+			
+						processData(client, msg, resRecent.data[options.previous!] ?? [], options);
+
+					}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	} else if (options.type == 2) {
 		if (options.mode != 0) {
 			msg.channel.send(':no_entry: Sorry, modes other than standard are not supported on unoffical servers yet');
 			return;
 		}
 
-		request(`https://akatsuki.pw/api/v1/users?name=${user}`, {
-			json: true
-		}, (err: any, res: any, bodyInfo: any) => {
+		axios.get(`https://akatsuki.pw/api/v1/users?name=${user}`)
+			.then((res: any) => {
 
-			if (bodyInfo.code == 404) {
-				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
-				return;
-			}
-
-			request(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax ? 1 : 0}`, {
-				json: true
-			}, (err: any, res: any, body: any) => {
-				body = akatsuki.recent(bodyInfo, body);
-
-				if (options.passesonly) {
-					body = body.filter((x : any) => x.rank != 'F') ?? [];
-				}
-
-				if (body.length < options.previous! + 1) {
-					msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${body.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);
+				if (res.data.code == 404) {
+					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
 					return;
 				}
-	
 
-				processData(client, msg, body[options.previous!], options);
-			});
-		});
+				axios.get(`https://akatsuki.pw/api/v1/users/scores/recent?name=${user}&rx=${options.relax ? 1 : 0}`)
+					.then((err: any, res: any, resRecent: any) => {
+						resRecent.data = akatsuki.recent(res.data, resRecent.data);
+
+						if (options.passesonly) {
+							resRecent.data = resRecent.data.filter((x : any) => x.rank != 'F') ?? [];
+						}
+
+						if (resRecent.data.length < options.previous! + 1) {
+							msg.channel.send(`:red_circle: **Play index out of range for the username \`${user}\`**\nThe user only has \`${resRecent.data.length - 1}\` plays that were achieved within the past 24 hours. \`${options.previous!}\` is outside of that range`);
+							return;
+						}
+			
+						processData(client, msg, resRecent.data[options.previous!], options);
+					}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	}
 }
 
@@ -129,57 +122,56 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 	if (modsString.includes('HR')) enabled_mods += 16;
 	if (modsString.includes('EZ')) enabled_mods += 2;
 
-	request(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1${options.mode != 0 ? `&mods=${enabled_mods}` : ''}`, {
-		json: true
-	}, (err: any, res: any, body: any) => {
-		if (body.length == 0) {
-			msg.channel.send(':red_circle: **The beatmap is could not be found**\nFor some unknown reason the beatmap could not be found. This has been automatically reported and will be resolved asap');
-			error.unexpectedError(new Error('Beatmap could not be found'), 'GET request response:\n'+JSON.stringify(res));
-			return;
-		}
+	axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1${options.mode != 0 ? `&mods=${enabled_mods}` : ''}`)
+		.then((res: any) => {
+			if (res.data.length == 0) {
+				msg.channel.send(':red_circle: **The beatmap is could not be found**\nFor some unknown reason the beatmap could not be found. This has been automatically reported and will be resolved asap');
+				error.unexpectedError(new Error('Beatmap could not be found'), 'GET request response:\n'+JSON.stringify(res));
+				return;
+			}
 
-		object = {
-			...object,
-			...body[0]
-		};
+			object = {
+				...object,
+				...res.data[0]
+			};
 
-		object.options = options;
-		object.accuracy = score.getAccuracy(options.mode!, object.count300, object.count100, object.count50, object.countmiss, object.countkatu, object.countgeki);
+			object.options = options;
+			object.accuracy = score.getAccuracy(options.mode!, object.count300, object.count100, object.count50, object.countmiss, object.countkatu, object.countgeki);
 
-		var outputObject;
-		if (options.mode == 0) {
-			pp.calculatepp(object.beatmap_id, {
-				mods: parseInt(object.enabled_mods),
-				accuracy: object.accuracy,
-				combo: parseInt(object.maxcombo),
-				misses: parseInt(object.countmiss),
-				mode: options.mode,
-				ppv3: options.ppv3
-			}, (json) => {
-				object.pp = object.pp || json.pp;
-				object.calculated_difficulty = json.stars;
-				object.totalHits = json.totalHits;
-				object.ppFC = json.ppFC;
+			var outputObject;
+			if (options.mode == 0) {
+				pp.calculatepp(object.beatmap_id, {
+					mods: parseInt(object.enabled_mods),
+					accuracy: object.accuracy,
+					combo: parseInt(object.maxcombo),
+					misses: parseInt(object.countmiss),
+					mode: options.mode,
+					ppv3: options.ppv3
+				}, (json) => {
+					object.pp = object.pp || json.pp;
+					object.calculated_difficulty = json.stars;
+					object.totalHits = json.totalHits;
+					object.ppFC = json.ppFC;
+					generateRecent(client, msg, object);
+				});
+			} else if (options.mode == 1) {
+				outputObject = pp.calculateTaikopp(object);
+				object.accuracy = outputObject.accuracy;
+				object.totalHits = outputObject.totalHits;
+				object.pp = Math.round(outputObject.pp * 100) / 100;
 				generateRecent(client, msg, object);
-			});
-		} else if (options.mode == 1) {
-			outputObject = pp.calculateTaikopp(object);
-			object.accuracy = outputObject.accuracy;
-			object.totalHits = outputObject.totalHits;
-			object.pp = Math.round(outputObject.pp * 100) / 100;
-			generateRecent(client, msg, object);
-		} else if (options.mode == 2) {
-			object.diff_approach *= 1.5;
-			outputObject = pp.calculateCatchpp(object);
-			object.totalHits = object.max_combo;
-			object.pp = outputObject.pp;
-			generateRecent(client, msg, object);
-		} else if (options.mode == 3) {
-			outputObject = pp.calculateManiapp(object);
-			object.pp = outputObject.pp;
-			generateRecent(client, msg, object);
-		}
-	});
+			} else if (options.mode == 2) {
+				object.diff_approach *= 1.5;
+				outputObject = pp.calculateCatchpp(object);
+				object.totalHits = object.max_combo;
+				object.pp = outputObject.pp;
+				generateRecent(client, msg, object);
+			} else if (options.mode == 3) {
+				outputObject = pp.calculateManiapp(object);
+				object.pp = outputObject.pp;
+				generateRecent(client, msg, object);
+			}
+		}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 }
 
 function generateRecent(client: Client, msg: Message, body: any) {

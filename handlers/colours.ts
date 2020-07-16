@@ -1,10 +1,12 @@
 'use strict';
 
 import { IColourContrast } from './interfaces';
+import * as error from '../handlers/error';
 
 const Vibrant = require('node-vibrant');
 const ColorThief = require('color-thief');
-const request = require('request');
+const axios = require('axios');
+
 let colorThief = new ColorThief();
 
 export function toHex(rgb: Array<number>): string {
@@ -26,29 +28,31 @@ export function getColours(url: string, callback: (colours: { foreground: string
 		throw 'Missing URL';
 	}
 
-	request({
-		url,
-		encoding: null
-	}, (err: any, res: any, body: any) => {
-		let dominant: any;
-		try {
-			dominant = colorThief.getColor(body);
-		} catch (err) {
-			getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png', callback);
-			return;
-		}
+	axios({
+		method: 'get',
+		url: url,
+		responseType: 'arraybuffer'
+	})
+		.then((res : any) => {
+			let dominant: any;
+			try {
+				dominant = colorThief.getColor(res.data);
+			} catch (err) {
+				getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png', callback);
+				return;
+			}
 
-		Vibrant.from(body).maxColorCount(64).getPalette(async function (err: any, palette: any) {
+			Vibrant.from(res.data).maxColorCount(64).getPalette(async function (err: any, palette: any) {
 
 
-			let backgroundColour = toHex(dominant);
-			let foregroundColour = palette.Vibrant.getHex();
-			callback({
-				foreground: foregroundColour,
-				background: backgroundColour
+				let backgroundColour = toHex(dominant);
+				let foregroundColour = palette.Vibrant.getHex();
+				callback({
+					foreground: foregroundColour,
+					background: backgroundColour
+				});
 			});
-		});
-	});
+		}).catch((err : Error) => {error.unexpectedError(err, `Error while trying to generate colour palette: ${url}`);});
 
 
 }

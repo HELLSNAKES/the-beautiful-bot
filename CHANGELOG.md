@@ -50,6 +50,7 @@ The beautiful bot's Changelog :)
  - Implemented new normalisers for gatari and akatsuki
  - Refactored a lot of code
  - Implemented database options to database handlers. This will allow things like disable logging, unset document properties and disable caching.
+ - Switched to Axios because Request is deprecated.
 
 ### Removed
  - Removed pp.js submodule and used tbbpp instead

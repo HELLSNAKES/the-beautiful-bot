@@ -7,9 +7,10 @@ import * as format from '../handlers/format';
 import * as argument from '../handlers/argument';
 import * as gatari from '../handlers/gatari';
 import * as akatsuki from '../handlers/akatsuki';
+import * as error from '../handlers/error';
 
 const path = require('path');
-const request = require('request');
+const axios = require('axios');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 const Discord = require('discord.js');
 
@@ -33,45 +34,41 @@ function requestData(msg: Message, id: string | undefined, options: IOptions = {
 }) {
 	options.type = options.type ? options.type : 0;
 	if (options.type == 0) {
-		request(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}&m=${options.mode}`, {
-			json: true
-		}, async (err: any, res: any, body: any) => {
+		axios.get(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${id}&m=${options.mode}`)
+			.then((res: any) => {
 
-			if (body == undefined || body.length == 0) {
-				msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
-				return;
-			}
+				if (res.data == undefined || res.data.length == 0) {
+					msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
+					return;
+				}
 
-			generateUser(msg, options, body);
-		});
+				generateUser(msg, options, res.data);
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	} else if (options.type == 1) {
-		request(`https://api.gatari.pw/user/stats?u=${id}`, {
-			json: true
-		}, (err: any, res: any, body: any) => {
+		axios.get(`https://api.gatari.pw/user/stats?u=${id}`)
+			.then((res: any) => {
 
-			if (Object.entries(body.stats).length == 0) {
-				msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
-				return;
-			}
+				if (Object.entries(res.data.stats).length == 0) {
+					msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
+					return;
+				}
 
-			request(`https://api.gatari.pw/users/get?u=${id}`, {
-				json: true
-			}, (err: any, res: any, bodyInfo: any) => {
-				generateUser(msg, options, [gatari.user(body, bodyInfo)]);
-			});
-		});
+				axios.get(`https://api.gatari.pw/users/get?u=${id}`)
+					.then((resUser : any) => {
+						generateUser(msg, options, [gatari.user(res.data, resUser.data)]);
+					}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	} else if (options.type == 2) {
-		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
-			json: true
-		}, (err: any, res: any, body: any) => {
+		axios.get(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`)
+			.then((res: any) => {
 
-			if (body.code == 404) {
-				msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
-				return;
-			}
+				if (res.data.code == 404) {
+					msg.channel.send(`:red_circle: **The username \`${id}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
+					return;
+				}
 
-			generateUser(msg, options, [akatsuki.user(body)]);
-		});
+				generateUser(msg, options, [akatsuki.user(res.data)]);
+			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 	}
 }
 

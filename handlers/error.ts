@@ -11,7 +11,7 @@
 
 import { Message } from 'discord.js';
 
-const request = require('request');
+const axios = require('axios');
 
 export function log(msg: Message, errCode: number): void {
 	if (errCode == 4041) {
@@ -52,13 +52,10 @@ export function sendUnexpectedError(err: Error, msg: Message): void {
 export function unexpectedError(err : Error, additionalInfo : string, callback = () => {}) {
 	if (process.env.slackAPI) {
 		let message = `___________\n\n(Error) An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nAdditional Information:\n\`\`\`${additionalInfo}\`\`\``;
-		request.post({
-			url: process.env.slackAPI,
-			body: {
-				'text': message
-			},
-			json: true
-		}, callback);
+		axios.post(process.env.slackAPI, {
+			'text': message
+		}).then(callback);
+
 	} else {
 		console.error('Slack Incoming Webhook URL was not found in the Environment Variables');
 		callback();

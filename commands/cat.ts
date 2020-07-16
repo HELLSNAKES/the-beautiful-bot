@@ -1,14 +1,16 @@
 'use strict';
 
 import { Message } from 'discord.js';
+import * as error from '../handlers/error';
 
-const request = require('request');
+const axios = require('axios');
 
 function execute(msg: Message) {
-	request('https://api.thecatapi.com/v1/images/search', function (err: any, res: any, body: any) {
-		msg.reply(JSON.parse(body)[0].url);
-		console.log('CAT :3');
-	});
+	axios.get('https://api.thecatapi.com/v1/images/search')
+		.then((res : any) => {
+			msg.reply(res.data[0].url);
+			console.log('CAT :3');
+		}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
 }
 
 module.exports = {
