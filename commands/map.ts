@@ -7,6 +7,7 @@ import * as error from '../handlers/error';
 import * as colours from '../handlers/colours';
 import * as format from '../handlers/format';
 import * as argument from '../handlers/argument';
+import * as beatmap from '../handlers/beatmap';
 
 const tbbpp = require('tbbpp');
 const axios = require('axios');
@@ -245,34 +246,7 @@ function generateBeatmap(msg: Message, data: any) {
 
 				var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
 
-				const infiniteBPMThreshold = 2400;
-				if (osuContent.bpmMin != undefined && osuContent.bpmMax != undefined) {
-					var bpmTimingPoints = osuContent.timingPoints.filter((x : any) => x.timingChange);
-					var uniqueBPMs : Array<number> = [];
-					var BPMLengths : Array<number> = [];
-					for (i = 0; i < bpmTimingPoints.length; i++) {
-						
-						if (!uniqueBPMs.includes(bpmTimingPoints[i].bpm)) {
-							uniqueBPMs.push(bpmTimingPoints[i].bpm);
-							BPMLengths.push(0);
-						}
-						
-						if (i < bpmTimingPoints.length - 1) {
-							BPMLengths[uniqueBPMs.indexOf(bpmTimingPoints[i].bpm)] += bpmTimingPoints[i + 1].offset - bpmTimingPoints[i].offset;
-						} else {
-							BPMLengths[uniqueBPMs.indexOf(bpmTimingPoints[i].bpm)] += (osuContent.totalTime * 1000) - bpmTimingPoints[i].offset;	
-						}
-					}
-					var modeAverageBPM = uniqueBPMs[BPMLengths.indexOf(Math.max(...BPMLengths))]; 
-
-					if (osuContent.bpmMin > infiniteBPMThreshold) osuContent.bpmMin = '∞';
-					if (osuContent.bpmMax > infiniteBPMThreshold) osuContent.bpmMax = '∞';
-					
-					var bpm = osuContent.bpmMin == osuContent.bpmMax ? osuContent.bpmMax : `${osuContent.bpmMin} - ${osuContent.bpmMax} (${modeAverageBPM})`;
-				} else {
-					bpm = data.bpm;
-					error.unexpectedError(new Error('BPM could not be parsed from the .osu file'), 'Message Content: '+ msg.content);
-				}
+				var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime);
 
 				ctx.textAlign = 'left';
 				ctx.font = '27px VarelaRound';
