@@ -42,6 +42,7 @@ The beautiful bot's Changelog :)
  - The bot will no longer allow you to set an invalid username
  - $best will show the calculated difficulty with mods rather than the base difficulty
  - using NC breaks mods displayed on $pp
+ - $ping ignoring whether a request has responded with an OK status code or not
  
 ### Changed
  - The entire codebase has been rewritten from JavaScript to TypeScript
