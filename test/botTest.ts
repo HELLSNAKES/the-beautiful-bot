@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 require('dotenv').config();
 
->>>>>>> adf7f00fada7b94997123bbb380c1e7375447360
 import { Message } from 'discord.js';
 
 const Discord = require('discord.js');
@@ -10,20 +7,11 @@ const client = new Discord.Client();
 const chalk = require('chalk');
 
 const tests = require('./tests.json');
-<<<<<<< HEAD
-const channelID = '687655592135098381';
-const testBotToken = 'Njk5NjE1NjIxMjU5NzIyODQx.XwbjtA.MR_daRPivZIxP-v7va6JPMQjIdE';
-=======
->>>>>>> adf7f00fada7b94997123bbb380c1e7375447360
 
 var currentTest = 0;
 
 client.on('ready', () => {
-<<<<<<< HEAD
-	client.channels.get(channelID).send(tests.tests[currentTest].message);
-=======
 	client.channels.get(process.env.testingChannelID).send(tests.tests[currentTest].message);
->>>>>>> adf7f00fada7b94997123bbb380c1e7375447360
 });
 
 client.on('message', (msg : Message) => {
@@ -43,16 +31,8 @@ client.on('message', (msg : Message) => {
 		console.log(chalk.bgBlue(chalk.gray(' DONE ')));
 		process.exit();
 	}
-<<<<<<< HEAD
-	client.channels.get(channelID).send(tests.tests[currentTest].message);
-});
-
-
-client.login(testBotToken);
-=======
 	client.channels.get(process.env.testingChannelID).send(tests.tests[currentTest].message);
 });
 
 
 client.login(process.env.testingBotToken);
->>>>>>> adf7f00fada7b94997123bbb380c1e7375447360
