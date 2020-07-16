@@ -150,18 +150,18 @@ async function generateUser(msg: Message, options: IOptions, body: Array<IAPIUse
 
 	ctx.font = '28px VarelaRound';
 	ctx.textAlign = 'center';
-	ctx.fillText(format.number(parseInt(body[0].count_rank_a)), 792 + 22, 171 + 25 + 28);
-	ctx.fillText(format.number(parseInt(body[0].count_rank_s)), 955 + 16, 171 + 25 + 28);
-	ctx.fillText(format.number(parseInt(body[0].count_rank_sh)), 1108 + 22, 171 + 25 + 28);
-	ctx.fillText(format.number(parseInt(body[0].count_rank_ss)), 888 + 9, 279 + 25 + 28);
-	ctx.fillText(format.number(parseInt(body[0].count_rank_ssh)), 1038 + 13, 279 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_a) || 0), 792 + 22, 171 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_s) || 0), 955 + 16, 171 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_sh) || 0), 1108 + 22, 171 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_ss) || 0), 888 + 9, 279 + 25 + 28);
+	ctx.fillText(format.number(parseInt(body[0].count_rank_ssh) || 0), 1038 + 13, 279 + 25 + 28);
 
 	ctx.textAlign = 'left';
 	ctx.font = '75px VarelaRound';
-	ctx.fillText('#' + format.number(parseInt(body[0].pp_rank)), 347, 170 + 75);
+	ctx.fillText('#' + format.number(parseInt(body[0].pp_rank) || 0), 347, 170 + 75);
 
 	ctx.font = '57px VarelaRound';
-	ctx.fillText('#' + format.number(parseInt(body[0].pp_country_rank)), 347, 259 + 57);
+	ctx.fillText('#' + format.number(parseInt(body[0].pp_country_rank) || 0), 347, 259 + 57);
 
 	var hexagon = await loadImage(path.resolve(__dirname, '../assets/hexagon.png'));
 	ctx.drawImage(hexagon, 342, 332, 72, 77);
@@ -170,7 +170,7 @@ async function generateUser(msg: Message, options: IOptions, body: Array<IAPIUse
 	
 	ctx.textAlign = 'center';
 	ctx.font = '33px VarelaRound';
-	ctx.fillText(Math.floor(level), 378, 332 + 50);
+	ctx.fillText(Math.floor(level || 0), 378, 332 + 50);
 
 	format.rect(ctx, 441, 364, 504, 12, 7);
 	ctx.fillStyle = '#FFCC22';
@@ -178,7 +178,7 @@ async function generateUser(msg: Message, options: IOptions, body: Array<IAPIUse
 	ctx.textAlign = 'left';
 	ctx.fillStyle = mainColour;
 	ctx.font = '21px VarelaRound';
-	ctx.fillText(Math.floor(100 * (level - Math.floor(level))) + '%', 960, 359 + 21);
+	ctx.fillText(Math.floor(100 * (level - Math.floor(level)) || 0) + '%', 960, 359 + 21);
 
 	ctx.fillStyle = mainColour + '21';
 	format.rect(ctx, 44, 472, 191, 53, 30);
@@ -196,10 +196,11 @@ async function generateUser(msg: Message, options: IOptions, body: Array<IAPIUse
 	ctx.fillText('Score', 973 + 50, 478 + 30);
 
 	ctx.font = '40px VarelaRound';
-	ctx.fillText(format.number(Math.floor(parseFloat(body[0].pp_raw))), 82 + 60, 534 + 40);
-	ctx.fillText(Math.round(parseFloat(body[0].accuracy) * 100) / 100 + '%', 324 + 75, 537 + 40);
-	ctx.fillText(format.number(Math.floor(parseFloat(body[0].total_seconds_played) / 60 / 60)) + 'h', 651 + 50, 536 + 40);
-	ctx.fillText(format.numberSuffix(parseInt(body[0].total_score)), 930 + 100, 536 + 40);
+	ctx.fillText((format.number(Math.floor(parseFloat(body[0].pp_raw) || 0))), 82 + 60, 534 + 40);
+	ctx.fillText(((Math.round((parseFloat(body[0].accuracy) || 0) * 100) / 100)) + '%', 324 + 75, 537 + 40);
+	ctx.fillText(format.number(Math.floor((parseFloat(body[0].total_seconds_played) || 0) / 60 / 60)) + 'h', 651 + 50, 536 + 40);
+	// ctx.fillText(format.number(Math.floor(parseInt(body[0].total_seconds_played) || 0) / 60 / 60) + 'h', 651 + 50, 536 + 40);
+	ctx.fillText(format.numberSuffix(parseInt(body[0].total_score) || 0), 930 + 100, 536 + 40);
 
 	const attachment = new Discord.Attachment(canvas.toBuffer(), 'user_stats.png');
 	msg.channel.send(attachment);
