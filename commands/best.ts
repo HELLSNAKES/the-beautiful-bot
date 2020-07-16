@@ -113,11 +113,18 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 
 	Promise.all(beatmaps).then((values: Array<any>) => {
 		const scoresToString: Array<string> = [];
+
+		
 		scores.map((x: any, i: number) => {
+			var scoreValues = `[${x.count300}/${x.count100}/${x.count50}/${x.countmiss}]`;
+			if (options.mode == 1) scoreValues = `[${x.count300}/${x.count100}/${x.countmiss}]`;
+			else if (options.mode == 2) scoreValues = `[${x.count300}/${x.count100}/${x.countkatu}/${x.countmiss}]`;
+			else if (options.mode == 3) scoreValues = `[${x.countgeki}/${x.count300}/${x.countkatu}/${x.count100}/${x.count50}/${x.countmiss}]`;
+			
 			const grade = client.emojis.find((emoji: Emoji) => emoji.name === 'rank_' + x.rank.toLowerCase());
 			const pp = Math.floor(parseFloat(x.pp) * 100) / 100;
 			const accuracy = score.getAccuracy(options.mode!, x.count300, x.count100, x.count50, x.countmiss, x.countkatu, x.countgeki);
-			scoresToString.push(`**[${values[i].data[0].title} [${values[i].data[0].version}]](${`https://osu.ppy.sh/beatmapsets/${values[i].data[0].beatmapset_id}#osu/${values[i].data[0].beatmap_id}`}) +${mods.toString(parseInt(x.enabled_mods))}**\n| ${grade} • **${pp}pp** • ${accuracy}% • [${Math.round(values[i].data[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(x.maxcombo))}x${values[i].data[0].max_combo ? '**/**' + format.number(values[i].data[0].max_combo) + 'x' : ''}**) • **${format.number(parseInt(x.score))}** • [${x.count300}/${x.count100}/${x.count50}/${x.countmiss}]\n| Achieved: **${format.time(Date.parse(x.date + (options.type == 0 ? ' UTC' : '')))}**\n`);
+			scoresToString.push(`**[${values[i].data[0].title} [${values[i].data[0].version}]](${`https://osu.ppy.sh/beatmapsets/${values[i].data[0].beatmapset_id}#osu/${values[i].data[0].beatmap_id}`}) +${mods.toString(parseInt(x.enabled_mods))}**\n| ${grade} • **${pp}pp** • ${accuracy}% • [${Math.round(values[i].data[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(x.maxcombo))}x${values[i].data[0].max_combo ? '**/**' + format.number(values[i].data[0].max_combo) + 'x' : ''}**) • **${format.number(parseInt(x.score))}** • ${scoreValues}\n| Achieved: **${format.time(Date.parse(x.date + (options.type == 0 ? ' UTC' : '')))}**\n`);
 		});
 
 		embed.author.name = `Here is ${user}'s top ${scores.length} osu! ${score.getRuleset(options.mode?.toString() ?? '0')} plays:`;
