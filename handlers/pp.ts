@@ -6,6 +6,7 @@ import { IOjsamaOptions } from './interfaces';
 import * as mods from './mods';
 import * as error from '../handlers/error';
 import * as score from '../handlers/score';
+import * as beatmap from '../handlers/beatmap';
 
 const ojsama = require('ojsama');
 const axios = require('axios');
@@ -15,11 +16,17 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 
 	var parser = new ojsama.parser();
 
+	var clockRate = 1;
+	if (mods.has(options.mods!, 'DT')) clockRate = 1.5;
+	if (mods.has(options.mods!, 'HT')) clockRate = 0.75;
+
 	axios.get(`https://osu.ppy.sh/osu/${beatmapId}`)
 		.then((res: any) => {
+
+			var osuContent = tbbpp.processContent(res.data);
+			
 			if (options.ppv3) {
-				var osuContent = tbbpp.processContent(res.data);
-				
+    
 				options.combo = (options.combo ? options.combo : osuContent.maxCombo);
 
 				var ppv3Options : any = options;
@@ -52,6 +59,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 						totalHits: osuContent.hitObjects.length,
 						pp: Math.floor(values[0].pp * 100) / 100,
 						ppFC: values[1].pp,
+						BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime, clockRate)
 					});
 				}).catch((err) => {error.unexpectedError(err, `pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
 
@@ -101,6 +109,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 					totalHits: parser.map.objects.length,
 					pp: Math.floor(output.total * 100) / 100,
 					ppFC: FC.total,
+					BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime, clockRate)
 				};
 		
 		
