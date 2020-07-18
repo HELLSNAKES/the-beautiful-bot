@@ -1,60 +1,69 @@
 # Changelog
 
-The beautiful bot's Changelog :)
+All notable changes to this project will be documented in this file.
 
-## 1.4.0 10-06-20
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## 1.4.0 18-07-20
 
 ### Added
- - A completely new help system that is more condense, easier to read and more helpful
- - A new algorithm for parsing arguments
- - Arguments are not longer case sensitive
- - Support for argument aliases e.g. you can use -previous now instead of only -p
- - Argument errors are a lot more clearer than before
- - A wider support for command aliases (e.g. you can use $best, $bt and $top to show your top plays)
- - A new error system that will automatically report errors and will tell the user if an unexpected error occur.
- - Support for catch, taiko and mania in $best
- - Implemented -taiko, -catch, -mania & -standard replacing -m [mode]
- - Replay parsing. The bot can parse osu standard, catch and mania replay files and show a score embed
- - Added a new -passesonly to $rs to show the most recent passed play (No failed plays)
- - $c now will indicate whether other plays with other mod combinations are available.
- - Implemented -mods [mod abbriviations] to $c to show a play with a different mod combination
- - Added support for displaying bpm ranges in beatmap images
- - URLs like https://osu.ppy.sh/b/1245003 and https://osu.ppy.sh/s/588018 and more can now be parsed.
- - Custom prefixes
- - Added a new status message
- - $compare now supports taiko, catch and mania
+ - A new help system that is more condense, easier to read and more helpful
+ - Implemented 	`-taiko`, `-catch`, `-mania` & `-standard` replacing `-m [mode]`
+ - Replay parsing, this means that if you send a replay file to the chat the bot will parse it and show a score embed (similar to `$compare`) (This is supported for standard, catch and mania. No taiko yet)
+ - Added a new `-passesonly` argument to `$recent` to show the most recent passed play (aka no failed plays)
+ - Taiko pp calculation has been implemented
+ - `$best` supprot for all gamemodes
+ - `$compare` support for all gamemodes
+ - Implemented `-mods [mod abbriviations]` to $c to show a play with a different mod combination
+ - `$compare` will indicate whether other plays with other mod combinations are available.
  - Implemented an algorithm to predict what command you meant to use when the command is not recognised
- - Implemented failed requests in $ping
- - Implemented database caching with read, write and update functionality
- - Added a $flush command for flushing the cache
- - A simple $invite command
- - Added a few more countries to the country code list
- - Implemented a rank feed and a new $mapfeed command
- - Added a new -ppv3 argument to $pp and $rs to use the new delta algorithm for calculating pp rather than the current algorithm.
- - Implemented unit testing to partial automate bot testing 
+ - Added support for bpm ranges in beatmap images
+ - Implemented a rank feed and a new `$mapfeed` command
+ - Added a new `-ppv3` argument to `$pp` and `$rs` to use the new delta algorithm for calculating pp rather than the current algorithm.
+ - A simple `$invite` command
+ - URLs like https://osu.ppy.sh/b/1245003 and https://osu.ppy.sh/s/588018 and more can now be parsed by the bot.
+ - A wider support for command aliases (e.g. you can use `$best`, `$bt` and `$top` to show your top plays)
+ - Added a new status message
+ - Created a new algorithm for parsing arguments
+ 	- Arguments are not longer case sensitive
+	- Added support for argument aliases e.g. you can use `-previous` now instead of only `-p`
+ 	- Argument errors are clearer and more specific than before
+ 	- Implemented argument multi-space spliting, now extra spaces are ignored
+ - Custom prefixes
+ - A new error reporting system that will automatically report errors and will tell the user if an unexpected error has occured.
+ - Database caching with the read, write and update functions and precaching (This should significantly improve the bot's database performance. Going from an average of 360ms → sub 10ms)
+ - Added a `$flush` command for flushing the cache (For developer use only)
+ - Added few more countries to the country code list
+ - Implemented unit testing to partially automate bot testing 
+
+### Changed
+ - The entire codebase has been rewritten from JavaScript to TypeScript
+ - Switched to Axios because Request is deprecated.
+ - Implemented database options to database handlers. This will allow things like disable logging, unset document properties and disable caching.
+ - `$best` will show the calculated difficulty with mods rather than the base difficulty
+ - Renamed `$osuset` to `$set`, `$osuset` is now an alias
+ - Implemented new normalisers for gatari and akatsuki
+ - Refactored a lot of code
+ - `$best`, `$recent` and `$compare` show more specific score values for the gamemode specified. e.g. for mania its no longer shown as [300s/100s/50s/misses] but as [Max/300s/200s/100s/50s/misses]
 
 ### Fixed
  - Bot not generating a beatmap image and throwing an error when the mapper does not have a profile picture set.
  - Using an incorrect Gatari and Akatsuki usernames crashes the bot.
- - Accuracy and star rating being slightly off in some cases (±0.01)
- - Showing the incorrect status icon when using $rs for akatsuki and gatari users
- - Fixed @ing the bot throws an error
+ - Accuracy and star rating being slightly off in some cases (±0.01 usually)
+ - Showing the incorrect status icon when using `$rs` for akatsuki and gatari users (especially for unranked and loved maps)
+ - @ing the bot throws an error
  - The bot will no longer allow you to set an invalid username
- - $best will show the calculated difficulty with mods rather than the base difficulty
- - using NC breaks mods displayed on $pp
- - $ping ignoring whether a request has responded with an OK status code or not
+ - using NC breaks mods displayed on `$pp`
+ - `$ping` ignoring whether a request has responded with an OK status code or not
+ - Users with null and undefined values crash the bot
+ - Users with unknown contry codes (Usually XX) are shown as undefined
  
-### Changed
- - The entire codebase has been rewritten from JavaScript to TypeScript
- - Argument space spliting, now extra spaces are ignored e.g. "$osu -m 0    Moorad"
- - Renamed $osuset to $set, $osuset is now an alias
- - Implemented new normalisers for gatari and akatsuki
- - Refactored a lot of code
- - Implemented database options to database handlers. This will allow things like disable logging, unset document properties and disable caching.
- - Switched to Axios because Request is deprecated.
+### Deprecated 
+ - `-m` and `-mode` are now deprecated and will be removed soon
 
 ### Removed
  - Removed pp.js submodule and used tbbpp instead
+ - Request and Request-promise-native have been removed (switched to axios instead)
 
 ### Security
  - Enabled strict mode on all files
