@@ -57,6 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - `$ping` ignoring whether a request has responded with an OK status code or not
  - Users with null and undefined values crash the bot
  - Users with unknown contry codes (Usually XX) are shown as undefined
+ - Completion percentage showing as 100% in `$recent` when the user fails extremely close to the end of the map
  
 ### Deprecated 
  - `-m` and `-mode` are now deprecated and will be removed soon

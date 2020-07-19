@@ -207,7 +207,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 
 	var completion = 0;
 	if (body.rank.toLowerCase() == 'f') {
-		completion = Math.floor((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.totalHits) * 10000) / 100;
+		completion = (Math.floor((((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.totalHits)) - 0.0000000001) * 10000) / 100);
 	}
 
 	var withMods = false;
