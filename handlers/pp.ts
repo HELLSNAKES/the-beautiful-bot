@@ -193,13 +193,13 @@ export function calculateCatchpp(data: any): any {
 }
 
 export function calculateManiapp(data: any): any {
-	data.difficultyrating = parseFloat(data.difficultyrating);
-	data.diff_overall = parseFloat(data.diff_overall);
-	data.maxcombo = parseInt(data.maxcombo);
-	data.score = parseInt(data.score);
-	data.accuracy = parseFloat(data.accuracy);
-	data.totalHits = parseInt(data.count50) + parseInt(data.count100) + parseInt(data.count300) + parseInt(data.countmiss) + parseInt(data.countgeki) + parseInt(data.countkatu);
-
+	const SR = parseFloat(data.difficultyrating);
+	const OD = parseFloat(data.diff_overall);
+	const accuracy = parseFloat(data.accuracy);
+	const totalHits = data.totalHits;
+	
+	var score = parseInt(data.score);
+	
 	// Strain
 	var scoreMultiplier = mods.getScoreMultiplier(data.enabled_mods, 3);
 	var strainValue = 0;
@@ -207,35 +207,35 @@ export function calculateManiapp(data: any): any {
 		return;
 	}
 
-	data.score *= 1 / scoreMultiplier;
+	score *= 1 / scoreMultiplier;
 
-	strainValue = Math.pow(5 * Math.max(1, data.difficultyrating / 0.2) - 4, 2.2) / 135;
+	strainValue = Math.pow(5 * Math.max(1, SR / 0.2) - 4, 2.2) / 135;
 
-	strainValue *= 1 + 0.1 * Math.min(1, data.totalHits / 1500);
+	strainValue *= 1 + 0.1 * Math.min(1, totalHits / 1500);
 
-	if (data.score <= 500000) {
+	if (score <= 500000) {
 		strainValue = 0;
-	} else if (data.score <= 600000) {
-		strainValue *= (data.score - 500000) / 100000 * 0.3;
-	} else if (data.score <= 700000) {
-		strainValue *= 0.3 + (data.score - 600000) / 100000 * 0.25;
-	} else if (data.score <= 800000) {
-		strainValue *= 0.55 + (data.score - 700000) / 100000 * 0.20;
-	} else if (data.score <= 900000) {
-		strainValue *= 0.75 + (data.score - 800000) / 100000 * 0.15;
+	} else if (score <= 600000) {
+		strainValue *= (score - 500000) / 100000 * 0.3;
+	} else if (score <= 700000) {
+		strainValue *= 0.3 + (score - 600000) / 100000 * 0.25;
+	} else if (score <= 800000) {
+		strainValue *= 0.55 + (score - 700000) / 100000 * 0.20;
+	} else if (score <= 900000) {
+		strainValue *= 0.75 + (score - 800000) / 100000 * 0.15;
 	} else {
-		strainValue *= 0.90 + (data.score - 900000) / 100000 * 0.1;
+		strainValue *= 0.90 + (score - 900000) / 100000 * 0.1;
 	}
 
 	// Accuracy
-	var hitWindow300 = 34 + 3 * Math.min(10, Math.max(0, 10.0 - data.diff_overall));
+	var hitWindow300 = 34 + 3 * Math.min(10, Math.max(0, 10.0 - OD));
 	var accValue = 0;
 	if (hitWindow300 <= 0) {
 		accValue = 0;
 		return;
 	}
 
-	accValue = Math.max(0, 0.2 - ((hitWindow300 - 34) * 0.00667)) * strainValue * Math.pow((Math.max(0, (data.score - 960000) / 40000)), 1.1);
+	accValue = Math.max(0, 0.2 - ((hitWindow300 - 34) * 0.00667)) * strainValue * Math.pow((Math.max(0, (score - 960000) / 40000)), 1.1);
 
 	// Total
 	var modMultiplier = 0.8;
@@ -263,7 +263,7 @@ export function calculateManiapp(data: any): any {
 		stars: data.difficultyrating,
 		mods: mods.toString(data.enabled_mods),
 		totalHits: data.totalHits,
-		accuracy: data.accuracy,
+		accuracy: accuracy,
 		pp: Math.floor(value * 100) / 100
 	};
 }

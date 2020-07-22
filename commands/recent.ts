@@ -134,11 +134,13 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				...object,
 				...res.data[0]
 			};
-
+			
 			object.options = options;
 			object.accuracy = score.getAccuracy(options.mode!, object.count300, object.count100, object.count50, object.countmiss, object.countkatu, object.countgeki);
-
+			object.totalHits = parseInt(object.count_normal) + parseInt(object.count_slider) + parseInt(object.count_spinner);
+			
 			var outputObject;
+			console.log(object.totalHits);
 			if (options.mode == 0) {
 				pp.calculatepp(object.beatmap_id, {
 					mods: parseInt(object.enabled_mods),
@@ -150,20 +152,17 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				}, (json) => {
 					object.pp = object.pp || json.pp;
 					object.calculated_difficulty = json.stars;
-					object.totalHits = json.totalHits;
 					object.ppFC = json.ppFC;
 					generateRecent(client, msg, object);
 				});
 			} else if (options.mode == 1) {
 				outputObject = pp.calculateTaikopp(object);
 				object.accuracy = outputObject.accuracy;
-				object.totalHits = outputObject.totalHits;
 				object.pp = Math.round(outputObject.pp * 100) / 100;
 				generateRecent(client, msg, object);
 			} else if (options.mode == 2) {
 				object.diff_approach *= 1.5;
 				outputObject = pp.calculateCatchpp(object);
-				object.totalHits = object.max_combo;
 				object.pp = outputObject.pp;
 				generateRecent(client, msg, object);
 			} else if (options.mode == 3) {
@@ -179,7 +178,6 @@ function generateRecent(client: Client, msg: Message, body: any) {
 		error.log(msg, 4044);
 		return;
 	}
-
 	var userPictureUrl = `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}`;
 	if (body.options.type == 1) {
 		userPictureUrl = `https://a.gatari.pw/${body.user_id}?${Date.now().toString()}`;
@@ -207,7 +205,21 @@ function generateRecent(client: Client, msg: Message, body: any) {
 
 	var completion = 0;
 	if (body.rank.toLowerCase() == 'f') {
-		completion = (Math.floor((((parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300) + parseInt(body.countmiss)) / parseInt(body.totalHits)) - 0.0000000001) * 10000) / 100);
+		var objects = parseInt(body.countmiss) + parseInt(body.count50) + parseInt(body.count100) + parseInt(body.count300);
+
+		if (body.options.mode == 1) {
+			objects = parseInt(body.countmiss) + parseInt(body.count100) + parseInt(body.count300);
+
+		} else if (body.options.mode == 2) {
+			objects = parseInt(body.countmiss) + parseInt(body.count100) + parseInt(body.countkatu) + parseInt(body.count300);
+
+		} else if (body.options.mode == 3) {
+			objects = parseInt(body.countmiss) + parseInt(body.count50) +parseInt(body.count100) + parseInt(body.countkatu) + parseInt(body.count300) + parseInt(body.countgeki);
+
+		}
+		console.log(objects)
+		console.log(body.totalHits)
+		completion = (Math.floor(((objects / body.totalHits) - 0.0000000001) * 10000) / 100);
 	}
 
 	var withMods = false;
@@ -230,7 +242,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 	if (body.options.mode == 2) body.modeName = 'Catch';
 	if (body.options.mode == 3) body.modeName = 'Mania';
 	const embed = {
-		'description': `| ${status} • ${grade} • **${body.pp}pp** • ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' • __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.round(body.difficultyrating))} **[${body.difficultyrating}★]${withMods && body.options.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| (**${format.number(body.maxcombo)}x${body.max_combo ? '**/**' + format.number(body.max_combo) + 'x' : ''}**) • ${format.number(body.score)} • ${scoreValues}${body.rank.toLowerCase() == 'f' && body.max_combo || body.date ? '\n|' : ''} ${body.rank.toLowerCase() == 'f' && body.max_combo ? `Completed: **${completion}%**  • ` : ''}${body.date ? `Achieved: **${date}**` : ''}${(body.replay_available == 1 ? `\n| [${client.emojis.find(emoji => emoji.name === 'icon_3_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} Replay is Available](https://osu.ppy.sh/scores/osu/${body.score_id}/download)` : '')}\n| ${client.emojis.find(emoji => emoji.name === 'icon_0_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
+		'description': `| ${status} • ${grade} • **${body.pp}pp** • ${body.accuracy}% ${ppFC} ${body.perfect == 1 ? ' • __**[Full Combo!]**__' : ''}\n| ${'★'.repeat(Math.round(body.difficultyrating))} **[${body.difficultyrating}★]${withMods && body.options.mode == 0 ? ` (${body.calculated_difficulty}★ with Mods)` : ''}**\n| (**${format.number(body.maxcombo)}x${body.max_combo ? '**/**' + format.number(body.max_combo) + 'x' : ''}**) • ${format.number(body.score)} • ${scoreValues}${body.rank.toLowerCase() == 'f' || body.date ? '\n|' : ''} ${body.rank.toLowerCase() == 'f' ? `Completed: **${completion}%**  • ` : ''}${body.date ? `Achieved: **${date}**` : ''}${(body.replay_available == 1 ? `\n| [${client.emojis.find(emoji => emoji.name === 'icon_3_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} Replay is Available](https://osu.ppy.sh/scores/osu/${body.score_id}/download)` : '')}\n| ${client.emojis.find(emoji => emoji.name === 'icon_0_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Direct](https://the-beautiful-bot-api.herokuapp.com/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_1_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [Bloodcat](https://bloodcat.com/osu/s/${body.beatmapset_id}) ${client.emojis.find(emoji => emoji.name === 'icon_2_' + (body.rank).toLowerCase().replace('xh', 'x').replace('d', 'f'))} [TBB Stats](https://the-beautiful-bot.netlify.com/beatmap?bsetid=${body.beatmapset_id})`,
 		'url': 'https://discordapp.com',
 		'color': colour,
 		'image': {

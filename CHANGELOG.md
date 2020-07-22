@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Added a `$flush` command for flushing the cache (For developer use only)
  - Added few more countries to the country code list
  - Implemented unit testing to partially automate bot testing 
+ - Added map completion for all gamemodes
 
 ### Changed
  - The entire codebase has been rewritten from JavaScript to TypeScript
