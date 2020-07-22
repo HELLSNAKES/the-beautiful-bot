@@ -161,7 +161,6 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 				object.pp = Math.round(outputObject.pp * 100) / 100;
 				generateRecent(client, msg, object);
 			} else if (options.mode == 2) {
-				object.diff_approach *= 1.5;
 				outputObject = pp.calculateCatchpp(object);
 				object.pp = outputObject.pp;
 				generateRecent(client, msg, object);

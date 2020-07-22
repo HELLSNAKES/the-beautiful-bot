@@ -123,17 +123,17 @@ export function calculateCatchpp(data: any): any {
 	var diff_approach = parseFloat(data.diff_approach);
 	var max_combo = parseInt(data.max_combo);
 	var maxcombo = parseInt(data.maxcombo);
-	var count300 = parseInt(data.count300);
-	var count100 = parseInt(data.count100);
-	var countmiss = parseInt(data.countmiss);
+	const fruitsHit = parseInt(data.count300);
+	const ticksHit = parseInt(data.count100);
+	const misses = parseInt(data.countmiss);
 
 	
 	var value = Math.pow(5 * Math.max(1, (difficultyrating) / 0.0049) - 4, 2) / 100000;
-	var totalHits = count300 + count100 + countmiss;
+	var numTotalHits = misses + ticksHit + fruitsHit;
 
-	var lengthBonus = 0.95 + 0.3 * Math.min(1, totalHits / 2500) + (totalHits > 2500 ? Math.log10(totalHits / 2500) * 0.475 : 0);
+	var lengthBonus = 0.95 + 0.3 * Math.min(1, numTotalHits / 2500) + (numTotalHits > 2500 ? Math.log10(numTotalHits / 2500) * 0.475 : 0);
 	value *= lengthBonus;
-	value *= Math.pow(0.97, countmiss);
+	value *= Math.pow(0.97, misses);
 
 	if (max_combo > 0) {
 		value *= Math.min(Math.pow(maxcombo, 0.8) / Math.pow(max_combo, 0.8), 1);
@@ -157,7 +157,7 @@ export function calculateCatchpp(data: any): any {
 		if (diff_approach <= 10) {
 			value *= 1.05 + 0.075 * (10 - diff_approach);
 		} else if (diff_approach > 10) {
-			value *= 1.01+ 0.04 * (11 - Math.min(11, diff_approach));
+			value *= 1.01 + 0.04 * (11 - Math.min(11, diff_approach));
 		}
 	}
 
@@ -188,7 +188,7 @@ export function calculateCatchpp(data: any): any {
 		mods: mods.toString(data.enabled_mods),
 		combo: data.maxcombo + '/' + data.max_combo + 'x',
 		accuracy: data.accuracy,
-		pp: Math.floor(value * 100) / 100
+		pp: value
 	};
 }
 
