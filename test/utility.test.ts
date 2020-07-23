@@ -50,7 +50,7 @@ test('should test for valid akatsuki usernames and user ids', () => {
 		// usernames
 		utility.checkUser('_byte', 2),
 		utility.checkUser('xGameOG', 2),
-		utility.checkUser('Iridium', 2),
+		utility.checkUser('-[]', 2),
 		utility.checkUser('- Aikawa -', 2),
 		utility.checkUser('my angel akia', 2),
 		utility.checkUser('T3relax', 2),
