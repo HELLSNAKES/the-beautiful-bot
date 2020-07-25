@@ -1,7 +1,12 @@
 'use strict';
 
 import { IColourContrast } from './interfaces';
-import * as error from '../handlers/error';
+// import * as error from '../handlers/error';
+
+interface IGetColour {
+	foreground: Colour,
+	background: Colour
+}
 
 const Vibrant = require('node-vibrant');
 const ColorThief = require('color-thief');
@@ -9,62 +14,134 @@ const axios = require('axios');
 
 let colorThief = new ColorThief();
 
-export function toHex(rgb: Array<number>): string {
-	let componentToHex = (c: number) => {
-		let hex = c.toString(16);
-		return hex.length == 1 ? '0' + hex : hex;
-	};
+export class Colour {
+	private value: Array<number> = [];
 
-	return '#' + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
-}
-
-export function toRGB(hex: string): Array<number> {
-	hex = hex.replace('#', '');
-	return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
-}
-
-export function getColours(url: string, callback: (colours: { foreground: string, background: string }) => void = (): void => { }): void {
-	if (url === undefined) {
-		throw 'Missing URL';
+	public constructor(initalInputType: number, value: any) {
+		if (initalInputType == 0) { // RGB
+			this.value = value;
+		} else if (initalInputType == 1) { // HEX
+			this.modifyHEX(value);
+		} else if (initalInputType == 2) { // HSL
+			this.modifyHSL(value);
+		} else {
+			console.error('Invalid inital input type');
+			this.value = [255,255,255];
+		}
 	}
 
-	axios({
-		method: 'get',
-		url: url,
-		responseType: 'arraybuffer'
-	})
-		.then((res : any) => {
-			let dominant: any;
-			try {
-				dominant = colorThief.getColor(res.data);
-			} catch (err) {
-				getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png', callback);
-				return;
+	public getRGB() {
+		return this.value;
+	}
+
+	public getHEX() {
+		const componentToHex = (c: number) => {
+			let hex = c.toString(16);
+			return hex.length == 1 ? '0' + hex : hex;
+		};
+
+		return '#' + componentToHex(this.value[0]) + componentToHex(this.value[1]) + componentToHex(this.value[2]);
+	}
+
+	public getHSL() {
+		let r = this.value[0];
+		let g = this.value[1];
+		let b = this.value[2];
+
+		r /= 255, g /= 255, b /= 255;
+
+		var max = Math.max(r, g, b), min = Math.min(r, g, b);
+		var h: any, s: any, v: any = max;
+
+		var d = max - min;
+		s = max == 0 ? 0 : d / max;
+
+		if (max == min) {
+			h = 0; // achromatic
+		} else {
+			switch (max) {
+			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+			case g: h = (b - r) / d + 2; break;
+			case b: h = (r - g) / d + 4; break;
 			}
 
-			Vibrant.from(res.data).maxColorCount(64).getPalette(async function (err: any, palette: any) {
+			h /= 6;
+		}
 
+		return [h, s, v];
+	}
 
-				let backgroundColour = toHex(dominant);
-				let foregroundColour = palette.Vibrant.getHex();
-				callback({
-					foreground: foregroundColour,
-					background: backgroundColour
+	public modifyHEX(value: string) {
+		value = value.replace('#', '');
+		this.value = [parseInt(value.slice(0, 2), 16), parseInt(value.slice(2, 4), 16), parseInt(value.slice(4, 6), 16)];
+	}
+
+	public modifyRGB(values: Array<number>) {
+		this.value = values;
+	}
+
+	public modifyHSL(values: Array<number>) {
+		var r : any, g : any, b : any;
+
+		var i = Math.floor(values[0] * 6);
+		var f = values[0] * 6 - i;
+		var p = values[2] * (1 - values[1]);
+		var q = values[2] * (1 - f * values[1]);
+		var t = values[2] * (1 - (1 - f) * values[1]);
+
+		switch (i % 6) {
+		case 0: r = values[2], g = t, b = p; break;
+		case 1: r = q, g = values[2], b = p; break;
+		case 2: r = p, g = values[2], b = t; break;
+		case 3: r = p, g = q, b = values[2]; break;
+		case 4: r = t, g = p, b = values[2]; break;
+		case 5: r = values[2], g = p, b = q; break;
+		}
+
+		this.value = [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+	}
+}
+
+export function getColours(url: string) {
+	return new Promise<IGetColour>((resolve : any, reject : any) => {
+		if (url === undefined) reject('Missing URL');
+
+		axios({
+			method: 'get',
+			url: url,
+			responseType: 'arraybuffer'
+		})
+			.then((res: any) => {
+				let dominant: any;
+				try {
+					dominant = new Colour(0, colorThief.getColor(res.data));
+				} catch (err) {
+					getColours('https://osu.ppy.sh/images/layout/beatmaps/default-bg@2x.png').then(resolve);
+					return;
+				}
+
+				Vibrant.from(res.data).maxColorCount(64).getPalette(async function (err: any, palette: any) {
+
+					if (err) reject(err);
+
+					resolve({
+						foreground: new Colour(1, palette.Vibrant.getHex()),
+						background: dominant
+					});
 				});
-			});
-		}).catch((err : Error) => {error.unexpectedError(err, `Error while trying to generate colour palette: ${url}`);});
-
+			}).catch(reject);
+	});
 
 }
 
-export function getContrastRatio(foreground: Array<number>, background: Array<number>): IColourContrast {
+export function getContrastRatio(foreground: Colour, background: Colour): IColourContrast {
 
-	let R1 = foreground[0] / 255;
-	let R2 = background[0] / 255;
-	let G1 = foreground[1] / 255;
-	let G2 = background[1] / 255;
-	let B1 = foreground[2] / 255;
-	let B2 = background[2] / 255;
+	let R1 = foreground.getRGB()[0] / 255;
+	let R2 = background.getRGB()[0] / 255;
+	let G1 = foreground.getRGB()[1] / 255;
+	let G2 = background.getRGB()[1] / 255;
+	let B1 = foreground.getRGB()[2] / 255;
+	let B2 = background.getRGB()[2] / 255;
 
 	if (R1 <= 0.03928) {
 		R1 = R1 / 12.92;
@@ -142,15 +219,15 @@ export function getContrastRatio(foreground: Array<number>, background: Array<nu
 
 }
 
-export function toReadable(foreground: Array<number>, background: Array<number>): { background: Array<number>, foreground: Array<number> } {
+export function toReadable(foreground: Colour, background: Colour) {
 	let contrastRatioLight = getContrastRatio(foreground, background);
 	let contrastRatioDark = getContrastRatio(foreground, background);
 	let counter = 0;
 
 	while (!contrastRatioLight.readable && !contrastRatioDark.readable) {
 		counter++;
-		contrastRatioLight = getContrastRatio(toRGB(brightness(toHex(foreground), counter)), background);
-		contrastRatioDark = getContrastRatio(toRGB(brightness(toHex(foreground), -counter)), background);
+		contrastRatioLight = getContrastRatio(brightness(foreground, counter), background);
+		contrastRatioDark = getContrastRatio(brightness(foreground, -counter), background);
 
 	}
 
@@ -161,12 +238,14 @@ export function toReadable(foreground: Array<number>, background: Array<number>)
 }
 
 
-function brightness(color: string, percent: number) {
-	let num = parseInt(color.replace('#', ''), 16),
+function brightness(colour: Colour, percent: number) {
+	let num = parseInt(colour.getHEX().replace('#', ''), 16),
 		amt = Math.round(2.55 * percent),
 		R = (num >> 16) + amt,
 		B = (num >> 8 & 0x00FF) + amt,
 		G = (num & 0x0000FF) + amt;
 
-	return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (B < 255 ? B < 1 ? 0 : B : 255) * 0x100 + (G < 255 ? G < 1 ? 0 : G : 255)).toString(16).slice(1);
+	colour.modifyHEX('#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (B < 255 ? B < 1 ? 0 : B : 255) * 0x100 + (G < 255 ? G < 1 ? 0 : G : 255)).toString(16).slice(1));
+
+	return colour;
 }

@@ -1,3 +1,5 @@
+import { Colour } from './colours';
+
 export interface IOptions {
 	previous?: number,
 	mode?: number | undefined,
@@ -61,7 +63,7 @@ export interface ICommand {
 }
 
 export interface IColourContrast {
-	colours: [Array<number>, Array<number>],
+	colours: [Colour, Colour],
 	ratio: number,
 	readable: boolean,
 	luminosity: [number, number]
