@@ -140,7 +140,7 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 			object.totalHits = parseInt(object.count_normal) + parseInt(object.count_slider) + parseInt(object.count_spinner);
 			
 			var outputObject;
-			console.log(object.totalHits);
+
 			if (options.mode == 0) {
 				pp.calculatepp(object.beatmap_id, {
 					mods: parseInt(object.enabled_mods),
@@ -216,8 +216,7 @@ function generateRecent(client: Client, msg: Message, body: any) {
 			objects = parseInt(body.countmiss) + parseInt(body.count50) +parseInt(body.count100) + parseInt(body.countkatu) + parseInt(body.count300) + parseInt(body.countgeki);
 
 		}
-		console.log(objects)
-		console.log(body.totalHits)
+
 		completion = (Math.floor(((objects / body.totalHits) - 0.0000000001) * 10000) / 100);
 	}
 

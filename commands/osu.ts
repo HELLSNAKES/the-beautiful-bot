@@ -131,7 +131,6 @@ async function generateUser(msg: Message, options: IOptions, body: Array<IAPIUse
 
 	ctx.font = '40px VarelaRound';
 	let country = countryCodes[body[0].country];
-	console.log(body[0].country);
 	var flag = await loadImage(`https://osu.ppy.sh/images/flags/${body[0].country}.png`);
 	ctx.drawImage(flag, 350, 130, 60, 40);
 	ctx.fillText(country, 420, 127 + 40);
