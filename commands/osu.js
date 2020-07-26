@@ -42,7 +42,7 @@ function requestData(msg, id, options = {
 			});
 		});
 	} else if (options.type == 2) {
-		msg.channel.send(':warning: `$osu` for akatsuki servers is temporarily disabled... (A major update is coming pretty soon)')
+		msg.channel.send(':warning: `$osu` for akatsuki servers is temporarily disabled... (A major update is coming pretty soon) For any questions please contact me, Moorad#7782')
 		// request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
 		// 	json: true
 		// }, (err, res, body) => {
