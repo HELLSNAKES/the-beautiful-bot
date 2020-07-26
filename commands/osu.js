@@ -42,11 +42,12 @@ function requestData(msg, id, options = {
 			});
 		});
 	} else if (options.type == 2) {
-		request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
-			json: true
-		}, (err, res, body) => {
-			generateUser(msg, options, [akatsukiData.userData(body)]);
-		});
+		msg.channel.send(':warning: `$osu` for akatsuki servers is temporarily disabled... (A major update is coming pretty soon)')
+		// request(`https://akatsuki.pw/api/v1/users/${options.relax ? 'rx' : ''}full?name=${id}`, {
+		// 	json: true
+		// }, (err, res, body) => {
+		// 	generateUser(msg, options, [akatsukiData.userData(body)]);
+		// });
 	}
 }
 
