@@ -26,8 +26,12 @@ export function user(user : any) : IAPIUser {
 	});
 }
 
-export function recent(user : any, scores : any) : Array<IAPIRecent> {
-	var scoreList = [];
+export function recent(userID : any, scores : any) : Array<IAPIRecent> {
+	var scoreList : any = [];
+
+	if (!scores.scores) {
+		return scoreList;
+	}
 
 	for (var i = 0; i < scores.scores.length; i++) {
 		scoreList.push({
@@ -42,7 +46,7 @@ export function recent(user : any, scores : any) : Array<IAPIRecent> {
 			countgeki: scores.scores[i].count_geki,
 			perfect: scores.scores[i].full_combo,
 			enabled_mods: scores.scores[i].mods,
-			user_id: user.id,
+			user_id: userID,
 			date: scores.scores[i].time,
 			rank: scores.scores[i].rank
 		});
