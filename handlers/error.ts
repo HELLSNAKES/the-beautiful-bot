@@ -13,6 +13,68 @@ import { Message } from 'discord.js';
 
 const axios = require('axios');
 
+var slackMessageTemplate : any = {
+	attachments: [
+		{
+			color: '#f24d44',
+			blocks: [
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: '*Unexpected Error*'
+					}
+				},
+				{
+					type: 'divider'
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'plain_text',
+						text: 'Error stack:',
+					}
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text:'```Code```'
+					}
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'plain_text',
+						text: 'Call stack:',
+					}
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: '```Code```'
+					}
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'plain_text',
+						text: 'Additional information:',
+					}
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: '```Code```'
+					}
+				}
+			]
+		}
+	]
+};
+
 export function log(msg: Message, errCode: number): void {
 	if (errCode == 4041) {
 		console.log('Error 4041');
@@ -42,19 +104,20 @@ export function sendUnexpectedError(err: Error, msg: Message): void {
 		'color': 16725838,
 		'timestamp': Date.now()
 	};
-	unexpectedError(err,'Message Content: ' + msg.content , () => {
+	unexpectedError(err, 'Message Content: ' + msg.content, () => {
 		msg.channel.send('**An unexpected error has occured**', {
 			embed
 		});
 	});
 }
 
-export function unexpectedError(err : Error, additionalInfo : string, callback = () => {}) {
+export function unexpectedError(err: Error, additionalInfo: string, callback = () => { }) {
 	if (process.env.slackAPI) {
-		let message = `___________\n\n(Error) An unexpected error has occured\nError Stack:\n\`\`\`${err.stack}\`\`\`\nCall Stack:\n\`\`\`${new Error().stack}\`\`\`\nAdditional Information:\n\`\`\`${additionalInfo}\`\`\``;
-		axios.post(process.env.slackAPI, {
-			'text': message
-		}).then(callback);
+		slackMessageTemplate.attachments[0].blocks[3].text.text = '```' + err.stack + '```';
+		slackMessageTemplate.attachments[0].blocks[5].text.text = '```' + new Error().stack + '```';
+		slackMessageTemplate.attachments[0].blocks[7].text.text = '```' + additionalInfo + '```';
+
+		axios.post(process.env.slackAPI, slackMessageTemplate).then(callback).catch(console.error);
 
 	} else {
 		console.error('Slack Incoming Webhook URL was not found in the Environment Variables');

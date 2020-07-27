@@ -115,6 +115,9 @@ const otherArgs: Array<IArgument> = [{
 }, {
 	name: 'Action ',
 	description: '`set`: Will set the current channel as a map feed channel\n`remove`: Disable the map feed on the current channel'
+}, {
+	name: 'Message',
+	description: 'Details about the bug or suggestion'
 }
 ];
 

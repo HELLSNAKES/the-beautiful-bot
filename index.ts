@@ -128,6 +128,8 @@ client.on('message', async (msg: Message) => {
 			client.commands.get('modeset').execute(msg, args);
 		} else if (cmd === 'prefix' || isAlias(cmd, 'prefix')) {
 			client.commands.get('prefix').execute(msg, args);
+		} else if (cmd === 'report' || isAlias(cmd, 'report')) {
+			client.commands.get('report').execute(msg, args);
 		} // else if (cmd === 'config' || isAlias(cmd, 'config')) {
 		//  	client.commands.get('config').execute(msg, args);
 		// }
