@@ -44,7 +44,7 @@ function sendRecent(client: Client, msg: Message, user: string | undefined, opti
 				}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
 		}).catch((err: Error) => {
 			if (err.message == 'No user with the specified username/user id was found') {
-				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`${score.getServer(String(options.mode))} servers\`. Try using the id of the user instead of the username`);
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`${score.getServer(String(options.type))}\` servers. Try using the id of the user instead of the username`);
 			} else {
 				error.sendUnexpectedError(err, msg);
 			}

@@ -6,7 +6,7 @@ export const modes = {
 };
 
 export const servers = {
-	'0': ['official osu'],
+	'0': ['official osu!'],
 	'1': ['gatari'],
 	'2': ['akatsuki']
 };
