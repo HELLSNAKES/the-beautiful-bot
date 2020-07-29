@@ -7,9 +7,9 @@ import * as score from '../handlers/score';
 import * as mods from '../handlers/mods';
 import * as argument from '../handlers/argument';
 import * as format from '../handlers/format';
-import * as gatari from '../handlers/gatari';
-import * as akatsuki from '../handlers/akatsuki';
 import * as error from '../handlers/error';
+import * as utility from '../handlers/utility';
+import * as API from '../handlers/API';
 
 const axios = require('axios');
 
@@ -20,47 +20,20 @@ function execute(client: Client, msg: Message, args: Array<string>) {
 }
 
 function sendRequest(client: Client, msg: Message, user: string | undefined, options: IOptions) {
-	if (options.type == 0) {
-		axios.get(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${user}&limit=100&m=${options.mode}`)
-			.then((res: any) => {
-
-				if (res.data.length == 0) {
-					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`offical osu! servers\`. Try using the id of the user instead of the username`);
-					return;
-				}
-
-				sendBest(client, msg, user, res.data, options);
-			}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
-	} else if (options.type == 1) {
-		axios.get(`https://api.gatari.pw/users/get?u=${user}`)
-			.then((res: any) => {
-
-				if (res.data.users.length == 0) {
-					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Gatari servers\`. Try using the id of the user instead of the username`);
-					return;
-				}
-
-				axios.get(`https://api.gatari.pw/user/scores/best?id=${res.data.users[0].id}&l=100`)
-					.then((resScore: any) => {
-						sendBest(client, msg, user, gatari.best(res.data, resScore.data), options);
-					}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
-
-			}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
-	} else if (options.type == 2) {
-		axios.get(`https://akatsuki.pw/api/v1/users?name=${user}`)
-			.then((res: any) => {
-				if (res.data.code == 404) {
-					msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on \`Akatasuki servers\`.`);
-					return;
-				}
-
-
-				axios.get(`https://akatsuki.pw/api/v1/users/scores/best?name=${user}&rx=${options.relax ? 1 : 0}&l=100`)
-					.then((resScore: any) => {
-						sendBest(client, msg, user, akatsuki.best(res.data, resScore.data), options);
-					}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
-			}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
-	}
+	utility.checkUser(user!, options.type)
+		.then((userID) => {
+			API.getBest(userID, options.mode, options.type, options.relax)
+				.then((res) => {
+					sendBest(client, msg, user, res, options);
+				}).catch((err: Error) => { error.sendUnexpectedError(err, msg);});
+		}).catch((err: Error) => {
+			console.log(err.name);
+			if (err.message == 'No user with the specified username/user id was found') {
+				msg.channel.send(`:red_circle: **The username \`${user}\` is not valid**\nThe username used or linked does not exist on the \`${score.getServer(String(options.type))}\` servers. Try using the id of the user instead of the username`);
+			} else {
+				error.sendUnexpectedError(err, msg);
+			}
+		});
 }
 
 function sendBest(client: Client, msg: Message, user: string | undefined, body: Array<IAPIBest>, options: IOptions) {

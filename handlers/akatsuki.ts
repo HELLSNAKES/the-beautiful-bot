@@ -55,8 +55,13 @@ export function recent(userID : any, scores : any) : Array<IAPIRecent> {
 	return scoreList;
 }
 
-export function best(user : any, scores : any) : Array<IAPIBest> {
+export function best(userID : any, scores : any) : Array<IAPIBest> {
 	var objectArray : Array<IAPIBest> = [];
+
+	if (!scores.scores) {
+		return objectArray;
+	}
+
 	for (var i = 0; i < scores.scores.length; i++) {
 		objectArray.push({
 			beatmap_id: scores.scores[i].beatmap.beatmap_id,
@@ -71,7 +76,7 @@ export function best(user : any, scores : any) : Array<IAPIBest> {
 			countgeki: scores.scores[i].count_geki,
 			perfect: scores.scores[i].full_combo,
 			enabled_mods: scores.scores[i].mods,
-			user_id: user.id,
+			user_id: userID,
 			date: scores.scores[i].time,
 			rank: scores.scores[i].rank,
 			pp: scores.scores[i].pp,
