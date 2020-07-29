@@ -25,7 +25,7 @@ export function checkUser(user : string, serverType = 0): Promise<string> {
 				.then((res: any) => {
 					if (res.data.code == 404) reject(new Error( 'No user with the specified username/user id was found'));
 					else resolve(res.data.id);
-				}).catch((err : Error) => {error.unexpectedError(err, `While running checkUser() : ${user} : ${serverType}`);});
+				}).catch(() => {reject(new Error( 'No user with the specified username/user id was found'));});
 		} else {
 			reject(new Error('Invalid server type'));
 		}
