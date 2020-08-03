@@ -12,19 +12,19 @@ export function checkUser(user : string, serverType = 0): Promise<string> {
 				// console.log(res.statusCode)
 					if (res.statusCode == 401) reject(new Error('Unauthorised error. possibly: No valid API key was provided'));
 					if (res.data.length == 0) reject(new Error( 'No user with the specified username/user id was found'));
-					else resolve(res.data[0].user_id);
+					else resolve(String(res.data[0].user_id));
 				}).catch((err : Error) => {error.unexpectedError(err, `While running checkUser() : ${user} : ${serverType}`);});
 		} else if (serverType == 1) {
 			axios.get(`https://api.gatari.pw/users/get?u=${user}`)
 				.then((res: any) => {
 					if (res.data.users.length == 0) reject(new Error( 'No user with the specified username/user id was found'));
-					else resolve(res.data.users[0].id);
+					else resolve(String(res.data.users[0].id));
 				}).catch((err : Error) => {error.unexpectedError(err, `While running checkUser() : ${user} : ${serverType}`);});
 		} else if (serverType == 2) {
 			axios.get(`https://akatsuki.pw/api/v1/users?name=${user}`)
 				.then((res: any) => {
 					if (res.data.code == 404) reject(new Error( 'No user with the specified username/user id was found'));
-					else resolve(res.data.id);
+					else resolve(String(res.data.id));
 				}).catch(() => {reject(new Error( 'No user with the specified username/user id was found'));});
 		} else {
 			reject(new Error('Invalid server type'));

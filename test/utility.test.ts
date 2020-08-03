@@ -22,7 +22,24 @@ test('should test for valid osu usernames and user ids', () => {
 		utility.checkUser('2552141', 0),
 		utility.checkUser('9184180', 0)
 	];
-	return expect(Promise.all(promises)).resolves.toEqual(new Array(promises.length).fill(undefined));
+
+	const expected = [
+		'14392546',
+		'14392546',
+		'8273098',
+		'8305894',
+		'2696453',
+		'10336882',
+		'11184264',
+		'8773926',
+		'10627594',
+		'3047470',
+		'3906405',
+		'2552141',
+		'9184180'
+	];
+
+	return expect(Promise.all(promises)).resolves.toEqual(expected);
 }, maxAge);
 
 test('should test for valid gatari usernames and user ids', () => {
@@ -42,7 +59,23 @@ test('should test for valid gatari usernames and user ids', () => {
 		utility.checkUser('9571', 1),
 		utility.checkUser('7712', 1)
 	];
-	return expect(Promise.all(promises)).resolves.toEqual(new Array(promises.length).fill(undefined));
+
+	const expected = [
+		'17270',
+		'15385',
+		'2585',
+		'13309',
+		'2917',
+		'1480',
+		'4344',
+		'16369',
+		'5232',
+		'5416',
+		'9571',
+		'7712'
+	];
+
+	return expect(Promise.all(promises)).resolves.toEqual(expected);
 }, maxAge);
 
 test('should test for valid akatsuki usernames and user ids', () => {
@@ -56,7 +89,17 @@ test('should test for valid akatsuki usernames and user ids', () => {
 		utility.checkUser('T3relax', 2),
 		// (user ids are not supported for akatsuki)
 	];
-	return expect(Promise.all(promises)).resolves.toEqual(new Array(promises.length).fill(undefined));
+
+	const expected = [
+		'25586',
+		'5304',
+		'21490',
+		'2769',
+		'32142',
+		'34358'
+	];
+
+	return expect(Promise.all(promises)).resolves.toEqual(expected);
 }, maxAge);
 
 // Restricted players (This is sometimes not removed from osu's API so I will comment it out for now)
