@@ -49,6 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
  - Bot not generating a beatmap image and throwing an error when the mapper does not have a profile picture set.
+ - $osu -t 2 crashing the bot.
  - Using an incorrect Gatari and Akatsuki usernames crashes the bot.
  - Accuracy and star rating being slightly off in some cases (±0.01 usually)
  - Showing the incorrect status icon when using `$rs` for akatsuki and gatari users (especially for unranked and loved maps)
@@ -59,7 +60,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Users with null and undefined values crash the bot
  - Users with unknown contry codes (Usually XX) are shown as undefined
  - Completion percentage showing as 100% in `$recent` when the user fails extremely close to the end of the map
- 
+
 ### Deprecated 
  - `-m` and `-mode` are now deprecated and will be removed soon
 
