@@ -141,8 +141,8 @@ function generateBeatmap(msg: Message, data: any) {
 					ctx.strokeText(data.title, 41, 367);
 					ctx.font = '26px VarelaRound';
 					ctx.lineWidth = 1;
-					ctx.fillText(data.artist, 41, 406);
-					ctx.strokeText(data.artist, 41, 406);
+					ctx.fillText(format.truncate(26, data.artist), 41, 406);
+					ctx.strokeText(format.truncate(26, data.artist), 41, 406);
 
 					// star rating
 					let svgFile = fs.readFileSync('assets/star.svg', 'utf8');
@@ -247,7 +247,7 @@ function generateBeatmap(msg: Message, data: any) {
 
 					var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
 
-					var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime);
+					var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime) + ' bpm';
 
 					ctx.textAlign = 'left';
 					ctx.font = '27px VarelaRound';

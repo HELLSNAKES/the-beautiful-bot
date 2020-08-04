@@ -72,3 +72,11 @@ export function numberSuffix(value: number, formatString = false): string {
 		return (formatString ? number(value) : value.toString());
 	}
 }
+
+export function truncate(maxLength : number, string : string) {
+	if (string.length > maxLength) {
+		return string.slice(0, maxLength - 3) + '...';
+	}
+
+	return string;
+}
