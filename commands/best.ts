@@ -11,8 +11,6 @@ import * as error from '../handlers/error';
 import * as utility from '../handlers/utility';
 import * as API from '../handlers/API';
 
-const axios = require('axios');
-
 function execute(client: Client, msg: Message, args: Array<string>) {
 	argument.determineUser(msg, args, (username, options) => {
 		sendRequest(client, msg, username, options);
@@ -81,7 +79,12 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 		if (mods.has(body[i].enabled_mods, 'HT')) difficultyIncreasingMods += 256;
 
 		scores.push(body[i]);
-		beatmaps.push(axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&b=${body[i].beatmap_id}&a=1&m=${options.mode}&mods=${difficultyIncreasingMods}`));
+		beatmaps.push(API.getBeatmap({
+			beatmapID: body[i].beatmap_id,
+			converted: true,
+			ruleset: options.mode ?? 0,
+			mods: difficultyIncreasingMods,
+		}));
 	}
 
 	Promise.all(beatmaps).then((values: Array<any>) => {
@@ -97,7 +100,7 @@ function sendBest(client: Client, msg: Message, user: string | undefined, body: 
 			const grade = client.emojis.find((emoji: Emoji) => emoji.name === 'rank_' + x.rank.toLowerCase());
 			const pp = Math.floor(parseFloat(x.pp) * 100) / 100;
 			const accuracy = score.getAccuracy(options.mode!, x.count300, x.count100, x.count50, x.countmiss, x.countkatu, x.countgeki);
-			scoresToString.push(`**[${values[i].data[0].title} [${values[i].data[0].version}]](${`https://osu.ppy.sh/beatmapsets/${values[i].data[0].beatmapset_id}#osu/${values[i].data[0].beatmap_id}`}) +${mods.toString(parseInt(x.enabled_mods))}**\n| ${grade} • **${pp}pp** • ${accuracy}% • [${Math.round(values[i].data[0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(x.maxcombo))}x${values[i].data[0].max_combo ? '**/**' + format.number(values[i].data[0].max_combo) + 'x' : ''}**) • **${format.number(parseInt(x.score))}** • ${scoreValues}\n| Achieved: **${format.time(Date.parse(x.date + (options.type == 0 ? ' UTC' : '')))}**\n`);
+			scoresToString.push(`**[${values[i][0].title} [${values[i][0].version}]](${`https://osu.ppy.sh/beatmapsets/${values[i][0].beatmapset_id}#osu/${values[i][0].beatmap_id}`}) +${mods.toString(parseInt(x.enabled_mods))}**\n| ${grade} • **${pp}pp** • ${accuracy}% • [${Math.round(values[i][0].difficultyrating * 100) / 100}★]\n| (**${format.number(parseInt(x.maxcombo))}x${values[i][0].max_combo ? '**/**' + format.number(values[i][0].max_combo) + 'x' : ''}**) • **${format.number(parseInt(x.score))}** • ${scoreValues}\n| Achieved: **${format.time(Date.parse(x.date + (options.type == 0 ? ' UTC' : '')))}**\n`);
 		});
 
 		embed.author.name = `Here is ${user}'s top ${scores.length} osu! ${score.getRuleset(options.mode?.toString() ?? '0')} plays:`;

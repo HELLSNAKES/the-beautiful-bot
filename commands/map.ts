@@ -8,6 +8,7 @@ import * as colours from '../handlers/colours';
 import * as format from '../handlers/format';
 import * as argument from '../handlers/argument';
 import * as beatmap from '../handlers/beatmap';
+import * as API from '../handlers/API';
 
 const tbbpp = require('tbbpp');
 const axios = require('axios');
@@ -62,11 +63,12 @@ function execute(msg: Message, args: Array<string>) {
 			embed
 		});
 		
-		axios(`https://osu.ppy.sh/api/get_beatmaps?b=${res.data.beatmapsets[0].beatmaps[highestDiffIndex].id}&k=${process.env.osuAPI}`)
-			.then((resBeatmap: any) => {
-				res.data.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = resBeatmap.data[0].max_combo;
-				generateBeatmap(msg, res.data.beatmapsets[0]);
-			});
+		API.getBeatmap({
+			beatmapID: res.data.beatmapsets[0].beatmaps[highestDiffIndex].id
+		}).then((resBeatmap: any) => {
+			res.data.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = resBeatmap[0].max_combo;
+			generateBeatmap(msg, res.data.beatmapsets[0]);
+		});
 
 		console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${res.data.beatmapsets[0].id}#osu/${res.data.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
 	}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});

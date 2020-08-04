@@ -12,8 +12,6 @@ import * as score from '../handlers/score';
 import * as utility from '../handlers/utility';
 import * as API from '../handlers/API';
 
-const axios = require('axios');
-
 function execute(client: Client, msg: Message, args: Array<string>) {
 	argument.determineUser(msg, args, (user, options) => {
 		sendRecent(client, msg, user, options);
@@ -60,54 +58,59 @@ function processData(client: Client, msg: Message, object: any, options: IOption
 	if (modsString.includes('HR')) enabled_mods += 16;
 	if (modsString.includes('EZ')) enabled_mods += 2;
 
-	axios.get(`https://osu.ppy.sh/api/get_beatmaps?k=${process.env.osuAPI}&${object.beatmapMD5 ? `h=${object.beatmapMD5}` : `b=${object.beatmap_id}`}&m=${options.mode}&a=1${options.mode != 0 ? `&mods=${enabled_mods}` : ''}`)
-		.then((res: any) => {
-			if (res.data.length == 0) {
-				msg.channel.send(':red_circle: **The beatmap is could not be found**\nFor some unknown reason the beatmap could not be found. This has been automatically reported and will be resolved asap');
-				error.unexpectedError(new Error('Beatmap could not be found'), 'GET request response:\n' + JSON.stringify(res));
-				return;
-			}
+	API.getBeatmap({
+		hash: object.beatmapMD5,
+		beatmapID: object.beatmap_id,
+		ruleset: options.mode,
+		converted: true,
+		mods: options.mode != 0 ? enabled_mods : 0
+	}).then((res: any) => {
+		if (res.length == 0) {
+			msg.channel.send(':red_circle: **The beatmap is could not be found**\nFor some unknown reason the beatmap could not be found. This has been automatically reported and will be resolved asap');
+			error.unexpectedError(new Error('Beatmap could not be found'), 'GET request response:\n' + JSON.stringify(res));
+			return;
+		}
 
-			object = {
-				...object,
-				...res.data[0]
-			};
+		object = {
+			...object,
+			...res[0]
+		};
 
-			object.options = options;
-			object.accuracy = score.getAccuracy(options.mode!, object.count300, object.count100, object.count50, object.countmiss, object.countkatu, object.countgeki);
-			object.totalHits = parseInt(object.count_normal) + parseInt(object.count_slider) + parseInt(object.count_spinner);
+		object.options = options;
+		object.accuracy = score.getAccuracy(options.mode!, object.count300, object.count100, object.count50, object.countmiss, object.countkatu, object.countgeki);
+		object.totalHits = parseInt(object.count_normal) + parseInt(object.count_slider) + parseInt(object.count_spinner);
 
-			var outputObject;
+		var outputObject;
 
-			if (options.mode == 0) {
-				pp.calculatepp(object.beatmap_id, {
-					mods: parseInt(object.enabled_mods),
-					accuracy: object.accuracy,
-					combo: parseInt(object.maxcombo),
-					misses: parseInt(object.countmiss),
-					mode: options.mode,
-					ppv3: options.ppv3
-				}, (json) => {
-					object.pp = object.pp || json.pp;
-					object.calculated_difficulty = json.stars;
-					object.ppFC = json.ppFC;
-					generateRecent(client, msg, object);
-				});
-			} else if (options.mode == 1) {
-				outputObject = pp.calculateTaikopp(object);
-				object.accuracy = outputObject.accuracy;
-				object.pp = Math.round(outputObject.pp * 100) / 100;
+		if (options.mode == 0) {
+			pp.calculatepp(object.beatmap_id, {
+				mods: parseInt(object.enabled_mods),
+				accuracy: object.accuracy,
+				combo: parseInt(object.maxcombo),
+				misses: parseInt(object.countmiss),
+				mode: options.mode,
+				ppv3: options.ppv3
+			}, (json) => {
+				object.pp = object.pp || json.pp;
+				object.calculated_difficulty = json.stars;
+				object.ppFC = json.ppFC;
 				generateRecent(client, msg, object);
-			} else if (options.mode == 2) {
-				outputObject = pp.calculateCatchpp(object);
-				object.pp = outputObject.pp;
-				generateRecent(client, msg, object);
-			} else if (options.mode == 3) {
-				outputObject = pp.calculateManiapp(object);
-				object.pp = outputObject.pp;
-				generateRecent(client, msg, object);
-			}
-		}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
+			});
+		} else if (options.mode == 1) {
+			outputObject = pp.calculateTaikopp(object);
+			object.accuracy = outputObject.accuracy;
+			object.pp = Math.round(outputObject.pp * 100) / 100;
+			generateRecent(client, msg, object);
+		} else if (options.mode == 2) {
+			outputObject = pp.calculateCatchpp(object);
+			object.pp = outputObject.pp;
+			generateRecent(client, msg, object);
+		} else if (options.mode == 3) {
+			outputObject = pp.calculateManiapp(object);
+			object.pp = outputObject.pp;
+			generateRecent(client, msg, object);
+		}
+	}).catch((err: Error) => { error.sendUnexpectedError(err, msg); });
 }
 
 function generateRecent(client: Client, msg: Message, body: any) {

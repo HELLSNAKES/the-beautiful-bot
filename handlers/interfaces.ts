@@ -154,3 +154,16 @@ export interface IURLParserBeatmap {
 	ruleset: number,
 	valid: boolean
 }
+
+export interface IAPIGetBeatmapOptions {
+	// since: number, // never used
+	beatmapID?: string,
+	beatmapSetID?: string,
+	user?: string,
+	// type: string, // never used
+	ruleset?: number,
+	converted?: boolean,
+	hash?: boolean,
+	// limit: number, // never used
+	mods?: number
+}
