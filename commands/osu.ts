@@ -11,7 +11,6 @@ import * as API from '../handlers/API';
 import * as score from '../handlers/score';
 
 const path = require('path');
-const axios = require('axios');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 const Discord = require('discord.js');
 
