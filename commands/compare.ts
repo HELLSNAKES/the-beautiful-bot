@@ -8,64 +8,76 @@ import * as getMaps from '../handlers/getMap';
 import * as error from '../handlers/error';
 import * as mods from '../handlers/mods';
 import * as API from '../handlers/API';
+import * as utility from '../handlers/utility';
+import * as score from '../handlers/score';
 
-const axios = require('axios');
 const recent = require('./recent');
 
 function execute(client: Client, msg: Message, args: Array<string>) {
 	getMaps.getMaps(client, msg, function (client, msg, URLData) {
 		argument.determineUser(msg, args, (username, options) => {
 			options.mode = URLData.ruleset;
-			sendCompareEmbed(client, msg, URLData, username, options);
+			utility.checkUser(username!, options.type)
+				.then((userID) => {
+					sendCompareEmbed(client, msg, URLData, userID, username, options);
+				}).catch((err) => {
+					if (err.message == 'No user with the specified username/user id was found') {
+						msg.channel.send(`:red_circle: **The username \`${username}\` is not valid**\nThe username used or linked does not exist on the \`${score.getServer(String(options.type))}\` servers. Try using the id of the user instead of the username`);
+					} else {
+						error.sendUnexpectedError(err, msg);
+					}
+				});
 		});
 	});
 }
 
-function sendCompareEmbed(client: Client, msg: Message, URLData: IURLParserBeatmap, username: string | undefined, options: IOptions) {
-	if (options.type == 0) {
-		axios.get(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${username}&b=${URLData.beatmapID}&m=${options.mode}`)
-			.then((res: any) => {
+function sendCompareEmbed(client: Client, msg: Message, URLData: IURLParserBeatmap, userID: string | undefined, username : string | undefined, options: IOptions) {
 
-				API.getBeatmap({
-					beatmapID: URLData.beatmapID,
-					converted: true,
-					ruleset: options.mode
-				}).then((resBeatmap : any) => {
+	if (options.type == 2) {
+		msg.channel.send(':red_circle: **`$c` is not supported for Akatsuki users yet**');
+	}
 
-					if (res.data.length == 0) {
-						msg.channel.send(`:yellow_circle: **\`${username}\` does not have any submitted scores on \`${resBeatmap[0].artist} - ${resBeatmap[0].title} [${resBeatmap[0].version}]\`**`);
-						return;
-					}
-			
-					var index = 0;
+	API.getScore(userID!, URLData.beatmapID!, options.mode, options.type)
+		.then((res: any) => {
 
-					if (options!.mods != undefined) {
-						for (var i = 0; i < res.data.length; i++) {
-							if (mods.toString(res.data[i].enabled_mods) == options!.mods![1]) {
-								index = i;
-								break;
-							}
+			API.getBeatmap({
+				beatmapID: URLData.beatmapID,
+				converted: true,
+				ruleset: options.mode
+			}).then((resBeatmap : any) => {
+
+				if (res.length == 0) {
+					msg.channel.send(`:yellow_circle: **\`${username}\` does not have any submitted scores on \`${resBeatmap[0].artist} - ${resBeatmap[0].title} [${resBeatmap[0].version}]\`**`);
+					return;
+				}
+		
+				var index = 0;
+
+				if (options!.mods != undefined) {
+					for (var i = 0; i < res.length; i++) {
+						if (mods.toString(res[i].enabled_mods) == options!.mods![1]) {
+							index = i;
+							break;
 						}
 					}
-			
-					res.data[index].otherComparePlays = res.data.filter((x : any) => x.enabled_mods != res.data[index].enabled_mods).map((x : any) => x.enabled_mods);
+				}
+		
+				res[index].otherComparePlays = res.filter((x : any) => x.enabled_mods != res[index].enabled_mods).map((x : any) => x.enabled_mods);
 
-					res.data = {
-						...res.data[index],
-						...resBeatmap[0]
-					};
-					
-					res.data.pp = Math.floor(res.data.pp * 100) / 100;
+				res = {
+					...res[index],
+					...resBeatmap[0]
+				};
+				
+				res.pp = Math.floor(res.pp * 100) / 100;
 
-					options.mode = res.data.mode;
+				options.mode = res.mode;
 
-					recent.processData(client, msg, res.data, options);
-					console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${res.data.user_id}`);
-				}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
+				recent.processData(client, msg, res, options);
+				console.log(`COMPARE : ${msg.author.id} : https://osu.ppy.sh/users/${res.user_id}`);
 			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
-	} else {
-		msg.channel.send(':no_entry: Sorry but private servers are not supported on $compare/$c yet');
-	}
+		}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
+
 }
 
 module.exports = {

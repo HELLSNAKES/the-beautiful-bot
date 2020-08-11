@@ -86,3 +86,28 @@ export function best(userID : any, scores : any) : Array<IAPIBest> {
 	}
 	return (objectArray);
 }
+
+export function score(userID : any, score : any) {
+
+	if (!score.score) return [];
+
+	return [{
+		score_id: score.score.id,
+		score: score.score.score,
+		username: '-',
+		maxcombo: score.score.max_combo,
+		count50: score.score.count_50,
+		count100: score.score.count_100,
+		count300: score.score.count_300,
+		countmiss: score.score.count_miss,
+		countkatu: '0',
+		countgeki: '0',
+		perfect: '0',
+		enabled_mods: score.score.mods,
+		user_id: userID,
+		date: new Date(score.score.time * 1000 + (7200000)),
+		rank: score.score.rank,
+		pp: score.score.pp,
+		replay_available: '0'	
+	}];
+}

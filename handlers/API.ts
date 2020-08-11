@@ -95,3 +95,24 @@ export function getBeatmap(options : IAPIGetBeatmapOptions) : Promise<Array<any>
 			}).catch(reject);
 	});
 }
+
+export function getScore(userID : string, beatmapID : number | string, ruleset = 0, serverType = 0, relax = false) : Promise<Array<any>> {
+	return new Promise((resolve, reject) => {
+		if (serverType == 0) {
+			axios.get(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${userID}&b=${beatmapID}&m=${ruleset}`)
+				.then((res) => {
+					resolve(res.data);
+				}).catch(reject);
+		} else if (serverType == 1) {
+			axios.get(`https://api.gatari.pw/beatmap/user/score?b=${beatmapID}&u=${userID}&mode=${ruleset}`)
+				.then((res) => {
+					resolve(gatari.score(userID, res.data));
+				}).catch(reject);
+		} else if (serverType == 2) {
+			// will implement later
+			resolve([]);
+		} else {
+			reject(new Error(serverType + ' is not a valid server type'));
+		}
+	});
+}
