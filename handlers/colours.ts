@@ -1,5 +1,3 @@
-'use strict';
-
 import { IColourContrast } from './interfaces';
 // import * as error from '../handlers/error';
 
