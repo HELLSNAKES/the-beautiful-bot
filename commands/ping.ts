@@ -21,10 +21,10 @@ async function execute(client: Client, msg: any) {
 	const message = await msg.channel.send(':blue_circle: **Pinging**');
 
 	var promises = [
-		new Promise((resolve) => {resolve(client.ping)}),
+		new Promise((resolve) => {resolve(client.ping);}),
 		responsePromise(axios.get(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=Moorad`)),
 		responsePromise(axios.get('https://the-beautiful-bot-api.herokuapp.com/ping')),
-		responsePromise(new Promise((resovle) => {pp.calculatepp('1192807', {accuracy: 100}, () => {resovle()})})),
+		responsePromise(new Promise((resovle) => {pp.calculatepp('1192807', {accuracy: 100}, () => {resovle();});})),
 		responsePromise(axios.get('https://api.gatari.pw/user/stats?u=Moorad')),
 		responsePromise(axios.get('https://akatsuki.pw/api/v1/surprise_me')),
 		responsePromise(new Promise((resolve, reject) => {database.read('users', {}, {useCache: false}, (docs, err) => {if (err) reject(); else resolve();});})),
