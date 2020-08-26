@@ -74,7 +74,7 @@ client.on('message', async (msg: Message) => {
 	} else if (msg.content === 'good bot') {
 		msg.reply('<:heart:' + 615531857253105664 + '>');
 	} else if (msg.content.toLowerCase() === 'tbb wrong map') {
-		msg.channel.send('Your score was not submitted for one the following reasons:\n1 - The map is unranked (i.e. graveyard, pending or WIP)\n2 - You played with unranked mods (i.e. Relax, AutoPilot, Auto, Cinema, etc.)\n3 - You failed the map in a multiplayer game (Failed multiplayer scores do not get submitted to osu! servers)\n4 - The score was not submitted to osu! servers for some reason (custom difficulty, was not signed in, connection issue, etc)\nOther server types such as Gatari have execptions. Note that I (Moorad) cannot control what scores get submitted or not and does not have control over osu\'s API.');
+		msg.channel.send('Your score was not submitted for one the following reasons:\n1 - The map is unranked (i.e. unsubmitted, graveyard, pending or WIP)\n2 - You played with unranked mods (i.e. Relax, AutoPilot, Auto, Cinema, etc.)\n3 - You failed the map in a multiplayer game (Failed multiplayer scores do not get submitted to osu! servers)\n4 - The score was not submitted to osu! servers for some reason (custom difficulty, was not signed in, connection issue, bancho delay, osu API delay, etc)\nNote that other server types such as Gatari have some execptions.');
 	} else if (msg.content.includes('osu.ppy.sh/beatmapsets') || msg.content.includes('osu.ppy.sh/b') || msg.content.includes('osu.ppy.sh/s')) {
 		require('./commands/url').beatmapCardFromLink(msg);
 	} else if (parser.userURL(msg.content).success) {
