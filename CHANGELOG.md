@@ -69,7 +69,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Request and Request-promise-native have been removed (switched to axios instead)
 
 ### Security
- - Enabled strict mode on all files
  - Fixed 7 low severity vulnerabilities in the project dependencies
 
 ## 1.3.5.2 03-04-2020

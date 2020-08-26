@@ -1,4 +1,4 @@
-'use strict';
+import Discord from 'discord.js';
 
 import { Client, Message } from 'discord.js';
 import { IOptions } from '../handlers/interfaces';

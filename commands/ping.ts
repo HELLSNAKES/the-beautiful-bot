@@ -1,5 +1,3 @@
-'use strict';
-
 const axios = require('axios');
 
 import { Client } from 'discord.js';

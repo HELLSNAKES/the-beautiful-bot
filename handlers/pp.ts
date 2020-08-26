@@ -1,6 +1,4 @@
 /* eslint-disable no-useless-escape */
-'use strict';
-
 import { IOjsamaOptions } from './interfaces';
 
 import * as mods from './mods';

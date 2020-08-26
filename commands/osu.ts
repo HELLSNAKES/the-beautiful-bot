@@ -1,5 +1,3 @@
-'use strict';
-
 import { Message } from 'discord.js';
 import { IOptions, IAPIUser } from '../handlers/interfaces';
 

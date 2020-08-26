@@ -1,6 +1,4 @@
 /* eslint-disable no-useless-escape */
-'use strict';
-
 import { Message } from 'discord.js';
 
 import * as error from '../handlers/error';

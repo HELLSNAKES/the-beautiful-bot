@@ -1,5 +1,3 @@
-'use strict';
-
 import { IOptions, IAPIBest } from '../handlers/interfaces';
 import { Client, Message, Emoji } from 'discord.js';
 import * as score from '../handlers/score';

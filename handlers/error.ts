@@ -6,9 +6,6 @@
 // 4044 - No recent play found
 // 4045 - Badly formatted arguments
 // 4046 - User not found in the database
-
-'use strict';
-
 import { Message } from 'discord.js';
 
 const axios = require('axios');

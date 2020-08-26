@@ -1,5 +1,3 @@
-'use strict';
-
 import { IArgument, IOptions, IOjsamaOptions, IDBDocument } from './interfaces';
 import { Message } from 'discord.js';
 

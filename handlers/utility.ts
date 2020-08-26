@@ -1,5 +1,3 @@
-'use strict';
-
 import * as error from '../handlers/error';
 
 const axios = require('axios');

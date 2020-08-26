@@ -1,6 +1,4 @@
 /* eslint-disable no-unused-vars */
-'use strict';
-
 import { IDBDocument } from './interfaces';
 import * as cache from './cache';
 

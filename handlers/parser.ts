@@ -1,5 +1,3 @@
-'use strict';
-
 import { IURLParserBeatmap } from './interfaces';
 
 export const modes : any = {

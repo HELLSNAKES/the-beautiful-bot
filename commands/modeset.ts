@@ -1,5 +1,3 @@
-'user-strict';
-
 import { Message } from 'discord.js';
 
 import * as error from '../handlers/error';

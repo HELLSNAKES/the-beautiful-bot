@@ -1,5 +1,3 @@
-'use strict';
-
 import { Client, Message } from 'discord.js';
 import { IURLParserBeatmap } from './interfaces';
 
