@@ -19,6 +19,7 @@
     "dotenv": "^8.2.0",
     "mongodb": "^3.5.5",
     "node-osr": "^1.2.1",
+    "node-pre-gyp": "^0.15.0",
     "node-vibrant": "^3.1.5",
     "ojsama": "^1.2.5",
     "tbbpp": "^1.0.7",
