@@ -10,20 +10,20 @@ export function getRecent(userID : string, ruleset = 0, serverType = 0, relax = 
 		if (serverType == 0) {
 			axios.get(`https://osu.ppy.sh/api/get_user_recent?k=${process.env.osuAPI}&u=${userID}&limit=50&m=${ruleset}`)
 				.then((res) => {
-					resolve(res.data);
+					return resolve(res.data);
 				}).catch(reject);
 		} else if (serverType == 1) {
 			axios.get(`https://api.gatari.pw/user/scores/recent?id=${userID}&l=100&mode=${ruleset}&f=1`)
 				.then((res) => {
-					resolve(gatari.recent(userID, res.data));
+					return resolve(gatari.recent(userID, res.data));
 				}).catch(reject);
 		} else if (serverType == 2) {
 			axios.get(`https://akatsuki.pw/api/v1/users/scores/recent?id=${userID}&rx=${relax ? 1 : 0}`)
 				.then((res) => {
-					resolve(akatsuki.recent(userID, res.data));
+					return resolve(akatsuki.recent(userID, res.data));
 				}).catch(reject);
 		} else {
-			reject(new Error(serverType + ' is not a valid server type'));
+			return reject(new Error(serverType + ' is not a valid server type'));
 		}
 	});
 }
@@ -33,20 +33,20 @@ export function getBest(userID : string, ruleset = 0, serverType = 0, relax = fa
 		if (serverType == 0) {
 			axios.get(`https://osu.ppy.sh/api/get_user_best?k=${process.env.osuAPI}&u=${userID}&limit=100&m=${ruleset}`)
 				.then((res) => {
-					resolve(res.data);
+					return resolve(res.data);
 				}).catch(reject);
 		} else if (serverType == 1) {
 			axios.get(`https://api.gatari.pw/user/scores/best?id=${userID}&l=100`)
 				.then((res) => {
-					resolve(gatari.best(userID, res.data));
+					return resolve(gatari.best(userID, res.data));
 				}).catch(reject);
 		} else if (serverType == 2) {
 			axios.get(`https://akatsuki.pw/api/v1/users/scores/best?id=${userID}&rx=${relax ? 1 : 0}&l=100`)
 				.then((res) => {
-					resolve(akatsuki.best(userID, res.data));
+					return resolve(akatsuki.best(userID, res.data));
 				}).catch(reject);
 		} else {
-			reject(new Error(serverType + ' is not a valid server type'));
+			return reject(new Error(serverType + ' is not a valid server type'));
 		}
 	});
 }
@@ -56,23 +56,23 @@ export function getUser(userID : string, ruleset = 0, serverType = 0, relax = fa
 		if (serverType == 0) {
 			axios.get(`https://osu.ppy.sh/api/get_user?k=${process.env.osuAPI}&u=${userID}&m=${ruleset}`)
 				.then((res) => {
-					resolve(res.data);
+					return resolve(res.data);
 				}).catch(reject);
 		} else if (serverType == 1) {
 			axios.get(`https://api.gatari.pw/users/get?u=${userID}`)
 				.then((resGet) => {
 					axios.get(`https://api.gatari.pw/user/stats?u=${userID}`)
 						.then((resStats) => {
-							resolve([gatari.user(resGet.data, resStats.data)]);
+							return resolve([gatari.user(resGet.data, resStats.data)]);
 						}).catch(reject);
 				}).catch(reject);
 		} else if (serverType == 2) {
 			axios.get(`https://akatsuki.pw/api/v1/users/${relax ? 'rx' : ''}full?id=${userID}`)
 				.then((res) => {
-					resolve([akatsuki.user(res.data)]);
+					return resolve([akatsuki.user(res.data)]);
 				}).catch(reject);
 		} else {
-			reject(new Error(serverType + ' is not a valid server type'));
+			return reject(new Error(serverType + ' is not a valid server type'));
 		}
 	});
 }
@@ -91,7 +91,7 @@ export function getBeatmap(options : IAPIGetBeatmapOptions) : Promise<Array<any>
 	return new Promise((resolve, reject) => {
 		axios.get(requestURL)
 			.then((res) => {
-				resolve(res.data);
+				return resolve(res.data);
 			}).catch(reject);
 	});
 }
@@ -101,18 +101,18 @@ export function getScore(userID : string, beatmapID : number | string, ruleset =
 		if (serverType == 0) {
 			axios.get(`https://osu.ppy.sh/api/get_scores?k=${process.env.osuAPI}&u=${userID}&b=${beatmapID}&m=${ruleset}`)
 				.then((res) => {
-					resolve(res.data);
+					return resolve(res.data);
 				}).catch(reject);
 		} else if (serverType == 1) {
 			axios.get(`https://api.gatari.pw/beatmap/user/score?b=${beatmapID}&u=${userID}&mode=${ruleset}`)
 				.then((res) => {
-					resolve(gatari.score(userID, res.data));
+					return resolve(gatari.score(userID, res.data));
 				}).catch(reject);
 		} else if (serverType == 2) {
 			// will implement later
-			resolve([]);
+			return resolve([]);
 		} else {
-			reject(new Error(serverType + ' is not a valid server type'));
+			return reject(new Error(serverType + ' is not a valid server type'));
 		}
 	});
 }

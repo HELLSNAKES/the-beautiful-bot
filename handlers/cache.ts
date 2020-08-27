@@ -13,12 +13,12 @@ export function load(): Promise < any > {
 				}
 
 				fs.appendFile(cachePath, JSON.stringify({}), (writeErr: Error) => {
-					if (writeErr) reject(writeErr);
-					resolve({});
+					if (writeErr) return reject(writeErr);
+					return resolve({});
 				});
 			} else {
 				fs.readFile(cachePath, (readErr: Error, data: any) => {
-					if (readErr) reject(readErr);
+					if (readErr) return reject(readErr);
 					try {
 						resolve(JSON.parse(data));
 					} catch(err) {
@@ -40,13 +40,13 @@ export function save(data: any): Promise < any > {
 				}
 				
 				fs.appendFile(cachePath, JSON.stringify(data), (writeErr: Error) => {
-					if (writeErr) reject(writeErr);
-					resolve(data);
+					if (writeErr) return reject(writeErr);
+					return resolve(data);
 				});
 			} else {
 				fs.writeFile(cachePath, JSON.stringify(data), (writeErr: Error) => {
-					if (writeErr) reject(writeErr);
-					resolve(data);
+					if (writeErr) return reject(writeErr);
+					return resolve(data);
 				});
 			}
 		});

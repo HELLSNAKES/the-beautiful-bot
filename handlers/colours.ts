@@ -102,7 +102,7 @@ export class Colour {
 
 export function getColours(url: string) {
 	return new Promise<IGetColour>((resolve : any, reject : any) => {
-		if (url === undefined) reject('Missing URL');
+		if (url === undefined) return reject('Missing URL');
 
 		axios({
 			method: 'get',
@@ -120,7 +120,7 @@ export function getColours(url: string) {
 
 				Vibrant.from(res.data).maxColorCount(64).getPalette(async function (err: any, palette: any) {
 
-					if (err) reject(err);
+					if (err) return reject(err);
 
 					resolve({
 						foreground: new Colour(1, palette.Vibrant.getHex()),
