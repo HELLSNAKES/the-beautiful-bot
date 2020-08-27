@@ -85,7 +85,7 @@ const args: Array<IArgument> = [{
 }, {
 	name: 'passesonly',
 	description: 'Only show passed scores',
-	aliases: ['passonly','pass','passes','onlypass','onlypasses','po'],
+	aliases: ['passonly', 'pass', 'passes', 'onlypass', 'onlypasses', 'po'],
 	isSwitch: true,
 	default: false,
 }, {
@@ -203,8 +203,8 @@ export function parse(msg: Message, passedArgs: Array<string>): IOptions {
 					argsNames = argsNames.concat(args[k].aliases!);
 				}
 			}
-			
-			passedArgs[i] =  passedArgs[i].slice(1);
+
+			passedArgs[i] = passedArgs[i].slice(1);
 
 			var bestMatch = levenshtein.getBestMatch(argsNames, passedArgs[i]);
 			var distanceThresholdRelative = Math.floor(passedArgs[i].length * (1 - distanceThresholdAbsolute));
@@ -255,13 +255,7 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 		let discordID = args[0].slice(3, 21);
 		database.read('users', {
 			discordID: discordID
-		}, {}, (docs: Array<IDBDocument>, err: any) => {
-			if (err) {
-				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
-				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);
-				return;
-			}
-
+		}, {}).then((docs: Array<IDBDocument>) => {
 			if (Object.entries(docs).length == 0) {
 				msg.channel.send(':red_circle: **Mentioned user does not have an osu account linked**\nThe user mentioned does not have a linked osu username with the bot. Use their osu username instead');
 				return;
@@ -275,33 +269,37 @@ export function determineUser(msg: Message, args: Array<string>, callback: (user
 			if (!found) options.mode = docs[0].mode || 0;
 			options.type = docs[0].type || 0;
 			callback(docs[0].osuUsername, options);
+		}).catch(err => {
+			msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
+			error.unexpectedError(new Error('Could not establish a database connection'), 'Message Content: ' + msg.content + '\ndbURI: ' + process.env.dbURI);
+			error.sendUnexpectedError(err, msg);
 		});
 	} else if (args.length != 0) {
 		callback(args.join('_'), options);
 	} else {
 		database.read('users', {
 			discordID: msg.author.id
-		}, {}, (docs: Array<IDBDocument>, err: any) => {
-			if (err) {
+		}, {})
+			.then((docs: Array<IDBDocument>) => {
+
+				if (Object.entries(docs).length == 0) {
+					msg.channel.send(`:red_circle: **\`@${msg.member.displayName}\` does not have an osu account linked**\nYour account is not linked with the bot. Use \`$set [username]\` to link your account`);
+					return;
+				}
+
+				var modes = Object.values(score.modes).reduce((acc, curr) => acc.concat(curr));
+				var found = false;
+				for (var i = 0; i < modes.length; i++) {
+					if (argsString.includes('-m') || argsString.includes(modes[i])) found = true;
+				}
+				if (!found) options.mode = docs[0].mode;
+				options.type = docs[0].type;
+				callback(docs[0].osuUsername, options);
+			}).catch(err => {
 				msg.channel.send(':red_circle: **Could not establish a database connection**\nThe database could not be accessed for an unknown reason. This has been automatically reported and will be resolved asap');
-				error.unexpectedError(new Error('Could not establish a database connection'),'Message Content: '+msg.content+'\ndbURI: '+process.env.dbURI);
-				return;
-			}
-
-			if (Object.entries(docs).length == 0) {
-				msg.channel.send(`:red_circle: **\`@${msg.member.displayName}\` does not have an osu account linked**\nYour account is not linked with the bot. Use \`$set [username]\` to link your account`);
-				return;
-			}
-
-			var modes = Object.values(score.modes).reduce((acc, curr) => acc.concat(curr));
-			var found = false;
-			for (var i = 0; i < modes.length; i++) {
-				if (argsString.includes('-m') || argsString.includes(modes[i])) found = true;
-			}
-			if (!found) options.mode = docs[0].mode;
-			options.type = docs[0].type;
-			callback(docs[0].osuUsername, options);
-		});
+				error.unexpectedError(new Error('Could not establish a database connection'), 'Message Content: ' + msg.content + '\ndbURI: ' + process.env.dbURI);
+				error.sendUnexpectedError(err, msg);
+			});
 	}
 }
 

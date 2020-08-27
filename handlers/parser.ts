@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import { IURLParserBeatmap } from './interfaces';
 
 export const modes : any = {

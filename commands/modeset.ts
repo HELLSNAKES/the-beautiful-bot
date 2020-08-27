@@ -15,34 +15,26 @@ function execute(msg: Message, args: any) {
 
 	database.read('users', {
 		discordID: msg.author.id
-	}, {}, (docs, err) => {
-		if (err) {
-			error.sendUnexpectedError(err, msg);
-			return;
-		}
-
-		if (docs.length == 0) {
-			msg.channel.send(`:red_circle: **\`@${msg.member.displayName}\` does not have an osu account linked**\nIn order to use $modeset, you must link your osu username to the bot first by using \`$set [username]\``);
-		}
-
-		if (docs[0].type != 0) {
-			msg.channel.send(':red_circle: **umimplemented server type**\n Only offical osu servers are supported for now. $modeset will be implemented to other server types in the future');
-			return;
-		}
-
-		database.update('users', {
-			discordID: msg.author.id
-		}, {
-			mode: ruleset
-		}, {}, (res, err) => {
-			if (err) {
-				error.sendUnexpectedError(err, msg);
+	}, {})
+		.then((docs) => {
+			if (docs.length == 0) {
+				msg.channel.send(`:red_circle: **\`@${msg.member.displayName}\` does not have an osu account linked**\nIn order to use $modeset, you must link your osu username to the bot first by using \`$set [username]\``);
 				return;
 			}
 
-			msg.channel.send(`:green_circle: **Your default mode has been successfully updated to osu! \`${score.getRuleset(args)}\`**`);
-		});
-	});
+			if (docs[0].type != 0) {
+				msg.channel.send(':red_circle: **umimplemented server type**\n Only offical osu servers are supported for now. $modeset will be implemented to other server types in the future');
+				return;
+			}
+
+			database.update('users', {
+				discordID: msg.author.id
+			}, {
+				mode: ruleset
+			}, {}).then(() => {
+				msg.channel.send(`:green_circle: **Your default mode has been successfully updated to osu! \`${score.getRuleset(args)}\`**`);
+			}).catch(err => error.sendUnexpectedError(err, msg));
+		}).catch(err => error.sendUnexpectedError(err, msg));
 }
 
 module.exports = {
