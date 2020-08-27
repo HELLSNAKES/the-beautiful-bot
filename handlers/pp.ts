@@ -105,7 +105,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 					maxCombo: parser.map.max_combo(),
 					accuracy: options.accuracy,
 					totalHits: parser.map.objects.length,
-					pp: Math.floor(output.total * 100) / 100,
+					pp: isNaN(output.total) ? '-' : Math.floor(output.total * 100) / 100,
 					ppFC: FC.total,
 					BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime, clockRate)
 				};
