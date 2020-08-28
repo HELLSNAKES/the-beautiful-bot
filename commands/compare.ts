@@ -84,6 +84,6 @@ module.exports = {
 	aliases: ['c'],
 	group: 'osu',
 	arguments: argument.getOtherArgumentDetails(['Username']),
-	example: 'https://i.imgur.com/GkL4mJV.jpg',
+	example: 'https://i.imgur.com/QQLprUk.png',
 	execute: execute
 };

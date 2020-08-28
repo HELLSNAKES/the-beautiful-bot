@@ -1,5 +1,3 @@
-import Discord from 'discord.js';
-
 import { Client, Message } from 'discord.js';
 import { IOptions } from '../handlers/interfaces';
 
@@ -225,8 +223,9 @@ module.exports = {
 	description: 'Displays your recent play',
 	aliases: ['rs'],
 	group: 'osu',
-	options: argument.getArgumentDetails(['previous', 'standard', 'taiko', 'catch', 'mania', 'type', 'relax']),
+	options: argument.getArgumentDetails(['previous', 'standard', 'taiko', 'catch', 'mania', 'type', 'relax', 'passesonly','ppv3']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
+	example: 'https://i.imgur.com/2nTxN2O.png',
 	execute: execute,
 	generateRecent: generateRecent,
 	processData: processData

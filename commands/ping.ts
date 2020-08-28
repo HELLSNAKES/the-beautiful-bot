@@ -61,5 +61,6 @@ module.exports = {
 	name: 'ping',
 	description: 'Measures the latency of the APIs that TBB uses',
 	group: 'general',
+	example: 'https://i.imgur.com/kS3UmsF.png',
 	execute: execute
 };

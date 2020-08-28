@@ -28,6 +28,6 @@ module.exports = {
 	description: 'Calculates the pp of the last mentioned map',
 	group: 'osu',
 	options: argument.getPerformancePointsArgumentDetails(),
-	example: 'https://imgur.com/SLr7kLt.jpg',
+	example: 'https://i.imgur.com/cyZu9My.png',
 	execute: execute
 };

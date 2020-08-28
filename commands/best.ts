@@ -118,6 +118,6 @@ module.exports = {
 	group: 'osu',
 	options: argument.getArgumentDetails(['mods', 'standard', 'taiko', 'catch', 'mania', 'type']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
-	example: 'https://i.imgur.com/GkL4mJV.jpg',
+	example: 'https://i.imgur.com/MNnWWxO.png',
 	execute: execute
 };

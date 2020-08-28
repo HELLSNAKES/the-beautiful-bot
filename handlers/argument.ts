@@ -115,7 +115,7 @@ const otherArgs: Array<IArgument> = [{
 	description: 'The command to show more information on. If no command was provided the bot will alternatively show the full list of commands available'
 }, {
 	name: 'Term',
-	description: 'A term to search for, this can be anything from beatmap name, artist, mapper or tags.\n\nNote: this command is deprecated and very unstable and soon will get completely revamped'
+	description: 'A term to search for, this can be anything from beatmap name, artist, mapper or tags.'
 }, {
 	name: 'Gamemode',
 	description: 'The gamemode to set as your default. This gamemode will be the default gamemode when using commands such as $recent, $best, etc if no gamemode is specified.\n`0` | `standard` | `std`\n`1` | `taiko`\n`2` | `catch` | `ctb` | `catch the beat`\n`3` | `mania`'

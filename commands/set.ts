@@ -47,5 +47,6 @@ module.exports = {
 	group: 'osu',
 	options: argument.getArgumentDetails(['type']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
+	examples: 'https://i.imgur.com/Q4B4nf0.png',
 	execute: execute
 };

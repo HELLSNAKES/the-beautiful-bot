@@ -16,6 +16,6 @@ module.exports = {
 	description: 'Where to find the changelog',
 	aliases: ['update', 'updates'],
 	group: 'general',
-	example: 'https://imgur.com/wqyUUPt.jpg',
+	example: 'https://i.imgur.com/gtNw03X.png',
 	execute: execute
 };

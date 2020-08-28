@@ -23,6 +23,6 @@ module.exports = {
 	description: 'Draws a random number from 1 to the selected number',
 	group: 'osu',
 	arguments: argument.getOtherArgumentDetails(['Number']),
-	// example: 'https://imgur.com/DxU8nji.jpg',
+	example: 'https://i.imgur.com/FV3G8uK.png',
 	execute: execute
 };

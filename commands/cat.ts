@@ -15,6 +15,6 @@ module.exports = {
 	name: 'cat',
 	description: 'Random cat image',
 	group: 'general',
-	example: 'https://imgur.com/DxU8nji.jpg',
+	example: 'https://i.imgur.com/5LzljW7.png',
 	execute: execute
 };

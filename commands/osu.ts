@@ -187,6 +187,7 @@ module.exports = {
 	group: 'osu',
 	options: argument.getArgumentDetails(['type']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
+	example: 'https://i.imgur.com/QBYuhAJ.png',
 	execute: execute,
 	requestData: requestData,
 	generateUser: generateUser

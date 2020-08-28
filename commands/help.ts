@@ -138,5 +138,6 @@ module.exports = {
 	aliases: ['hl'],
 	group: 'general',
 	arguments: argument.getOtherArgumentDetails(['Command']),
+	example: 'https://i.imgur.com/lp6Wdrv.png',
 	execute: execute
 };

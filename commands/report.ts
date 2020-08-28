@@ -63,5 +63,6 @@ module.exports = {
 	description: 'Report a bug or suggest a feature/change',
 	group: 'moderation',
 	arguments: argument.getOtherArgumentDetails(['Message']),
+	example: 'https://i.imgur.com/sjM50w4.png',
 	execute: execute
 };

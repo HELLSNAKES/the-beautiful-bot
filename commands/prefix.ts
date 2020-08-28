@@ -60,5 +60,6 @@ module.exports = {
 	aliases: ['pfx'],
 	group: 'moderation',
 	arguments: argument.getOtherArgumentDetails(['Action']),
+	example: 'https://i.imgur.com/lzr2wPJ.png',
 	execute: execute
 };

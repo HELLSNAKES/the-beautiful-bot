@@ -338,9 +338,10 @@ function generateBeatmap(msg: Message, data: any) {
 
 module.exports = {
 	name: 'map',
-	description: 'Searches for a map to generate a beatmap image for `DEPRECATED`',
+	description: 'Searches for a map to generate a beatmap image for',
 	group: 'osu',
 	arguments: argument.getOtherArgumentDetails(['Term']),
+	example: 'https://i.imgur.com/yEGz5D4.png',
 	execute: execute,
 	generateBeatmap: generateBeatmap
 };

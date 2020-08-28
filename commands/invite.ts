@@ -14,5 +14,6 @@ module.exports = {
 	name: 'invite',
 	description: 'Get the invite link for the bot',
 	group: 'general',
+	example: 'https://i.imgur.com/V9fC78p.png',
 	execute: execute
 };
