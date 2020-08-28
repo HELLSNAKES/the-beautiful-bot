@@ -86,7 +86,7 @@ client.on('message', async (msg: Message) => {
 	}
 
 	var prefix = process.env.prefix || '$';
-	database.read('servers', { serverID: msg.guild.id }, {})
+	database.read('servers', { serverID: msg.guild.id }, { noLogs: true})
 		.then((docs) => {
 			if (docs.length != 0 && docs[0].prefixOverwrite) prefix = docs[0].prefixOverwrite;
 
