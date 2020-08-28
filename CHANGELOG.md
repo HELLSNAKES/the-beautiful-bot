@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 1.4.0 18-07-20
+## 1.4.0 28-08-2020
 
 ### Added
  - A new help system that is more condense, easier to read and more helpful
@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Replay parsing, this means that if you send a replay file to the chat the bot will parse it and show a score embed (similar to `$compare`) (This is supported for standard, catch and mania. No taiko yet)
  - Added a new `-passesonly` argument to `$recent` to show the most recent passed play (aka no failed plays)
  - Taiko pp calculation has been implemented
- - `$best` supprot for all gamemodes
+ - `$best` support for all gamemodes
  - `$compare` support for all gamemodes
  - Implemented `-mods [mod abbriviations]` to $c to show a play with a different mod combination
  - `$compare` will indicate whether other plays with other mod combinations are available.

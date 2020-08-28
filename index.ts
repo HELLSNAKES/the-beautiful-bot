@@ -12,7 +12,7 @@ const parser = require('./handlers/parser');
 const fs = require('fs');
 
 const mapFeedRate = 180000; // 180000 = 3 min in milliseconds
-const lastUpdated = new Date(1591828100646);
+const lastUpdated = new Date(1598647846635);
 const distanceThresholdAbsolute = 0.5;
 
 export function preCache() {
