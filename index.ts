@@ -112,7 +112,7 @@ client.on('message', async (msg: Message) => {
 			} else if (cmd === 'best' || isAlias(cmd, 'best')) {
 				client.commands.get('best').execute(client, msg, args);
 			} else if (cmd === 'map' || isAlias(cmd, 'map')) {
-				client.commands.get('map').execute(msg, args);
+				client.commands.get('map').execute(client, msg, args);
 			} else if (cmd === 'set' || isAlias(cmd, 'set')) {
 				client.commands.get('set').execute(msg, args);
 			} else if (cmd === 'help' || isAlias(cmd, 'help')) {
@@ -152,7 +152,7 @@ client.on('message', async (msg: Message) => {
 					msg.channel.send(`:yellow_circle: **Did you mean \`$${bestMatch.string}\`?**\nUse \`$help\` to view the full list of commands available\n- "${cmd}"  → "${bestMatch.string}" (${levenshtein.getPercentageFromDistance(cmd, bestMatch.distance)}% similarity)`);
 				}
 			}
-		}).catch(err => error.unexpectedError(err, 'Tried getting server prefix'));
+		}).catch(err => error.unexpectedError(err, 'Running main index.js function'));
 });
 
 client.login(process.env.discordAPI);

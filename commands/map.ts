@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-escape */
-import { Message } from 'discord.js';
+import { Message, Client } from 'discord.js';
 
 import * as error from '../handlers/error';
 import * as colours from '../handlers/colours';
@@ -8,6 +8,7 @@ import * as argument from '../handlers/argument';
 import * as beatmap from '../handlers/beatmap';
 import * as API from '../handlers/API';
 import * as database from '../handlers/database';
+import * as getMap from '../handlers/getMap';
 
 const tbbpp = require('tbbpp');
 const axios = require('axios');
@@ -20,63 +21,70 @@ Canvas.registerFont('assets/VarelaRound.ttf', {
 	family: 'VarelaRound'
 });
 
-function execute(msg: Message, args: Array<string>) {
-	let name : any;
-	if (args.length != 0) {
-		name = args.join(' ');
-	} else {
-		console.log('SEARCH NONE');
+function execute(client : Client, msg: Message, args: Array<string>) {
+	const getEmbed = () => {
+		database.read('utility', {}, {})
+			.then((docs) => {
+				axios({
+					url: `https://osu.ppy.sh/beatmapsets/search?q=${name}`,
+					method: 'get',
+					headers: {
+						cookie: docs[0].cookie
+					}
+				}).then((res: any) => {
+					if (res.data.beatmapsets.length == 0) {
+						msg.channel.send(`:red_circle: No results found for the term \`${name}\``);
+						return;
+					}
+					let highestDiff = 0;
+					let highestDiffIndex = 0;
+					for (let i = 0; i < res.data.beatmapsets[0].beatmaps.length; i++) {
+						if (highestDiff < res.data.beatmapsets[0].beatmaps[i].difficulty_rating) {
+							highestDiff = res.data.beatmapsets[0].beatmaps[i].difficulty_rating;
+							highestDiffIndex = i;
+						}
+					}
+					res.data.beatmapsets[0].beatmap = res.data.beatmapsets[0].beatmaps[highestDiffIndex];
+
+					const embed = {
+						'author': {
+							'name': `${res.data.beatmapsets[0].artist} - ${res.data.beatmapsets[0].title} by ${res.data.beatmapsets[0].creator} [Download]`,
+							'url': `https://osu.ppy.sh/beatmapsets/${res.data.beatmapsets[0].id}#osu/${res.data.beatmapsets[0].beatmaps[highestDiffIndex].id}`
+						},
+						'color': 2065919
+					};
+
+					msg.channel.send({
+						embed
+					});
+
+					API.getBeatmap({
+						beatmapID: res.data.beatmapsets[0].beatmaps[highestDiffIndex].id
+					}).then((resBeatmap: any) => {
+						res.data.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = resBeatmap[0].max_combo;
+						generateBeatmap(msg, res.data.beatmapsets[0]);
+					});
+
+					database.update('utility', { cookie: docs[0].cookie }, { cookie: res.headers['set-cookie'][2] }, { useCache: false })
+						.catch(err => error.unexpectedError(err, 'While trying to set a new cookie'));
+
+					console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${res.data.beatmapsets[0].id}#osu/${res.data.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
+				}).catch((err: Error) => error.sendUnexpectedError(err, msg));
+			});
+	};
+
+	let name : any = args.join(' ');
+
+	if (!name) {
+		getMap.getMaps(client, msg, (client,msg, URLData) => {
+			name = URLData.beatmapID;
+		});
+		
+		getEmbed();
 		return;
 	}
-
-	database.read('utility', {}, {})
-		.then((docs) => {
-			axios({
-				url: `https://osu.ppy.sh/beatmapsets/search?q=${name}`,
-				method: 'get',
-				headers: {
-					cookie: docs[0].cookie
-				}
-			}).then((res: any) => {
-				if (res.data.beatmapsets.length == 0) {
-					error.log(msg, 4042);
-					return;
-				}
-				let highestDiff = 0;
-				let highestDiffIndex = 0;
-				for (let i = 0; i < res.data.beatmapsets[0].beatmaps.length; i++) {
-					if (highestDiff < res.data.beatmapsets[0].beatmaps[i].difficulty_rating) {
-						highestDiff = res.data.beatmapsets[0].beatmaps[i].difficulty_rating;
-						highestDiffIndex = i;
-					}
-				}
-				res.data.beatmapsets[0].beatmap = res.data.beatmapsets[0].beatmaps[highestDiffIndex];
-		
-				const embed = {
-					'author': {
-						'name': `${res.data.beatmapsets[0].artist} - ${res.data.beatmapsets[0].title} by ${res.data.beatmapsets[0].creator} [Download]`,
-						'url': `https://osu.ppy.sh/beatmapsets/${res.data.beatmapsets[0].id}#osu/${res.data.beatmapsets[0].beatmaps[highestDiffIndex].id}`
-					},
-					'color': 2065919
-				};
-		
-				msg.channel.send({
-					embed
-				});
-				
-				API.getBeatmap({
-					beatmapID: res.data.beatmapsets[0].beatmaps[highestDiffIndex].id
-				}).then((resBeatmap: any) => {
-					res.data.beatmapsets[0].beatmaps[highestDiffIndex].max_combo = resBeatmap[0].max_combo;
-					generateBeatmap(msg, res.data.beatmapsets[0]);
-				});
-		
-				database.update('utility', { cookie: docs[0].cookie }, {cookie: res.headers['set-cookie'][2]}, {useCache : false})
-					.catch(err => error.unexpectedError(err, 'While trying to set a new cookie'));
-
-				console.log(`SEARCH : ${msg.author.id} : https://osu.ppy.sh/beatmapsets/${res.data.beatmapsets[0].id}#osu/${res.data.beatmapsets[0].beatmaps[highestDiffIndex].id}`);
-			}).catch((err : Error) => {error.sendUnexpectedError(err, msg);});
-		});
+	
+	getEmbed();
 }
 
 

@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Added few more countries to the country code list
  - Implemented unit testing to partially automate bot testing 
  - Added map completion for all gamemodes
+ - using $map with no search term now displays the last mentioned map
 
 ### Changed
  - The entire codebase has been rewritten from JavaScript to TypeScript
@@ -60,6 +61,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Users with null and undefined values crash the bot
  - Users with unknown contry codes (Usually XX) are shown as undefined
  - Completion percentage showing as 100% in `$recent` when the user fails extremely close to the end of the map
+ - Showing the last ranked map rather than the map searched when using `$map`
 
 ### Deprecated 
  - `-m` and `-mode` are now deprecated and will be removed soon
