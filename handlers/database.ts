@@ -7,7 +7,7 @@ require('dotenv').config({
 	path: '../.env'
 });
 const MongoClient = require('mongodb').MongoClient;
-const dbName = 'the-beautiful-bot';
+const dbName = 'thebeautifulbot';
 
 // Options:
 // - useCache : whether to read and update cache or not
