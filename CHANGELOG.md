@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - Implemented unit testing to partially automate bot testing 
  - Added map completion for all gamemodes
  - using $map with no search term now displays the last mentioned map
+ - A new simple $roll command similar to bancho's !roll command in osu!
 
 ### Changed
  - The entire codebase has been rewritten from JavaScript to TypeScript

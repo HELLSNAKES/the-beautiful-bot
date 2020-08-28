@@ -128,6 +128,9 @@ const otherArgs: Array<IArgument> = [{
 }, {
 	name: 'Message',
 	description: 'Details about the bug or suggestion'
+}, {
+	name: 'Number',
+	description: 'The maximum number to draw a number from `(Default = 100)`'
 }
 ];
 

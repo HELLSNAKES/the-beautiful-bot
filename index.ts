@@ -142,8 +142,9 @@ client.on('message', async (msg: Message) => {
 				client.commands.get('invite').execute(msg);
 			} else if (cmd == 'mapfeed') {
 				client.commands.get('mapfeed').execute(msg, args);
-			}
-			else {
+			} else if (cmd == 'roll') {
+				client.commands.get('roll').execute(msg, args);
+			} else {
 				var commands: Array<string> = [];
 				client.commands.forEach((command: any) => { if (command.name != undefined) commands.push(command.name); if (command.aliases != undefined) commands = commands.concat(command.aliases); });
 				var bestMatch = levenshtein.getBestMatch(commands, cmd);
