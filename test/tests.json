@@ -1,0 +1,9 @@
+{
+	"tests": [
+		{
+			"title": "should test for $rs on an invalid user ",
+			"message": "$rs zlskalskalkalskalskalskalsk",
+			"expected": ":red_circle: **The username `zlskalskalkalskalskalskalsk` is not valid**\nThe username used or linked does not exist on the `offical osu! servers`. Try using the id of the user instead of the username"
+		}
+	]
+}
