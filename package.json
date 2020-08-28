@@ -23,7 +23,8 @@
     "node-vibrant": "^3.1.5",
     "ojsama": "^1.2.5",
     "tbbpp": "^1.0.7",
-    "ts-node": "^8.10.2"
+    "ts-node": "^8.10.2",
+	"typescript": "^3.9.6"
   },
   "devDependencies": {
     "@types/jest": "^26.0.3",
@@ -34,6 +35,5 @@
     "jest": "^26.1.0",
     "nodemon": "^2.0.2",
     "ts-jest": "^26.1.1",
-    "typescript": "^3.9.6"
   }
 }
