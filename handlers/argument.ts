@@ -82,6 +82,18 @@ const args: Array<IArgument> = [{
 	description: 'Change gamemode to osu! Mania',
 	noArgument: true,
 	processOptions: (options) => { options.mode = 3; return options; }
+},
+{
+	name: 'gatari',
+	description: 'Change server type to Gatari',
+	noArgument: true,
+	processOptions: (options) => { options.type = 1; return options; }
+},
+{
+	name: 'akatsuki',
+	description: 'Change server type to Akatsuki',
+	noArgument: true,
+	processOptions: (options) => { options.type = 2; return options; }
 }, {
 	name: 'passesonly',
 	description: 'Only show passed scores',
