@@ -59,7 +59,7 @@ function execute(client: any, msg: Message, args: Array<string>, prefix : string
 			}
 		});
 
-		if (cmd == undefined) {
+		if (cmd == undefined || Object.keys(cmd).length == 0) {
 			msg.channel.send(`:red_circle: **\`${args[0]}\` is an unrecognised command**\nThe command you specified is not recognised. Type \`${prefix}help\` to view the full list of commands available\n(If you believe this is a bug or have a suggestion use \`${prefix}report [description of bug/suggestion]\`)`);
 			return;
 		}
