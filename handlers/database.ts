@@ -136,7 +136,7 @@ export function update(collectionName: string, findObject: IDBDocument, setObjec
 								if (x[Object.keys(findObject)[i]] != Object.values(findObject)[i]) return false;
 							}
 
-							return true;
+							return;
 						});
 						
 						// Updating the object using setObject
@@ -146,8 +146,8 @@ export function update(collectionName: string, findObject: IDBDocument, setObjec
 						
 						cache.set(collectionName, data).then(() => {
 							if (!noLogs) console.log(`UPDATE (CACHE) : { ${Object.keys(findObject)[0]} : ${Object.values(findObject)[0]} }`);
-						}).catch((err) => { throw err; });
-					}).catch((err) => { throw err; });
+						}).catch(reject);
+					}).catch(reject);
 				}
 
 				return resolve(result);
