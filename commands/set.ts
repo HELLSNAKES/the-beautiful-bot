@@ -44,6 +44,7 @@ function execute(msg: Message, args: any) {
 module.exports = {
 	name: 'set',
 	description: 'Links or updates your osu username',
+	aliases: ['osuset'],
 	group: 'osu',
 	options: argument.getArgumentDetails(['type']),
 	arguments: argument.getOtherArgumentDetails(['Username']),
