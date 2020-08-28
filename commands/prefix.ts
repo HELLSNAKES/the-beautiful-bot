@@ -4,12 +4,12 @@ import * as database from '../handlers/database';
 import * as error from '../handlers/error';
 
 function execute(msg: Message, args: Array<string>) {
-	if (!msg.member.hasPermission('ADMINISTRATOR')) {
-		msg.channel.send(':red_circle: **User does not have administrator permissions**\nYou must have adminstrator permissions to be able to update this server\'s prefix');
-		return;
-	}
-
+	
 	if (args[0] == 'set') {
+		if (!msg.member.hasPermission('ADMINISTRATOR')) {
+			msg.channel.send(':red_circle: **User does not have administrator permissions**\nYou must have adminstrator permissions to be able to update this server\'s prefix');
+			return;
+		}
 		database.read('servers', { serverID: msg.guild.id }, {})
 			.then((docs) => {
 				if (docs.length == 0) {
@@ -25,13 +25,17 @@ function execute(msg: Message, args: Array<string>) {
 				}
 			}).catch(err => error.sendUnexpectedError(err, msg));
 	} else if (args[0] == 'reset') {
+		if (!msg.member.hasPermission('ADMINISTRATOR')) {
+			msg.channel.send(':red_circle: **User does not have administrator permissions**\nYou must have adminstrator permissions to be able to update this server\'s prefix');
+			return;
+		}
 		database.read('servers', { serverID: msg.guild.id }, {})
 			.then((docs) => {
 				if (docs.length == 0 || docs[0].prefixOverwrite == '$') {
 					msg.channel.send(':yellow_circle: **The server\'s prefix is already set to the default `$` prefix**');
 					return;
 				}
-				database.update('servers', { serverID: msg.guild.id }, { prefixOverwrite: '$' }, {})
+				database.update('servers', { serverID: msg.guild.id }, { prefixOverwrite: '' }, { unset: true})
 					.then(() => {
 						msg.channel.send(':green_circle: **The server\'s prefix has been successfully reset to `$`**');
 					}).catch(err => error.sendUnexpectedError(err, msg));
