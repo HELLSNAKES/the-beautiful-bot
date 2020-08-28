@@ -2,10 +2,12 @@ import * as database from '../handlers/database';
 import * as error from '../handlers/error';
 import * as score from '../handlers/score';
 import * as argument from '../handlers/argument';
+import * as beatmap from '../handlers/beatmap';
 
 import { Message, Emoji } from 'discord.js';
 
 const axios = require('axios');
+const tbbpp = require('tbbpp');
 
 function execute(msg: Message, args: Array<string>) {
 
@@ -55,7 +57,7 @@ function sendFeed(client: any) {
 		.then((docs) => {
 			const lastChecked = docs[0].lastChecked;
 			database.read('servers', {}, { useCache: false, noLogs: true })
-				.then(() => {
+				.then((docs) => {
 					docs = docs.filter((x: any) => x.mapFeedChannelID != undefined);
 
 					axios.get('https://osu.ppy.sh/beatmapsets/search')
@@ -71,33 +73,42 @@ function sendFeed(client: any) {
 							// The body at this point is from newest to oldest. We want to reverse that to oldest to newest
 							res.data.reverse();
 
-							for (var i = 0; i < docs.length; i++) {
-								for (var j = 0; j < res.data.length; j++) {
-									let status = client.emojis.find((emoji: Emoji) => emoji.name === 'status_' + res.data[j].ranked);
+							const promises = res.data.map((data: any) => axios.get(`https://osu.ppy.sh/osu/${data.beatmaps[0].id}`));
 
-									const embed = {
-										'title': `${res.data[j].artist} - ${res.data[j].title}`,
-										'url': `https://osu.ppy.sh/s/${res.data[j].id}`,
-										'description': `${status} ${res.data[j].status != 'ranked' ? res.data[j].status != 'loved' ? 'Approved' : 'Loved' : 'Ranked'}\nBPM: \`${res.data[j].bpm}\``,
-										'image': {
-											'url': res.data[j].covers['cover@2x']
-										},
-										'author': {
-											'name': `Mapped by ${res.data[j].creator}`,
-											'url': `https://osu.ppy.sh/u/${res.data[j].user_id}`,
-											'icon_url': `https://a.ppy.sh/${res.data[j].user_id}?${Date.now().toString()}.png`
+							Promise.all(promises)
+								.then((values: any) => {
+									for (var i = 0; i < docs.length; i++) {
+										for (var j = 0; j < res.data.length; j++) {
+											var body = res.data[j];
+											var osuContent = tbbpp.processContent(values[j].data);
+
+											const BPM = beatmap.getVariableBPM(body.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime);
+											let status = client.emojis.find((emoji: Emoji) => emoji.name === 'status_' + body.ranked);
+
+											const embed = {
+												'title': `${body.artist} - ${body.title}`,
+												'url': `https://osu.ppy.sh/s/${body.id}`,
+												'description': `${status} ${body.status != 'ranked' ? body.status != 'loved' ? 'Approved' : 'Loved' : 'Ranked'}\nBPM: \`${BPM}\``,
+												'image': {
+													'url': body.covers['cover@2x']
+												},
+												'author': {
+													'name': `Mapped by ${body.creator}`,
+													'url': `https://osu.ppy.sh/u/${body.user_id}`,
+													'icon_url': `https://a.ppy.sh/${body.user_id}?${Date.now().toString()}.png`
+												}
+											};
+											embed.description += ' | Length: `' + (Math.floor(body.beatmaps[0].total_length / 60) + ':' + (body.beatmaps[0].total_length % 60 < 10 ? '0' + (body.beatmaps[0].total_length % 60) : body.beatmaps[0].total_length % 60)) + '`\n';
+											body.beatmaps.sort((a: any, b: any) => a.difficulty_rating - b.difficulty_rating);
+											embed.description += `[${body.beatmaps[body.beatmaps.length - 1].version}] ★: \`${body.beatmaps[body.beatmaps.length - 1].difficulty_rating}\`${body.beatmaps[body.beatmaps.length - 1].max_combo ? ' | combo: `' + body.beatmaps[body.beatmaps.length - 1].max_combo + 'x`' : ''}\n`;
+											for (var k = 0; k < body.beatmaps.length; k++) {
+												const diffIcon = client.emojis.find((emoji: any) => emoji.name === score.getDifficultyName(0, body.beatmaps[k].difficulty_rating) + '_' + body.beatmaps[k].mode);
+												embed.description += diffIcon + ' ';
+											}
+											client.channels.get(docs[i].mapFeedChannelID).send({ embed });
 										}
-									};
-									embed.description += ' | Length: `' + (Math.floor(res.data[j].beatmaps[0].total_length / 60) + ':' + (res.data[j].beatmaps[0].total_length % 60 < 10 ? '0' + (res.data[j].beatmaps[0].total_length % 60) : res.data[j].beatmaps[0].total_length % 60)) + '`\n';
-									res.data[j].beatmaps.sort((a: any, b: any) => a.difficulty_rating - b.difficulty_rating);
-									embed.description += `[${res.data[j].beatmaps[res.data[j].beatmaps.length - 1].version}] ★: \`${res.data[j].beatmaps[res.data[j].beatmaps.length - 1].difficulty_rating}\`${res.data[j].beatmaps[res.data[j].beatmaps.length - 1].max_combo ? ' | combo: `' + res.data[j].beatmaps[res.data[j].beatmaps.length - 1].max_combo + 'x`' : ''}\n`;
-									for (var k = 0; k < res.data[j].beatmaps.length; k++) {
-										const diffIcon = client.emojis.find((emoji: any) => emoji.name === score.getDifficultyName(0, res.data[j].beatmaps[k].difficulty_rating) + '_' + res.data[j].beatmaps[k].mode);
-										embed.description += diffIcon + ' ';
 									}
-									client.channels.get(docs[i].mapFeedChannelID).send({ embed });
-								}
-							}
+								});
 
 							database.update('utility', { lastChecked: lastChecked }, {
 								lastChecked: new Date(Date.now()).getTime()
