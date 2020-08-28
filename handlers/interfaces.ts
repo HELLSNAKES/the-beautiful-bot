@@ -48,7 +48,8 @@ export interface IDBDocument {
 	serverID?: string,
 	prefixOverwrite?: string,
 	lastChecked?: number,
-	mapFeedChannelID?: string
+	mapFeedChannelID?: string,
+	cookie?: string
 }
 
 export interface ICommand {
