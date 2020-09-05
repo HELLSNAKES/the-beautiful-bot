@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-escape */
 import { IURLParserBeatmap } from './interfaces';
+import * as error from './error';
 
 export const modes : any = {
 	'0' : 'Standard',
@@ -75,3 +76,43 @@ else if (i == 1) {
 	// results.beatmapID = undefined, results.ruleset = 0 by default
 } 
 */
+
+export function parseOsu(content : String) {
+	const fileSplit = content.split('\r\n');
+		const timingPointsIndex = fileSplit.findIndex((x : String) => x == '[TimingPoints]');
+		const endTimingPointsIndex = fileSplit.slice(timingPointsIndex).findIndex((x : String) => x == '');
+
+		if (timingPointsIndex == -1 || endTimingPointsIndex == -1) {
+			error.unexpectedError(new Error('Invalid start or end timing point index'), 'Tried parsing .osu');
+			return;
+		}
+
+		var timingPointObjects = [];
+
+		for (var i = timingPointsIndex + 1; i < timingPointsIndex + endTimingPointsIndex; i++) {
+			var line = fileSplit[i].split(','); 
+			timingPointObjects.push({
+				offset: Number(line[0]),
+				timingChange: !!Number(line[6]),
+				bpm: Math.round(60000 / Number(line[1]))
+			});
+		}
+
+		var bpmMin = Infinity;
+		var bpmMax = 0;
+		for (i = 0; i < timingPointObjects.length; i++) {
+			if (timingPointObjects[i].timingChange && timingPointObjects[i].bpm > bpmMax) {
+				bpmMax = timingPointObjects[i].bpm;
+			}
+
+			if (timingPointObjects[i].timingChange && timingPointObjects[i].bpm < bpmMin) {
+				bpmMin = timingPointObjects[i].bpm;
+			}
+		}
+
+		return ({
+			timingPoints: timingPointObjects,
+			bpmMin: bpmMin,
+			bpmMax: bpmMax
+		});
+}

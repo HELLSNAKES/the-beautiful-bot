@@ -9,8 +9,9 @@ import * as beatmap from '../handlers/beatmap';
 import * as API from '../handlers/API';
 import * as database from '../handlers/database';
 import * as getMap from '../handlers/getMap';
+import * as parser from '../handlers/parser';
 
-const tbbpp = require('tbbpp');
+// const tbbpp = require('tbbpp');
 const axios = require('axios');
 const Canvas = require('canvas');
 const fs = require('fs');
@@ -99,7 +100,7 @@ function generateBeatmap(msg: Message, data: any) {
 	let url = 'https://assets.ppy.sh/beatmaps/' + data.id + '/covers/cover@2x.jpg';
 	axios.get(`https://osu.ppy.sh/osu/${data.beatmap.id}`)
 		.then((res: any) => {
-			var osuContent  = tbbpp.processContent(res.data);
+			var osuContent : any = parser.parseOsu(res.data);
 
 			colours.getColours(url, async function (colour) {
 				let colourNumber = colours.toReadable(colours.toRGB(colour.foreground), colours.toRGB(colour.background));
@@ -261,7 +262,7 @@ function generateBeatmap(msg: Message, data: any) {
 
 				var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
 
-				var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime) + ' bpm';
+				var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, data.beatmap.total_length) + ' bpm';
 
 				ctx.textAlign = 'left';
 				ctx.font = '27px VarelaRound';

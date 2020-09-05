@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Fixed
  - number of stars displayed on `$recent` exceeding 10 stars
+ - Fixed osu-parser taking a very long time to process .osu data on some maps (especially special maps such as aspire maps)
 
 ## 1.4.0 28-08-2020
 

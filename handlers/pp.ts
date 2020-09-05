@@ -5,6 +5,7 @@ import * as mods from './mods';
 import * as error from '../handlers/error';
 import * as score from '../handlers/score';
 import * as beatmap from '../handlers/beatmap';
+import * as parserHandler from '../handlers/parser';
 
 const ojsama = require('ojsama');
 const axios = require('axios');
@@ -21,9 +22,10 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 	axios.get(`https://osu.ppy.sh/osu/${beatmapId}`)
 		.then((res: any) => {
 
-			var osuContent = tbbpp.processContent(res.data);
+			var osuContent : any = parserHandler.parseOsu(res.data);
 			
 			if (options.ppv3) {
+				osuContent = tbbpp.processContent(res.data);
     
 				options.combo = (options.combo ? options.combo : osuContent.maxCombo);
 
@@ -107,7 +109,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 					totalHits: parser.map.objects.length,
 					pp: isNaN(output.total) ? '-' : Math.floor(output.total * 100) / 100,
 					ppFC: FC.total,
-					BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime, clockRate)
+					BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, Math.floor(parser.map.objects[parser.map.objects.length - 1].time / 1000), clockRate)
 				};
 		
 		
