@@ -55,7 +55,7 @@ const args: Array<IArgument> = [{
 	name: 'mods',
 	description: 'Filter plays by mods',
 	allowedValues: '\n`mod abbreviations` : only show plays with the exact mod combination e.g. `HDDT`\nadding a `!` at the start will show any play with the mod combination + any other mods e.g. `!HDDT`',
-	process: (x) => [x.startsWith('!'), x.replace('!', '')],
+	process: (x) => [x.startsWith('!'), x.replace('!', '').toUpperCase()],
 	default: [false, '-1']
 }, {
 	name: 'standard',

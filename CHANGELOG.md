@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 1.4.1 06-09-2020
+## 1.4.1 18-09-2020
 
 ## Fixed
  - number of stars displayed on `$recent` exceeding 10 stars
  - Fixed osu-parser taking a very long time to process .osu data on some maps (especially special maps such as aspire maps)
+ - `-mods` is case sensitive
 
 ## 1.4.0 28-08-2020
 
