@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
  - number of stars displayed on `$recent` exceeding 10 stars
  - Fixed osu-parser taking a very long time to process .osu data on some maps (especially special maps such as aspire maps)
  - `-mods` is case sensitive
+ - Fixed the bot throwing an error when manual bpm calculation failed 
 
 ## 1.4.0 28-08-2020
 

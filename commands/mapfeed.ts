@@ -82,7 +82,11 @@ function sendFeed(client: any) {
 											var body = res.data[j];
 											var osuContent = tbbpp.processContent(values[j].data);
 
-											const BPM = beatmap.getVariableBPM(body.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime);
+											try {
+												var BPM = beatmap.getVariableBPM(body.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime);
+											} catch {
+												BPM = body.bpm;
+											}
 											let status = client.emojis.find((emoji: Emoji) => emoji.name === 'status_' + body.ranked);
 
 											const embed = {

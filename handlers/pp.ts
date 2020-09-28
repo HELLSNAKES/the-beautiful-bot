@@ -40,6 +40,11 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 				ppv3Options.combo = osuContent.maxCombo;
 				var ppFC = tbbpp.calculatePerformancePoints(osuContent, ppv3Options);
 				Promise.all([pp, ppFC]).then((values : Array<any>) => {
+					try {
+						var bpm = beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime, clockRate);
+					} catch {
+						bpm = '-';
+					}
 					callback({
 						error: null,
 						beatmapId: beatmapId,
@@ -59,7 +64,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 						totalHits: osuContent.hitObjects.length,
 						pp: Math.floor(values[0].pp * 100) / 100,
 						ppFC: values[1].pp,
-						BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, osuContent.totalTime, clockRate)
+						BPM: bpm
 					});
 				}).catch((err) => {error.unexpectedError(err, `pp calculation : ${beatmapId} : ${JSON.stringify(options)}`);});
 
@@ -89,7 +94,13 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 					map: parser.map,
 					mods: options.mods
 				});
-		
+				
+				try {
+					var bpm = beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, Math.floor(parser.map.objects[parser.map.objects.length - 1].time / 1000), clockRate);
+				} catch {
+					bpm = '-';
+				}
+
 				var jsonOutput = {
 					error: null,
 					beatmapId: beatmapId,
@@ -109,7 +120,7 @@ export function calculatepp(beatmapId: string, options: IOjsamaOptions, callback
 					totalHits: parser.map.objects.length,
 					pp: isNaN(output.total) ? '-' : Math.floor(output.total * 100) / 100,
 					ppFC: FC.total,
-					BPM: beatmap.getVariableBPM('-', osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, Math.floor(parser.map.objects[parser.map.objects.length - 1].time / 1000), clockRate)
+					BPM: bpm
 				};
 		
 		

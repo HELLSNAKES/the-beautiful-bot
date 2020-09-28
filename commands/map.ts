@@ -261,8 +261,12 @@ function generateBeatmap(msg: Message, data: any) {
 				ctx.drawImage(drum, 756, 375, 40, 35);
 
 				var time = Math.floor(data.beatmap.total_length / 60) + ':' + (data.beatmap.total_length % 60 < 10 ? '0' + (data.beatmap.total_length % 60) : data.beatmap.total_length % 60);
-
-				var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, data.beatmap.total_length) + ' bpm';
+				
+				try {
+					var bpm = beatmap.getVariableBPM(data.bpm, osuContent.bpmMin, osuContent.bpmMax, osuContent.timingPoints, data.beatmap.total_length) + ' bpm';
+				} catch {
+					bpm = data.bpm + ' bpm';
+				}
 
 				ctx.textAlign = 'left';
 				ctx.font = '27px VarelaRound';
