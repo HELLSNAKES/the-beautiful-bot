@@ -53,9 +53,9 @@ client.on('ready', () => {
 	}, 300000);
 
 	// map feed
-	setInterval(() => {
-		require('./commands/mapfeed').sendFeed(client);
-	}, mapFeedRate);
+	// setInterval(() => {
+	// 	require('./commands/mapfeed').sendFeed(client);
+	// }, mapFeedRate);
 });
 
 client.commands = new Discord.Collection();
